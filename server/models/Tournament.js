@@ -1,0 +1,144 @@
+import mongoose from 'mongoose';
+
+const tournamentSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'Please provide a tournament name'],
+      trim: true,
+      maxlength: [100, 'Tournament name cannot exceed 100 characters'],
+    },
+    sport: {
+      type: String,
+      required: [true, 'Please specify the sport'],
+      enum: [
+        'Football',
+        'Cricket',
+        'Badminton',
+        'Chess',
+        'Kabaddi',
+        'Table Tennis',
+        'Volleyball',
+        'Basketball',
+        'Futsal',
+        'Tennis',
+      ],
+      default: 'Football',
+    },
+    organizer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    description: {
+      type: String,
+      default: '',
+    },
+    venue: {
+      type: String,
+      required: [true, 'Please provide a venue name'],
+      trim: true,
+    },
+    location: {
+      type: String,
+      required: [true, 'Please select a location in Goa'],
+      enum: [
+        'Panaji',
+        'Mapusa',
+        'Margao',
+        'Vasco da Gama',
+        'Porvorim',
+        'Ponda',
+        'Calangute',
+        'Candolim',
+        'Bicholim',
+        'Curchorem',
+        'Mormugao',
+      ],
+      default: 'Panaji',
+    },
+    startDate: {
+      type: Date,
+      required: [true, 'Please specify start date'],
+    },
+    endDate: {
+      type: Date,
+      required: [true, 'Please specify end date'],
+    },
+    registrationDeadline: {
+      type: Date,
+    },
+    registrationFee: {
+      type: Number,
+      required: [true, 'Please specify registration fee (0 for free)'],
+      min: [0, 'Fee cannot be negative'],
+      default: 0,
+    },
+    upiId: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    qrCode: {
+      type: String,
+      default: '',
+    },
+    format: {
+      type: String,
+      enum: ['KNOCKOUT', 'ROUND_ROBIN', 'GROUP_KNOCKOUT'],
+      default: 'KNOCKOUT',
+    },
+    maxTeams: {
+      type: Number,
+      required: true,
+      min: [2, 'At least 2 teams required'],
+      max: [64, 'Maximum 64 teams supported'],
+      default: 16,
+    },
+    teamSize: {
+      type: Number,
+      default: 11,
+    },
+    prizePool: {
+      type: String,
+      default: '',
+    },
+    rules: {
+      type: String,
+      default: '',
+    },
+    bannerImage: {
+      type: String,
+      default: '',
+    },
+    status: {
+      type: String,
+      enum: [
+        'DRAFT',
+        'REGISTRATION_OPEN',
+        'REGISTRATION_CLOSED',
+        'ONGOING',
+        'COMPLETED',
+        'CANCELLED',
+      ],
+      default: 'REGISTRATION_OPEN',
+    },
+    registeredTeamsCount: {
+      type: Number,
+      default: 0,
+    },
+  },
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+);
+
+// Virtual for remaining slots
+tournamentSchema.virtual('slotsRemaining').get(function () {
+  return Math.max(0, this.maxTeams - (this.registeredTeamsCount || 0));
+});
+
+const Tournament = mongoose.model('Tournament', tournamentSchema);
+export default Tournament;
