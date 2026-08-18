@@ -14,14 +14,14 @@ import registrationRoutes from './routes/registrationRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import matchRoutes from './routes/matchRoutes.js';
 
+import { checkAndSeedData } from './utils/seed.js';
+
 dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
 
-// Connect to Database (with in-memory fallback if local MongoDB isn't running)
-import { checkAndSeedData } from './utils/seed.js';
-
+// Connect to MongoDB Atlas (or configured database) and check initial seed
 connectDB().then(() => {
   checkAndSeedData();
 });
