@@ -5,7 +5,6 @@ import { useSocket } from '../context/SocketContext';
 import {
   Trophy,
   Activity,
-  Calendar,
   PlusCircle,
   User as UserIcon,
   LogOut,
@@ -14,8 +13,9 @@ import {
   ShieldCheck,
   Zap,
   Home as HomeIcon,
-  Layers,
+  Settings,
 } from 'lucide-react';
+import NotificationDropdown from './NotificationDropdown';
 
 const Navbar = () => {
   const { user, isAuthenticated, isOrganizer, logout } = useAuth();
@@ -31,6 +31,7 @@ const Navbar = () => {
   };
 
   const isActive = (path) => location.pathname === path;
+  const avatarUrl = user?.profilePhoto || user?.profileImage;
 
   return (
     <>
@@ -124,6 +125,9 @@ const Navbar = () => {
                 {isConnected ? 'LIVE SYNC' : 'OFFLINE'}
               </div>
 
+              {/* In-App Notifications Dropdown */}
+              {isAuthenticated && <NotificationDropdown />}
+
               {isOrganizer && (
                 <Link
                   to="/create-tournament"
@@ -136,11 +140,15 @@ const Navbar = () => {
 
               {isAuthenticated ? (
                 <div className="flex items-center space-x-2 border-l border-slate-800 pl-3">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-emerald-400 overflow-hidden">
-                      {user?.profileImage ? (
+                  <Link
+                    to="/profile"
+                    className="flex items-center space-x-2 p-1 rounded-xl hover:bg-slate-800/70 transition-colors group"
+                    title="View & Edit Profile"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-emerald-400 overflow-hidden group-hover:border-emerald-500 transition-colors">
+                      {avatarUrl ? (
                         <img
-                          src={user.profileImage}
+                          src={avatarUrl}
                           alt={user.name}
                           className="w-full h-full rounded-full object-cover"
                         />
@@ -149,14 +157,14 @@ const Navbar = () => {
                       )}
                     </div>
                     <div className="text-left leading-tight hidden lg:block">
-                      <p className="text-xs font-semibold text-white truncate max-w-[110px]">
+                      <p className="text-xs font-semibold text-white truncate max-w-[110px] group-hover:text-emerald-400 transition-colors">
                         {user?.name}
                       </p>
                       <span className="text-[10px] text-emerald-400 font-mono font-bold">
                         {user?.role}
                       </span>
                     </div>
-                  </div>
+                  </Link>
 
                   <button
                     onClick={handleLogout}
@@ -186,6 +194,8 @@ const Navbar = () => {
 
             {/* Mobile Header Actions */}
             <div className="md:hidden flex items-center space-x-2">
+              {isAuthenticated && <NotificationDropdown />}
+
               <div
                 className={`w-2.5 h-2.5 rounded-full ${
                   isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
@@ -239,15 +249,27 @@ const Navbar = () => {
             </Link>
 
             {isAuthenticated && (
-              <Link
-                to="/player-dashboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block px-3 py-2.5 rounded-xl text-sm font-medium ${
-                  isActive('/player-dashboard') ? 'bg-emerald-500/15 text-emerald-400 font-bold' : 'text-slate-200 hover:bg-slate-800'
-                }`}
-              >
-                My Registrations & Payment Status
-              </Link>
+              <>
+                <Link
+                  to="/player-dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`block px-3 py-2.5 rounded-xl text-sm font-medium ${
+                    isActive('/player-dashboard') ? 'bg-emerald-500/15 text-emerald-400 font-bold' : 'text-slate-200 hover:bg-slate-800'
+                  }`}
+                >
+                  My Registrations & Verification
+                </Link>
+
+                <Link
+                  to="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`block px-3 py-2.5 rounded-xl text-sm font-medium ${
+                    isActive('/profile') ? 'bg-emerald-500/15 text-emerald-400 font-bold' : 'text-slate-200 hover:bg-slate-800'
+                  }`}
+                >
+                  My Profile & Settings
+                </Link>
+              </>
             )}
 
             {isOrganizer && (
@@ -274,15 +296,23 @@ const Navbar = () => {
             <div className="pt-3 border-t border-slate-800">
               {isAuthenticated ? (
                 <div className="flex items-center justify-between bg-slate-900/80 p-3 rounded-xl border border-slate-800">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-emerald-400">
-                      {user?.name?.charAt(0) || 'U'}
+                  <Link
+                    to="/profile"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-2.5"
+                  >
+                    <div className="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-emerald-400 overflow-hidden">
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt={user?.name} className="w-full h-full object-cover" />
+                      ) : (
+                        user?.name?.charAt(0) || 'U'
+                      )}
                     </div>
                     <div>
                       <p className="text-xs font-bold text-white truncate max-w-[140px]">{user?.name}</p>
                       <p className="text-[10px] text-emerald-400 font-mono">{user?.role}</p>
                     </div>
-                  </div>
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="px-3 py-1.5 text-xs font-bold text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 rounded-lg border border-rose-500/30"
@@ -348,7 +378,7 @@ const Navbar = () => {
           <span>Live Center</span>
         </Link>
 
-        {isAuthenticated && (
+        {isAuthenticated ? (
           <Link
             to={isOrganizer ? '/organizer-dashboard' : '/player-dashboard'}
             className={`flex flex-col items-center py-1 px-2 rounded-lg transition-colors ${
@@ -363,6 +393,14 @@ const Navbar = () => {
               <UserIcon className="w-5 h-5 mb-0.5" />
             )}
             <span>{isOrganizer ? 'Suite' : 'My Teams'}</span>
+          </Link>
+        ) : (
+          <Link
+            to="/login"
+            className="flex flex-col items-center py-1 px-2 rounded-lg hover:text-white"
+          >
+            <UserIcon className="w-5 h-5 mb-0.5" />
+            <span>Sign In</span>
           </Link>
         )}
       </div>

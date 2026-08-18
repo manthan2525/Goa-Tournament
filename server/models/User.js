@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
-    profileImage: {
+    profilePhoto: {
       type: String,
       default: '',
     },
@@ -53,11 +53,28 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: 'Goa, India',
     },
+    resetPasswordToken: {
+      type: String,
+      default: null,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
+
+// Alias profileImage to profilePhoto for seamless backwards compatibility
+userSchema.virtual('profileImage').get(function () {
+  return this.profilePhoto || '';
+}).set(function (val) {
+  this.profilePhoto = val;
+});
 
 // Hash password prior to saving
 userSchema.pre('save', async function (next) {

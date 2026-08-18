@@ -1,4 +1,5 @@
 import { Server } from 'socket.io';
+import { setNotificationIO } from '../utils/notify.js';
 
 let ioInstance = null;
 
@@ -13,11 +14,10 @@ export const initSocket = (httpServer) => {
   ioInstance = new Server(httpServer, {
     cors: {
       origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps, curl) or matched origins
         if (!origin || allowedOrigins.includes(origin) || origin.startsWith('http://localhost:')) {
           callback(null, true);
         } else {
-          callback(null, true); // Permissive in development
+          callback(null, true);
         }
       },
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
@@ -25,14 +25,27 @@ export const initSocket = (httpServer) => {
     },
   });
 
+  setNotificationIO(ioInstance);
+
   ioInstance.on('connection', (socket) => {
-    console.log(`[Socket.IO] New client connected: ${socket.id}`);
+    // Join personal user room for private notifications
+    socket.on('join_user', (userId) => {
+      if (userId) {
+        socket.join(`user_${userId}`);
+      }
+    });
+
+    // Leave personal user room
+    socket.on('leave_user', (userId) => {
+      if (userId) {
+        socket.leave(`user_${userId}`);
+      }
+    });
 
     // Join tournament room
     socket.on('join_tournament', (tournamentId) => {
       if (tournamentId) {
         socket.join(`tournament_${tournamentId}`);
-        console.log(`[Socket.IO] Socket ${socket.id} joined tournament_${tournamentId}`);
       }
     });
 
@@ -40,7 +53,6 @@ export const initSocket = (httpServer) => {
     socket.on('leave_tournament', (tournamentId) => {
       if (tournamentId) {
         socket.leave(`tournament_${tournamentId}`);
-        console.log(`[Socket.IO] Socket ${socket.id} left tournament_${tournamentId}`);
       }
     });
 
@@ -48,7 +60,6 @@ export const initSocket = (httpServer) => {
     socket.on('join_match', (matchId) => {
       if (matchId) {
         socket.join(`match_${matchId}`);
-        console.log(`[Socket.IO] Socket ${socket.id} joined match_${matchId}`);
       }
     });
 
@@ -60,7 +71,7 @@ export const initSocket = (httpServer) => {
     });
 
     socket.on('disconnect', () => {
-      console.log(`[Socket.IO] Client disconnected: ${socket.id}`);
+      // Disconnected
     });
   });
 
@@ -84,7 +95,6 @@ export const broadcastScoreUpdate = (match) => {
     updatedAt: new Date().toISOString(),
   };
 
-  // Broadcast to match room, tournament room, and global live stream
   ioInstance.to(`match_${match._id}`).emit('score_changed', payload);
   ioInstance.to(`tournament_${match.tournament}`).emit('match_update', payload);
   ioInstance.emit('global_live_score', payload);

@@ -16,8 +16,11 @@ import LiveCenter from './pages/LiveCenter';
 import PlayerDashboard from './pages/PlayerDashboard';
 import OrganizerDashboard from './pages/OrganizerDashboard';
 import CreateTournament from './pages/CreateTournament';
+import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   return (
@@ -38,6 +41,18 @@ function App() {
                 <Route path="/live" element={<LiveCenter />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+                {/* Common Protected Profile Route */}
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* Player Protected Routes */}
                 <Route

@@ -1,6 +1,9 @@
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { uploadImageBuffer } from '../config/cloudinary.js';
+import { sendPasswordResetEmail } from '../utils/emailService.js';
+import { createNotification } from '../utils/notify.js';
 
 // Helper to sign JWT and set HTTP-only cookie
 const sendTokenResponse = (user, statusCode, res, message = 'Success') => {
@@ -24,7 +27,8 @@ const sendTokenResponse = (user, statusCode, res, message = 'Success') => {
     phone: user.phone,
     role: user.role,
     organizationName: user.organizationName,
-    profileImage: user.profileImage,
+    profilePhoto: user.profilePhoto || user.profileImage || '',
+    profileImage: user.profilePhoto || user.profileImage || '',
     bio: user.bio,
     location: user.location,
     createdAt: user.createdAt,
@@ -33,7 +37,7 @@ const sendTokenResponse = (user, statusCode, res, message = 'Success') => {
   res.status(statusCode).cookie('token', token, cookieOptions).json({
     success: true,
     message,
-    token, // Also provided in JSON for clients that utilize Bearer header
+    token, // Provided for clients using Bearer header
     user: userObj,
   });
 };
@@ -51,6 +55,13 @@ export const register = async (req, res, next) => {
       });
     }
 
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters.',
+      });
+    }
+
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(400).json({
@@ -59,19 +70,19 @@ export const register = async (req, res, next) => {
       });
     }
 
-    let profileImageUrl = '';
+    let profilePhotoUrl = '';
     if (req.file) {
-      profileImageUrl = await uploadImageBuffer(req.file.buffer, req.file.mimetype, 'avatars');
+      profilePhotoUrl = await uploadImageBuffer(req.file.buffer, req.file.mimetype, 'avatars');
     }
 
     const user = await User.create({
-      name,
-      email: email.toLowerCase(),
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
       password,
       phone: phone || '',
       role: role && ['PLAYER', 'ORGANIZER', 'ADMIN'].includes(role) ? role : 'PLAYER',
       organizationName: organizationName || '',
-      profileImage: profileImageUrl,
+      profilePhoto: profilePhotoUrl,
       bio: bio || '',
       location: location || 'Goa, India',
     });
@@ -95,7 +106,7 @@ export const login = async (req, res, next) => {
       });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+    const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -133,6 +144,195 @@ export const getMe = async (req, res, next) => {
       success: true,
       user,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update profile details
+// @route   PUT /api/auth/profile
+export const updateProfile = async (req, res, next) => {
+  try {
+    const { name, phone, bio, location, organizationName } = req.body;
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found.',
+      });
+    }
+
+    if (name) user.name = name.trim();
+    if (phone !== undefined) user.phone = phone.trim();
+    if (bio !== undefined) user.bio = bio.trim();
+    if (location !== undefined) user.location = location.trim();
+    if (organizationName !== undefined) user.organizationName = organizationName.trim();
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully.',
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Upload / Update profile photo
+// @route   POST /api/auth/profile-photo
+export const uploadProfilePhoto = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please select an image file to upload.',
+      });
+    }
+
+    const imageUrl = await uploadImageBuffer(req.file.buffer, req.file.mimetype, 'avatars');
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found.',
+      });
+    }
+
+    user.profilePhoto = imageUrl;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile photo updated successfully.',
+      profilePhoto: imageUrl,
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Remove profile photo (restore default avatar)
+// @route   DELETE /api/auth/profile-photo
+export const removeProfilePhoto = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found.',
+      });
+    }
+
+    user.profilePhoto = '';
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile photo removed. Default avatar restored.',
+      profilePhoto: '',
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Forgot password - generate reset token & send email
+// @route   POST /api/auth/forgot-password
+export const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide your registered email address.',
+      });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+
+    // Always respond with a generic message for security if user not found
+    if (!user) {
+      return res.status(200).json({
+        success: true,
+        message: 'If an account exists with that email, password reset instructions have been sent.',
+      });
+    }
+
+    // Generate random 32-byte token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    // Hash token and save to user with 1 hour expiration
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = Date.now() + 60 * 60 * 1000; // 1 hour
+
+    await user.save({ validateBeforeSave: false });
+
+    // Send email (or log link if in local dev)
+    const emailResult = await sendPasswordResetEmail(user.email, resetToken, user.name);
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset link sent to your email.',
+      ...(emailResult?.resetUrl ? { devResetUrl: emailResult.resetUrl } : {}),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Reset password using token
+// @route   POST /api/auth/reset-password/:token
+export const resetPassword = async (req, res, next) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!password || password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 6 characters long.',
+      });
+    }
+
+    // Hash token to compare with database
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired password reset link. Please request a new one.',
+      });
+    }
+
+    // Set new password
+    user.password = password;
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+
+    await user.save();
+
+    // Create notification
+    await createNotification({
+      recipient: user._id,
+      title: 'Password Changed',
+      message: 'Your account password was updated successfully.',
+      type: 'SYSTEM',
+    });
+
+    sendTokenResponse(user, 200, res, 'Password reset successful! You can now log in.');
   } catch (error) {
     next(error);
   }

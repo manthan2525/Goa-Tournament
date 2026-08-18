@@ -14,11 +14,21 @@ import {
   CreditCard,
   Calendar,
   MapPin,
+  Edit3,
+  Trash2,
+  FileText,
+  Check,
+  X,
+  Filter,
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import PaymentReviewModal from '../components/PaymentReviewModal';
 import ScoreUpdateModal from '../components/ScoreUpdateModal';
+import EditTournamentModal from '../components/EditTournamentModal';
+import DeleteTournamentModal from '../components/DeleteTournamentModal';
+import DeclareWinnersModal from '../components/DeclareWinnersModal';
+import AadhaarReviewModal from '../components/AadhaarReviewModal';
 import { STATUS_COLORS } from '../utils/constants';
 
 const OrganizerDashboard = () => {
@@ -26,12 +36,25 @@ const OrganizerDashboard = () => {
   const [tournaments, setTournaments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionMessage, setActionMessage] = useState('');
+  const [activeTab, setActiveTab] = useState('tournaments'); // 'tournaments' | 'participants'
+
+  // Modals state
+  const [selectedTournamentForEdit, setSelectedTournamentForEdit] = useState(null);
+  const [selectedTournamentForDelete, setSelectedTournamentForDelete] = useState(null);
+  const [selectedTournamentForWinners, setSelectedTournamentForWinners] = useState(null);
+  const [selectedRegistrationForAadhaar, setSelectedRegistrationForAadhaar] = useState(null);
 
   // Payment review modal states
   const [selectedTournamentPayments, setSelectedTournamentPayments] = useState([]);
   const [activePaymentForReview, setActivePaymentForReview] = useState(null);
   const [showPaymentListModal, setShowPaymentListModal] = useState(false);
   const [reviewTournamentName, setReviewTournamentName] = useState('');
+
+  // Participant management tab state
+  const [selectedTournamentForParticipants, setSelectedTournamentForParticipants] = useState(null);
+  const [participantRegistrations, setParticipantRegistrations] = useState([]);
+  const [loadingParticipants, setLoadingParticipants] = useState(false);
+  const [participantFilter, setParticipantFilter] = useState('ALL'); // 'ALL' | 'PENDING_PAYMENT' | 'PENDING_AADHAAR'
 
   // Score modal states
   const [activeMatchForScore, setActiveMatchForScore] = useState(null);
@@ -44,6 +67,9 @@ const OrganizerDashboard = () => {
       const res = await api.get('/tournaments/organizer/my-tournaments');
       if (res.data.success) {
         setTournaments(res.data.tournaments || []);
+        if (res.data.tournaments && res.data.tournaments.length > 0 && !selectedTournamentForParticipants) {
+          setSelectedTournamentForParticipants(res.data.tournaments[0]);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -55,6 +81,28 @@ const OrganizerDashboard = () => {
   useEffect(() => {
     fetchOrganizerData();
   }, []);
+
+  // Fetch participants when selected tournament changes in participants tab
+  useEffect(() => {
+    if (selectedTournamentForParticipants?._id) {
+      const fetchParticipants = async () => {
+        try {
+          setLoadingParticipants(true);
+          const res = await api.get(
+            `/registrations/tournament/${selectedTournamentForParticipants._id}`
+          );
+          if (res.data.success) {
+            setParticipantRegistrations(res.data.registrations || []);
+          }
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setLoadingParticipants(false);
+        }
+      };
+      fetchParticipants();
+    }
+  }, [selectedTournamentForParticipants]);
 
   const handleStartTournament = async (tournamentId, tournamentName) => {
     if (
@@ -105,14 +153,32 @@ const OrganizerDashboard = () => {
 
   // Aggregated stats
   const totalTournaments = tournaments.length;
+  const totalRegistrations = tournaments.reduce(
+    (acc, t) => acc + (t.totalRegistrations || 0),
+    0
+  );
   const totalPendingPayments = tournaments.reduce(
     (acc, t) => acc + (t.pendingPaymentsCount || 0),
+    0
+  );
+  const totalPendingAadhaar = tournaments.reduce(
+    (acc, t) => acc + (t.pendingAadhaarCount || 0),
     0
   );
   const totalVerifiedTeams = tournaments.reduce(
     (acc, t) => acc + (t.verifiedTeams || 0),
     0
   );
+
+  const filteredRegistrations = participantRegistrations.filter((reg) => {
+    if (participantFilter === 'PENDING_PAYMENT') {
+      return reg.paymentStatus === 'PENDING' || reg.payment?.status === 'PENDING';
+    }
+    if (participantFilter === 'PENDING_AADHAAR') {
+      return reg.aadhaarVerificationStatus === 'PENDING';
+    }
+    return true;
+  });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -131,7 +197,7 @@ const OrganizerDashboard = () => {
             Tournament Management Center
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Review UPI payments, auto-generate bracket fixtures, and broadcast live scores.
+            Review UPI payments, verify Aadhaar records, generate bracket fixtures, and broadcast live scores.
           </p>
         </div>
 
@@ -152,157 +218,433 @@ const OrganizerDashboard = () => {
       )}
 
       {/* Analytics KPI Ribbon */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="p-6 rounded-2xl glass-card border border-slate-800 space-y-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+        <div className="p-5 rounded-2xl glass-card border border-slate-800 space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">Total Tournaments</span>
-            <Trophy className="w-5 h-5 text-emerald-400" />
+            <span className="text-xs font-semibold text-slate-400">Total Hosted</span>
+            <Trophy className="w-4 h-4 text-emerald-400" />
           </div>
-          <p className="font-display font-black text-3xl text-white font-mono">
+          <p className="font-display font-black text-2xl sm:text-3xl text-white font-mono">
             {totalTournaments}
           </p>
         </div>
 
-        <div className="p-6 rounded-2xl glass-card border border-slate-800 space-y-2">
+        <div className="p-5 rounded-2xl glass-card border border-slate-800 space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">Pending Payments Review</span>
-            <CreditCard className="w-5 h-5 text-amber-400" />
+            <span className="text-xs font-semibold text-slate-400">Pending Payments</span>
+            <CreditCard className="w-4 h-4 text-amber-400" />
           </div>
-          <p className="font-display font-black text-3xl text-amber-400 font-mono">
+          <p className="font-display font-black text-2xl sm:text-3xl text-amber-400 font-mono">
             {totalPendingPayments}
           </p>
         </div>
 
-        <div className="p-6 rounded-2xl glass-card border border-slate-800 space-y-2">
+        <div className="p-5 rounded-2xl glass-card border border-slate-800 space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-400">Pending Aadhaar</span>
+            <FileText className="w-4 h-4 text-teal-400" />
+          </div>
+          <p className="font-display font-black text-2xl sm:text-3xl text-teal-400 font-mono">
+            {totalPendingAadhaar}
+          </p>
+        </div>
+
+        <div className="p-5 rounded-2xl glass-card border border-slate-800 space-y-1.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-400">Confirmed Teams</span>
-            <Users className="w-5 h-5 text-teal-400" />
+            <Users className="w-4 h-4 text-indigo-400" />
           </div>
-          <p className="font-display font-black text-3xl text-teal-400 font-mono">
+          <p className="font-display font-black text-2xl sm:text-3xl text-indigo-400 font-mono">
             {totalVerifiedTeams}
           </p>
         </div>
       </div>
 
-      {/* Tournaments List */}
-      <div className="space-y-4">
-        <h2 className="font-display font-bold text-xl text-white">Your Hosted Tournaments</h2>
+      {/* Tabs */}
+      <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+        <button
+          onClick={() => setActiveTab('tournaments')}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === 'tournaments'
+              ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
+              : 'text-slate-400 hover:text-white hover:bg-slate-900'
+          }`}
+        >
+          Hosted Tournaments ({tournaments.length})
+        </button>
 
-        {loading ? (
-          <div className="space-y-4">
-            {[1, 2].map((n) => (
-              <div key={n} className="h-40 rounded-2xl glass-card border border-slate-800 animate-pulse"></div>
-            ))}
-          </div>
-        ) : tournaments.length > 0 ? (
-          <div className="space-y-4">
-            {tournaments.map((t) => {
-              const statusInfo = STATUS_COLORS[t.status] || STATUS_COLORS.REGISTRATION_OPEN;
+        <button
+          onClick={() => setActiveTab('participants')}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === 'participants'
+              ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
+              : 'text-slate-400 hover:text-white hover:bg-slate-900'
+          }`}
+        >
+          Participant Verification Center
+        </button>
+      </div>
 
-              return (
-                <div
-                  key={t._id}
-                  className="p-6 rounded-2xl glass-panel border border-slate-800 space-y-4 hover:border-slate-700 transition-colors"
-                >
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                    {/* Info */}
-                    <div className="space-y-1.5 max-w-xl">
-                      <div className="flex items-center gap-2">
-                        <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-slate-900 text-emerald-400 border border-slate-700">
-                          {t.sport}
-                        </span>
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${statusInfo.badge}`}>
-                          {statusInfo.label}
-                        </span>
-                      </div>
-                      <h3 className="font-display font-bold text-xl text-white">{t.name}</h3>
-                      <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400">
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                          {t.venue}, {t.location}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Users className="w-3.5 h-3.5 text-teal-400" />
-                          {t.verifiedTeams || 0} / {t.maxTeams} Verified Squads
-                        </span>
-                        <span className="font-mono font-bold text-emerald-400">
-                          Fee: {t.registrationFee === 0 ? 'FREE' : `₹${t.registrationFee}`}
-                        </span>
-                      </div>
-                    </div>
+      {/* TAB 1: Tournaments List */}
+      {activeTab === 'tournaments' && (
+        <div className="space-y-4">
+          {loading ? (
+            <div className="space-y-4">
+              {[1, 2].map((n) => (
+                <div key={n} className="h-40 rounded-2xl glass-card border border-slate-800 animate-pulse"></div>
+              ))}
+            </div>
+          ) : tournaments.length > 0 ? (
+            <div className="space-y-4">
+              {tournaments.map((t) => {
+                const statusInfo = STATUS_COLORS[t.status] || STATUS_COLORS.REGISTRATION_OPEN;
 
-                    {/* Action Buttons Toolbar */}
-                    <div className="flex flex-wrap items-center gap-2.5">
-                      {/* Review Payments CTA */}
-                      <button
-                        onClick={() => handleOpenPaymentReview(t._id, t.name)}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition-all ${
-                          t.pendingPaymentsCount > 0
-                            ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30'
-                            : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800'
-                        }`}
-                      >
-                        <CreditCard className="w-4 h-4" />
-                        <span>Review Payments</span>
-                        {t.pendingPaymentsCount > 0 && (
-                          <span className="px-1.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[10px]">
-                            {t.pendingPaymentsCount}
+                return (
+                  <div
+                    key={t._id}
+                    className="p-6 rounded-3xl glass-panel border border-slate-800 space-y-4 hover:border-slate-700 transition-colors"
+                  >
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                      {/* Info */}
+                      <div className="space-y-1.5 max-w-xl">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-slate-900 text-emerald-400 border border-slate-700">
+                            {t.sport}
                           </span>
+                          <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${statusInfo.badge}`}>
+                            {statusInfo.label}
+                          </span>
+                          {t.requireAadhaarVerification && (
+                            <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-teal-950 text-teal-300 border border-teal-500/30">
+                              Aadhaar Required
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="font-display font-bold text-xl text-white">{t.name}</h3>
+                        <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400">
+                          <span className="flex items-center gap-1">
+                            <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                            {t.venue}, {t.location}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Users className="w-3.5 h-3.5 text-teal-400" />
+                            {t.verifiedTeams || 0} / {t.maxTeams} Verified Teams
+                          </span>
+                          <span className="font-mono font-bold text-emerald-400">
+                            Fee: {t.registrationFee === 0 ? 'FREE' : `₹${t.registrationFee}`}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons Toolbar */}
+                      <div className="flex flex-wrap items-center gap-2">
+                        {/* Review Payments CTA */}
+                        <button
+                          onClick={() => handleOpenPaymentReview(t._id, t.name)}
+                          className={`px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 border transition-all ${
+                            t.pendingPaymentsCount > 0
+                              ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30'
+                              : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800'
+                          }`}
+                        >
+                          <CreditCard className="w-3.5 h-3.5" />
+                          <span>Payments</span>
+                          {t.pendingPaymentsCount > 0 && (
+                            <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 font-black text-[10px]">
+                              {t.pendingPaymentsCount}
+                            </span>
+                          )}
+                        </button>
+
+                        {/* Declare Winners */}
+                        <button
+                          onClick={() => setSelectedTournamentForWinners(t)}
+                          className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold uppercase tracking-wider bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/30 flex items-center gap-1.5 transition-all"
+                        >
+                          <Trophy className="w-3.5 h-3.5" />
+                          <span>Winners</span>
+                        </button>
+
+                        {/* Start / Generate Fixtures CTA */}
+                        {t.status === 'REGISTRATION_OPEN' && (
+                          <button
+                            onClick={() => handleStartTournament(t._id, t.name)}
+                            className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md shadow-emerald-500/20 flex items-center gap-1.5 transition-all"
+                          >
+                            <Play className="w-3.5 h-3.5 fill-current" />
+                            <span>Start Bracket</span>
+                          </button>
                         )}
-                      </button>
 
-                      {/* Start / Generate Fixtures CTA */}
-                      {t.status === 'REGISTRATION_OPEN' && (
+                        {/* Live Scorepad CTA */}
+                        {t.status === 'ONGOING' && (
+                          <button
+                            onClick={() => handleOpenScorepad(t._id, t.name)}
+                            className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold uppercase tracking-wider bg-rose-500/20 text-rose-400 border border-rose-500/40 hover:bg-rose-500/30 flex items-center gap-1.5 transition-all"
+                          >
+                            <Zap className="w-3.5 h-3.5" />
+                            <span>Scorepad</span>
+                          </button>
+                        )}
+
+                        {/* Edit Tournament */}
                         <button
-                          onClick={() => handleStartTournament(t._id, t.name)}
-                          className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md shadow-emerald-500/20 flex items-center gap-1.5 transition-all"
+                          onClick={() => setSelectedTournamentForEdit(t)}
+                          className="p-2 min-h-[38px] min-w-[38px] rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-emerald-400 border border-slate-800 transition-colors flex items-center justify-center"
+                          title="Edit Details"
                         >
-                          <Play className="w-4 h-4 fill-current" />
-                          <span>Generate Fixtures</span>
+                          <Edit3 className="w-4 h-4" />
                         </button>
-                      )}
 
-                      {/* Live Scorepad CTA */}
-                      {t.status === 'ONGOING' && (
+                        {/* Delete Tournament */}
                         <button
-                          onClick={() => handleOpenScorepad(t._id, t.name)}
-                          className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-rose-500/20 text-rose-400 border border-rose-500/40 hover:bg-rose-500/30 flex items-center gap-1.5 transition-all"
+                          onClick={() => setSelectedTournamentForDelete(t)}
+                          className="p-2 min-h-[38px] min-w-[38px] rounded-xl bg-slate-900 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 border border-slate-800 transition-colors flex items-center justify-center"
+                          title="Delete Tournament"
                         >
-                          <Zap className="w-4 h-4" />
-                          <span>Live Scorepad</span>
+                          <Trash2 className="w-4 h-4" />
                         </button>
-                      )}
 
-                      {/* View Tournament Link */}
-                      <Link
-                        to={`/tournaments/${t._id}`}
-                        className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 transition-colors"
-                        title="View Public Page"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Link>
+                        {/* View Tournament Link */}
+                        <Link
+                          to={`/tournaments/${t._id}`}
+                          className="p-2 min-h-[38px] min-w-[38px] rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 transition-colors flex items-center justify-center"
+                          title="View Public Page"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Link>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+          ) : (
+            <div className="p-16 glass-card rounded-2xl text-center space-y-3">
+              <Trophy className="w-12 h-12 text-slate-600 mx-auto" />
+              <h3 className="font-bold text-base text-white">No Tournaments Hosted Yet</h3>
+              <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                Create your first tournament and open registrations for Goa sports teams!
+              </p>
+              <Link
+                to="/create-tournament"
+                className="inline-block px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs"
+              >
+                Host Tournament
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB 2: Participant Management */}
+      {activeTab === 'participants' && (
+        <div className="space-y-6">
+          {/* Tournament Selector Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl glass-panel border border-slate-800">
+            <div className="flex items-center gap-3">
+              <label className="text-xs font-semibold text-slate-400">Select Tournament:</label>
+              <select
+                value={selectedTournamentForParticipants?._id || ''}
+                onChange={(e) => {
+                  const t = tournaments.find((item) => item._id === e.target.value);
+                  if (t) setSelectedTournamentForParticipants(t);
+                }}
+                className="px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:border-emerald-500 min-w-[200px]"
+              >
+                {tournaments.map((t) => (
+                  <option key={t._id} value={t._id}>
+                    {t.name} ({t.sport})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Filter Buttons */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setParticipantFilter('ALL')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                  participantFilter === 'ALL'
+                    ? 'bg-slate-700 text-white'
+                    : 'bg-slate-900 text-slate-400 hover:text-white'
+                }`}
+              >
+                All Squads ({participantRegistrations.length})
+              </button>
+              <button
+                onClick={() => setParticipantFilter('PENDING_PAYMENT')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                  participantFilter === 'PENDING_PAYMENT'
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                    : 'bg-slate-900 text-slate-400 hover:text-white'
+                }`}
+              >
+                Pending Payment
+              </button>
+              <button
+                onClick={() => setParticipantFilter('PENDING_AADHAAR')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                  participantFilter === 'PENDING_AADHAAR'
+                    ? 'bg-teal-500/20 text-teal-300 border border-teal-500/30'
+                    : 'bg-slate-900 text-slate-400 hover:text-white'
+                }`}
+              >
+                Pending Aadhaar
+              </button>
+            </div>
           </div>
-        ) : (
-          <div className="p-16 glass-card rounded-2xl text-center space-y-3">
-            <Trophy className="w-12 h-12 text-slate-600 mx-auto" />
-            <h3 className="font-bold text-base text-white">No Tournaments Hosted Yet</h3>
-            <p className="text-xs text-slate-400 max-w-sm mx-auto">
-              Create your first football, cricket, or badminton tournament and open registrations for Goa teams!
-            </p>
-            <Link
-              to="/create-tournament"
-              className="inline-block px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs"
-            >
-              Host Tournament
-            </Link>
-          </div>
-        )}
-      </div>
+
+          {/* Participants Table */}
+          {loadingParticipants ? (
+            <div className="p-12 text-center text-xs text-slate-400">
+              Loading participant records...
+            </div>
+          ) : filteredRegistrations.length > 0 ? (
+            <div className="rounded-2xl glass-panel border border-slate-800 overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-900/90 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                  <tr>
+                    <th className="p-3.5">Team Name</th>
+                    <th className="p-3.5">Captain / In-Charge</th>
+                    <th className="p-3.5">Contact Phone</th>
+                    <th className="p-3.5">Payment Status</th>
+                    <th className="p-3.5">Aadhaar Status</th>
+                    <th className="p-3.5">Overall Entry</th>
+                    <th className="p-3.5 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60">
+                  {filteredRegistrations.map((reg) => (
+                    <tr key={reg._id} className="hover:bg-slate-900/40 transition-colors">
+                      <td className="p-3.5 font-bold text-white whitespace-nowrap">
+                        {reg.teamName}
+                      </td>
+                      <td className="p-3.5 text-slate-300 whitespace-nowrap">
+                        {reg.captainName}
+                      </td>
+                      <td className="p-3.5 text-slate-400 font-mono whitespace-nowrap">
+                        {reg.contactPhone}
+                      </td>
+                      <td className="p-3.5 whitespace-nowrap">
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase font-mono ${
+                            reg.paymentStatus === 'VERIFIED'
+                              ? 'bg-emerald-500/15 text-emerald-400'
+                              : reg.paymentStatus === 'REJECTED'
+                              ? 'bg-rose-500/15 text-rose-400'
+                              : 'bg-yellow-500/15 text-yellow-400'
+                          }`}
+                        >
+                          {reg.paymentStatus || 'PENDING'}
+                        </span>
+                      </td>
+                      <td className="p-3.5 whitespace-nowrap">
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase font-mono ${
+                            reg.aadhaarVerificationStatus === 'VERIFIED'
+                              ? 'bg-emerald-500/15 text-emerald-400'
+                              : reg.aadhaarVerificationStatus === 'REJECTED'
+                              ? 'bg-rose-500/15 text-rose-400'
+                              : reg.aadhaarVerificationStatus === 'NOT_REQUIRED'
+                              ? 'bg-slate-800 text-slate-400'
+                              : 'bg-teal-500/15 text-teal-400'
+                          }`}
+                        >
+                          {reg.aadhaarVerificationStatus || 'NOT_REQUIRED'}
+                        </span>
+                      </td>
+                      <td className="p-3.5 whitespace-nowrap">
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase font-mono ${
+                            reg.status === 'VERIFIED'
+                              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                              : reg.status === 'REJECTED'
+                              ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
+                              : 'bg-yellow-500/15 text-yellow-400 border border-yellow-500/30'
+                          }`}
+                        >
+                          {reg.status}
+                        </span>
+                      </td>
+                      <td className="p-3.5 text-right whitespace-nowrap space-x-2">
+                        {reg.aadhaarDocument && (
+                          <button
+                            onClick={() => setSelectedRegistrationForAadhaar(reg)}
+                            className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-teal-500/20 text-teal-300 hover:bg-teal-500/30 border border-teal-500/40"
+                          >
+                            Review Aadhaar
+                          </button>
+                        )}
+                        {reg.payment && (
+                          <button
+                            onClick={() => setActivePaymentForReview(reg.payment)}
+                            className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/40"
+                          >
+                            Review Payment
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="p-12 text-center text-xs text-slate-400 rounded-2xl glass-card border border-slate-800">
+              No participants matching filter criteria.
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Edit Tournament Modal */}
+      {selectedTournamentForEdit && (
+        <EditTournamentModal
+          tournament={selectedTournamentForEdit}
+          onClose={() => setSelectedTournamentForEdit(null)}
+          onUpdated={() => {
+            setSelectedTournamentForEdit(null);
+            fetchOrganizerData();
+          }}
+        />
+      )}
+
+      {/* Delete Tournament Modal */}
+      {selectedTournamentForDelete && (
+        <DeleteTournamentModal
+          tournament={selectedTournamentForDelete}
+          onClose={() => setSelectedTournamentForDelete(null)}
+          onDeleted={() => {
+            setSelectedTournamentForDelete(null);
+            fetchOrganizerData();
+          }}
+        />
+      )}
+
+      {/* Declare Winners Modal */}
+      {selectedTournamentForWinners && (
+        <DeclareWinnersModal
+          tournament={selectedTournamentForWinners}
+          onClose={() => setSelectedTournamentForWinners(null)}
+          onUpdated={() => {
+            setSelectedTournamentForWinners(null);
+            fetchOrganizerData();
+          }}
+        />
+      )}
+
+      {/* Aadhaar Review Modal */}
+      {selectedRegistrationForAadhaar && (
+        <AadhaarReviewModal
+          registration={selectedRegistrationForAadhaar}
+          onClose={() => setSelectedRegistrationForAadhaar(null)}
+          onUpdated={() => {
+            setSelectedRegistrationForAadhaar(null);
+            fetchOrganizerData();
+          }}
+        />
+      )}
 
       {/* Payment List Modal */}
       {showPaymentListModal && (

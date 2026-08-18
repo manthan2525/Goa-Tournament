@@ -65,6 +65,10 @@ const tournamentSchema = new mongoose.Schema(
       type: Date,
       required: [true, 'Please specify end date'],
     },
+    startTime: {
+      type: String,
+      default: '09:00 AM',
+    },
     registrationDeadline: {
       type: Date,
     },
@@ -111,15 +115,40 @@ const tournamentSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    requireAadhaarVerification: {
+      type: Boolean,
+      default: false,
+    },
+    winner: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    runnerUp: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    thirdPlace: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    winnerType: {
+      type: String,
+      enum: ['TEAM', 'INDIVIDUAL'],
+      default: 'TEAM',
+    },
     status: {
       type: String,
       enum: [
-        'DRAFT',
+        'UPCOMING',
         'REGISTRATION_OPEN',
         'REGISTRATION_CLOSED',
         'ONGOING',
         'COMPLETED',
         'CANCELLED',
+        'DRAFT',
       ],
       default: 'REGISTRATION_OPEN',
     },
@@ -134,6 +163,13 @@ const tournamentSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+
+// Virtual alias for banner
+tournamentSchema.virtual('banner').get(function () {
+  return this.bannerImage || '';
+}).set(function (val) {
+  this.bannerImage = val;
+});
 
 // Virtual for remaining slots
 tournamentSchema.virtual('slotsRemaining').get(function () {

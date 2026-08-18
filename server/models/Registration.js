@@ -61,12 +61,30 @@ const registrationSchema = new mongoose.Schema(
     playersList: [playerItemSchema],
     status: {
       type: String,
-      enum: ['PENDING', 'VERIFIED', 'REJECTED'],
+      enum: ['PENDING', 'VERIFIED', 'REJECTED', 'APPROVED', 'CANCELLED'],
       default: 'PENDING',
     },
     payment: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Payment',
+    },
+    paymentStatus: {
+      type: String,
+      enum: ['NOT_APPLICABLE', 'PENDING', 'VERIFIED', 'REJECTED'],
+      default: 'PENDING',
+    },
+    aadhaarDocument: {
+      type: String,
+      default: '',
+    },
+    aadhaarVerificationStatus: {
+      type: String,
+      enum: ['NOT_REQUIRED', 'PENDING', 'VERIFIED', 'REJECTED'],
+      default: 'NOT_REQUIRED',
+    },
+    aadhaarRejectionReason: {
+      type: String,
+      default: '',
     },
     rejectionReason: {
       type: String,
@@ -75,6 +93,8 @@ const registrationSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
 

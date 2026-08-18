@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   Trophy,
   MapPin,
@@ -15,6 +15,13 @@ import {
   Phone,
   Mail,
   User,
+  Edit3,
+  Trash2,
+  Award,
+  Medal,
+  Play,
+  Camera,
+  Layers,
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -24,10 +31,14 @@ import StandingsTable from '../components/StandingsTable';
 import RegisterModal from '../components/RegisterModal';
 import PaymentModal from '../components/PaymentModal';
 import ScoreUpdateModal from '../components/ScoreUpdateModal';
+import EditTournamentModal from '../components/EditTournamentModal';
+import DeleteTournamentModal from '../components/DeleteTournamentModal';
+import DeclareWinnersModal from '../components/DeclareWinnersModal';
 import { STATUS_COLORS } from '../utils/constants';
 
 const TournamentDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user, isAuthenticated, isOrganizer } = useAuth();
   const { joinTournament, leaveTournament, socket } = useSocket();
 
@@ -41,8 +52,13 @@ const TournamentDetail = () => {
   // Modals
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showWinnersModal, setShowWinnersModal] = useState(false);
   const [activeRegistration, setActiveRegistration] = useState(null);
   const [selectedMatchForScore, setSelectedMatchForScore] = useState(null);
+  const [startingTournament, setStartingTournament] = useState(false);
+  const [actionError, setActionError] = useState('');
 
   const fetchTournamentData = async () => {
     try {
@@ -72,7 +88,7 @@ const TournamentDetail = () => {
     fetchTournamentData();
     joinTournament(id);
 
-    // Listen for real-time live score updates via WebSockets
+    // Real-time Socket events
     const onMatchUpdate = (payload) => {
       if (payload.match && payload.match.tournament?.toString() === id.toString()) {
         setMatches((prev) => {
@@ -85,7 +101,6 @@ const TournamentDetail = () => {
           return prev;
         });
 
-        // Re-fetch standings if match was completed
         if (payload.match.status === 'COMPLETED') {
           api.get(`/matches/tournament/${id}`).then((res) => {
             if (res.data.success) {
@@ -133,6 +148,21 @@ const TournamentDetail = () => {
     }
   };
 
+  const handleStartTournament = async () => {
+    try {
+      setStartingTournament(true);
+      setActionError('');
+      const res = await api.post(`/tournaments/${id}/start`);
+      if (res.data.success) {
+        fetchTournamentData();
+      }
+    } catch (err) {
+      setActionError(err.message || 'Failed to start tournament fixtures.');
+    } finally {
+      setStartingTournament(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center">
@@ -153,20 +183,87 @@ const TournamentDetail = () => {
     );
   }
 
-  const isTournamentOwner = isOrganizer && tournament?.organizer?._id === user?._id;
+  const isTournamentOwner = isOrganizer && (tournament?.organizer?._id === user?._id || user?.role === 'ADMIN');
   const statusInfo = STATUS_COLORS[tournament.status] || STATUS_COLORS.REGISTRATION_OPEN;
-  const fallbackBanner =
+  const bannerImg =
     tournament.bannerImage ||
+    tournament.banner ||
     'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1200&q=80';
+
+  const organizerAvatar = tournament.organizer?.profilePhoto || tournament.organizer?.profileImage;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Organizer Action Bar (If Owner) */}
+      {isTournamentOwner && (
+        <div className="p-4 rounded-2xl glass-panel border border-emerald-500/30 flex flex-wrap items-center justify-between gap-3 bg-emerald-950/20 animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-emerald-400" />
+            <div>
+              <p className="text-xs font-bold text-white">Organizer Control Panel</p>
+              <p className="text-[11px] text-slate-400">You are the host of this tournament.</p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {tournament.status !== 'ONGOING' && tournament.status !== 'COMPLETED' && (
+              <button
+                onClick={handleStartTournament}
+                disabled={startingTournament}
+                className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-1.5 transition-all shadow-md"
+              >
+                <Play className="w-3.5 h-3.5 fill-current" />
+                {startingTournament ? 'Generating Fixtures...' : 'Start Tournament'}
+              </button>
+            )}
+
+            <button
+              onClick={() => setShowWinnersModal(true)}
+              className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-1.5 transition-all shadow-md"
+            >
+              <Trophy className="w-3.5 h-3.5" />
+              Declare / Edit Winners
+            </button>
+
+            <button
+              onClick={() => setShowEditModal(true)}
+              className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 flex items-center gap-1.5 transition-all"
+            >
+              <Edit3 className="w-3.5 h-3.5 text-emerald-400" />
+              Edit Tournament
+            </button>
+
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="px-3 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 border border-rose-500/30 flex items-center gap-1.5 transition-all"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Delete
+            </button>
+
+            <Link
+              to="/organizer-dashboard"
+              className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 flex items-center gap-1.5 transition-all"
+            >
+              Organizer Suite →
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {actionError && (
+        <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300 flex items-center gap-2">
+          <Info className="w-4 h-4 text-rose-400" />
+          <span>{actionError}</span>
+        </div>
+      )}
+
       {/* Hero Header Card */}
       <div className="relative rounded-3xl glass-panel border border-slate-800 overflow-hidden">
         {/* Banner Media */}
         <div className="relative h-64 sm:h-80 w-full overflow-hidden bg-slate-900">
           <img
-            src={fallbackBanner}
+            src={bannerImg}
             alt={tournament.name}
             className="w-full h-full object-cover"
           />
@@ -180,6 +277,11 @@ const TournamentDetail = () => {
             <span className="px-3 py-1 rounded-xl text-xs font-semibold bg-slate-950/80 backdrop-blur-md text-slate-200 border border-slate-700">
               {tournament.format?.replace('_', ' ')}
             </span>
+            {tournament.requireAadhaarVerification && (
+              <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-teal-950/80 backdrop-blur-md text-teal-300 border border-teal-500/30 flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5" /> Aadhaar Verification Required
+              </span>
+            )}
           </div>
 
           <div className="absolute top-4 right-4">
@@ -209,6 +311,12 @@ const TournamentDetail = () => {
                     })}
                   </span>
                 </div>
+                {tournament.startTime && (
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 text-slate-400" />
+                    <span>{tournament.startTime}</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -229,7 +337,7 @@ const TournamentDetail = () => {
         {/* Quick Details Ribbon */}
         <div className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-800 bg-slate-900/60 text-xs">
           <div className="p-4 flex items-center gap-3">
-            <IndianRupee className="w-5 h-5 text-emerald-400" />
+            <IndianRupee className="w-5 h-5 text-emerald-400 flex-shrink-0" />
             <div>
               <p className="text-[10px] text-slate-400 uppercase font-semibold">Entry Fee</p>
               <p className="font-bold text-white text-sm font-mono">
@@ -239,7 +347,7 @@ const TournamentDetail = () => {
           </div>
 
           <div className="p-4 flex items-center gap-3">
-            <Users className="w-5 h-5 text-teal-400" />
+            <Users className="w-5 h-5 text-teal-400 flex-shrink-0" />
             <div>
               <p className="text-[10px] text-slate-400 uppercase font-semibold">Squad Capacity</p>
               <p className="font-bold text-white text-sm font-mono">
@@ -249,7 +357,7 @@ const TournamentDetail = () => {
           </div>
 
           <div className="p-4 flex items-center gap-3">
-            <Trophy className="w-5 h-5 text-amber-400" />
+            <Trophy className="w-5 h-5 text-amber-400 flex-shrink-0" />
             <div>
               <p className="text-[10px] text-slate-400 uppercase font-semibold">Prize Pool</p>
               <p className="font-bold text-white text-sm truncate max-w-[150px]">
@@ -259,16 +367,89 @@ const TournamentDetail = () => {
           </div>
 
           <div className="p-4 flex items-center gap-3">
-            <User className="w-5 h-5 text-indigo-400" />
+            <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-emerald-400 overflow-hidden flex-shrink-0">
+              {organizerAvatar ? (
+                <img src={organizerAvatar} alt={tournament.organizer?.name} className="w-full h-full object-cover" />
+              ) : (
+                tournament.organizer?.name?.charAt(0) || 'O'
+              )}
+            </div>
             <div>
               <p className="text-[10px] text-slate-400 uppercase font-semibold">Organizer</p>
-              <p className="font-bold text-white text-sm truncate max-w-[150px]">
+              <p className="font-bold text-white text-sm truncate max-w-[140px]">
                 {tournament.organizer?.name || 'Goa Sports Authority'}
               </p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Prominent Winners Showcase Section (If Completed or Winner declared) */}
+      {(tournament.status === 'COMPLETED' || tournament.winner) && (
+        <div className="rounded-3xl glass-panel border border-amber-500/40 p-6 sm:p-8 bg-gradient-to-b from-amber-950/30 via-slate-900/60 to-slate-950/80 shadow-2xl relative overflow-hidden">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="p-2.5 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400">
+              <Trophy className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="font-display font-black text-xl sm:text-2xl text-white">
+                Tournament Champions & Winners
+              </h2>
+              <p className="text-xs text-amber-300/80">
+                Official results declared for {tournament.name}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+            {/* 1st Place Champion */}
+            <div className="p-5 rounded-2xl bg-slate-900/90 border-2 border-amber-500/60 shadow-xl shadow-amber-500/10 text-center space-y-2 relative overflow-hidden order-first md:order-2 md:-mt-3">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-600 to-yellow-400 flex items-center justify-center mx-auto shadow-lg shadow-amber-500/30 text-slate-950 font-black">
+                <Trophy className="w-7 h-7" />
+              </div>
+              <span className="inline-block px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500 text-slate-950">
+                1st Place Champion
+              </span>
+              <h3 className="font-display font-black text-xl text-white pt-1">
+                {tournament.winner || 'Champion Declared'}
+              </h3>
+              <p className="text-[11px] text-amber-300 font-semibold">
+                Winner Category: {tournament.winnerType || 'Team'}
+              </p>
+            </div>
+
+            {/* 2nd Place Runner-Up */}
+            {tournament.runnerUp && (
+              <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-700 text-center space-y-2 order-2 md:order-1">
+                <div className="w-12 h-12 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center mx-auto text-slate-200">
+                  <Award className="w-6 h-6" />
+                </div>
+                <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-300 border border-slate-700">
+                  2nd Place Runner-Up
+                </span>
+                <h4 className="font-display font-bold text-base text-white pt-1">
+                  {tournament.runnerUp}
+                </h4>
+              </div>
+            )}
+
+            {/* 3rd Place */}
+            {tournament.thirdPlace && (
+              <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-700 text-center space-y-2 order-3">
+                <div className="w-12 h-12 rounded-full bg-amber-950/50 border border-amber-800/60 flex items-center justify-center mx-auto text-amber-500">
+                  <Medal className="w-6 h-6" />
+                </div>
+                <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-950/60 text-amber-400 border border-amber-800/50">
+                  3rd Place / Bronze
+                </span>
+                <h4 className="font-display font-bold text-base text-white pt-1">
+                  {tournament.thirdPlace}
+                </h4>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Tabs Navigation */}
       <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar">
@@ -413,10 +594,18 @@ const TournamentDetail = () => {
               </div>
 
               <div className="pt-2 border-t border-slate-800">
-                <p className="text-slate-500 font-medium">Organizer Contact</p>
+                <p className="text-slate-500 font-medium">Organizer Details</p>
                 <p className="font-semibold text-white">{tournament.organizer?.name}</p>
+                {tournament.organizer?.organizationName && (
+                  <p className="text-emerald-400 text-xs font-semibold">{tournament.organizer.organizationName}</p>
+                )}
                 <p className="text-slate-400 font-mono">{tournament.organizer?.phone || '+91 98221 45678'}</p>
                 <p className="text-slate-400">{tournament.organizer?.email}</p>
+                {tournament.organizer?.bio && (
+                  <p className="text-slate-400 italic mt-1 pt-1 border-t border-slate-800/80 text-[11px]">
+                    "{tournament.organizer.bio}"
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -438,6 +627,39 @@ const TournamentDetail = () => {
           tournament={tournament}
           onClose={() => setShowPaymentModal(false)}
           onSuccess={handlePaymentSuccess}
+        />
+      )}
+
+      {showEditModal && (
+        <EditTournamentModal
+          tournament={tournament}
+          onClose={() => setShowEditModal(false)}
+          onUpdated={(updated) => {
+            setTournament(updated);
+            fetchTournamentData();
+          }}
+        />
+      )}
+
+      {showDeleteModal && (
+        <DeleteTournamentModal
+          tournament={tournament}
+          onClose={() => setShowDeleteModal(false)}
+          onDeleted={() => {
+            navigate('/tournaments');
+          }}
+        />
+      )}
+
+      {showWinnersModal && (
+        <DeclareWinnersModal
+          tournament={tournament}
+          teams={verifiedTeams}
+          onClose={() => setShowWinnersModal(false)}
+          onUpdated={(updated) => {
+            setTournament(updated);
+            fetchTournamentData();
+          }}
         />
       )}
 

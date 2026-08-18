@@ -3,6 +3,7 @@ import Registration from '../models/Registration.js';
 import Tournament from '../models/Tournament.js';
 import { uploadImageBuffer } from '../config/cloudinary.js';
 import { broadcastTournamentUpdate } from '../sockets/matchSocket.js';
+import { createNotification } from '../utils/notify.js';
 
 // @desc    Submit payment screenshot and transaction ID
 // @route   POST /api/payments
@@ -46,21 +47,45 @@ export const submitPayment = async (req, res, next) => {
       'payment_proofs'
     );
 
-    // Create payment record
-    const payment = await Payment.create({
-      user: req.user._id,
-      tournament: registration.tournament._id,
-      registration: registration._id,
-      amount: registration.tournament.registrationFee,
-      screenshotUrl,
-      transactionId: transactionId.trim(),
-      status: 'PENDING',
-    });
+    // Create or update payment record
+    let payment = await Payment.findOne({ registration: registration._id });
+    if (payment) {
+      payment.screenshotUrl = screenshotUrl;
+      payment.transactionId = transactionId.trim();
+      payment.status = 'PENDING';
+      payment.rejectionReason = '';
+      await payment.save();
+    } else {
+      payment = await Payment.create({
+        user: req.user._id,
+        tournament: registration.tournament._id,
+        registration: registration._id,
+        amount: registration.tournament.registrationFee,
+        screenshotUrl,
+        transactionId: transactionId.trim(),
+        status: 'PENDING',
+      });
+    }
 
     // Link payment back to registration
     registration.payment = payment._id;
-    registration.status = 'PENDING';
+    registration.paymentStatus = 'PENDING';
+    if (registration.status === 'REJECTED') {
+      registration.status = 'PENDING';
+    }
     await registration.save();
+
+    // Notify tournament organizer
+    if (registration.tournament?.organizer) {
+      await createNotification({
+        recipient: registration.tournament.organizer,
+        sender: req.user._id,
+        title: 'Payment Proof Submitted',
+        message: `Team "${registration.teamName}" submitted UPI payment proof for "${registration.tournament.name}".`,
+        type: 'PAYMENT',
+        link: '/organizer-dashboard',
+      });
+    }
 
     res.status(201).json({
       success: true,
@@ -92,7 +117,7 @@ export const getTournamentPayments = async (req, res, next) => {
     }
 
     const payments = await Payment.find({ tournament: req.params.tournamentId })
-      .populate('user', 'name email phone profileImage')
+      .populate('user', 'name email phone profilePhoto profileImage')
       .populate('registration', 'teamName captainName contactPhone playersList')
       .sort({ createdAt: -1 });
 
@@ -137,15 +162,23 @@ export const verifyPayment = async (req, res, next) => {
     // Update corresponding registration
     const registration = await Registration.findById(payment.registration._id);
     if (registration) {
-      registration.status = 'VERIFIED';
+      registration.paymentStatus = 'VERIFIED';
       registration.rejectionReason = '';
+
+      // If Aadhaar verification is also complete or not required, mark registration VERIFIED
+      if (
+        registration.aadhaarVerificationStatus === 'VERIFIED' ||
+        registration.aadhaarVerificationStatus === 'NOT_REQUIRED'
+      ) {
+        registration.status = 'VERIFIED';
+      }
       await registration.save();
     }
 
     // Update tournament verified registered count
     const verifiedCount = await Registration.countDocuments({
       tournament: tournament._id,
-      status: 'VERIFIED',
+      status: { $in: ['VERIFIED', 'APPROVED'] },
     });
     tournament.registeredTeamsCount = verifiedCount;
     await tournament.save();
@@ -156,9 +189,20 @@ export const verifyPayment = async (req, res, next) => {
       registeredTeamsCount: verifiedCount,
     });
 
+    // Notify player
+    if (registration?.user) {
+      await createNotification({
+        recipient: registration.user,
+        title: 'Payment Verified',
+        message: `Your payment for "${tournament.name}" was approved by the organizer. Team entry confirmed!`,
+        type: 'PAYMENT',
+        link: '/player-dashboard',
+      });
+    }
+
     res.status(200).json({
       success: true,
-      message: `Payment verified! Team '${registration ? registration.teamName : ''}' is now confirmed for the tournament.`,
+      message: `Payment verified! Team '${registration ? registration.teamName : ''}' is confirmed.`,
       payment,
       registration,
     });
@@ -208,7 +252,7 @@ export const rejectPayment = async (req, res, next) => {
     // Update registration status
     const registration = await Registration.findById(payment.registration._id);
     if (registration) {
-      registration.status = 'REJECTED';
+      registration.paymentStatus = 'REJECTED';
       registration.rejectionReason = reason.trim();
       await registration.save();
     }
@@ -216,7 +260,7 @@ export const rejectPayment = async (req, res, next) => {
     // Recalculate verified count
     const verifiedCount = await Registration.countDocuments({
       tournament: tournament._id,
-      status: 'VERIFIED',
+      status: { $in: ['VERIFIED', 'APPROVED'] },
     });
     tournament.registeredTeamsCount = verifiedCount;
     await tournament.save();
@@ -226,6 +270,17 @@ export const rejectPayment = async (req, res, next) => {
       teamName: registration ? registration.teamName : '',
       registeredTeamsCount: verifiedCount,
     });
+
+    // Notify player with reason
+    if (registration?.user) {
+      await createNotification({
+        recipient: registration.user,
+        title: 'Payment Verification Rejected',
+        message: `Your payment proof for "${tournament.name}" was rejected. Reason: ${reason.trim()}. Please re-upload valid proof.`,
+        type: 'PAYMENT',
+        link: '/player-dashboard',
+      });
+    }
 
     res.status(200).json({
       success: true,

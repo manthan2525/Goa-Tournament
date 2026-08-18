@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Users, User, Phone, Plus, Trash2, ShieldAlert } from 'lucide-react';
+import { X, Users, User, Phone, Plus, Trash2, ShieldAlert, ShieldCheck, FileText, Upload } from 'lucide-react';
 import api from '../services/api';
 
 const RegisterModal = ({ tournament, onClose, onSuccess }) => {
@@ -9,6 +9,8 @@ const RegisterModal = ({ tournament, onClose, onSuccess }) => {
   const [playersList, setPlayersList] = useState([
     { name: '', jerseyNumber: '', role: 'Captain' },
   ]);
+  const [aadhaarFile, setAadhaarFile] = useState(null);
+  const [aadhaarFileName, setAadhaarFileName] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -28,6 +30,18 @@ const RegisterModal = ({ tournament, onClose, onSuccess }) => {
     setPlayersList(updated);
   };
 
+  const handleAadhaarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        setError('Aadhaar file must be under 10 MB.');
+        return;
+      }
+      setAadhaarFile(file);
+      setAadhaarFileName(file.name);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -37,17 +51,31 @@ const RegisterModal = ({ tournament, onClose, onSuccess }) => {
       return;
     }
 
+    if (tournament.requireAadhaarVerification && !aadhaarFile) {
+      setError('Aadhaar Card document upload is mandatory for this tournament.');
+      return;
+    }
+
     try {
       setSubmitting(true);
-      const payload = {
-        tournamentId: tournament._id,
-        teamName,
-        captainName,
-        contactPhone,
-        playersList: playersList.filter((p) => p.name.trim() !== ''),
-      };
+      const formData = new FormData();
+      formData.append('tournamentId', tournament._id);
+      formData.append('teamName', teamName.trim());
+      formData.append('captainName', captainName.trim());
+      formData.append('contactPhone', contactPhone.trim());
+      formData.append(
+        'playersList',
+        JSON.stringify(playersList.filter((p) => p.name.trim() !== ''))
+      );
 
-      const res = await api.post('/registrations', payload);
+      if (aadhaarFile) {
+        formData.append('aadhaarDocument', aadhaarFile);
+      }
+
+      const res = await api.post('/registrations', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
       if (res.data.success) {
         onSuccess(res.data);
       }
@@ -138,6 +166,36 @@ const RegisterModal = ({ tournament, onClose, onSuccess }) => {
               />
             </div>
           </div>
+
+          {/* Aadhaar Upload Requirement Notice if active */}
+          {tournament.requireAadhaarVerification && (
+            <div className="p-3.5 rounded-xl bg-teal-500/10 border border-teal-500/30 space-y-2">
+              <div className="flex items-center gap-2 text-teal-400 font-bold text-xs">
+                <ShieldCheck className="w-4 h-4" />
+                <span>Aadhaar Card Document Required *</span>
+              </div>
+              <p className="text-[11px] text-slate-300 leading-relaxed">
+                The organizer has enabled mandatory participant verification. Please upload a clear photo or PDF of your Aadhaar card or government ID.
+              </p>
+              <label className="flex items-center justify-between p-3 border-2 border-dashed border-teal-500/40 hover:border-teal-400 rounded-xl cursor-pointer bg-slate-900/60 hover:bg-slate-900 transition-colors">
+                <div className="flex items-center gap-2 truncate pr-2">
+                  <FileText className="w-5 h-5 text-teal-400 flex-shrink-0" />
+                  <span className="text-xs text-white truncate">
+                    {aadhaarFileName || 'Choose Aadhaar photo/PDF (JPG, PNG, PDF)'}
+                  </span>
+                </div>
+                <span className="text-[11px] font-bold text-teal-400 bg-teal-500/15 px-2.5 py-1 rounded-lg border border-teal-500/30 flex-shrink-0">
+                  Browse
+                </span>
+                <input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={handleAadhaarChange}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          )}
 
           {/* Player Roster */}
           <div className="space-y-2.5 pt-2 border-t border-slate-800">

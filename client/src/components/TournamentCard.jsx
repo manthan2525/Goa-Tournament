@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Calendar, Users, Trophy, IndianRupee, ArrowRight } from 'lucide-react';
+import { MapPin, Calendar, Users, Trophy, IndianRupee, ArrowRight, ShieldCheck, Award } from 'lucide-react';
 import { STATUS_COLORS } from '../utils/constants';
 
 const TournamentCard = ({ tournament }) => {
@@ -12,10 +12,11 @@ const TournamentCard = ({ tournament }) => {
 
   const fallbackBanner =
     tournament.bannerImage ||
+    tournament.banner ||
     'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80';
 
   return (
-    <div className="group relative rounded-2xl glass-card border border-slate-800/80 hover:border-emerald-500/40 transition-all duration-300 flex flex-col overflow-hidden hover:shadow-xl hover:shadow-emerald-950/20">
+    <div className="group relative rounded-3xl glass-card border border-slate-800/80 hover:border-emerald-500/40 transition-all duration-300 flex flex-col overflow-hidden hover:shadow-xl hover:shadow-emerald-950/20">
       {/* Banner / Media Container */}
       <div className="relative h-44 w-full overflow-hidden bg-slate-900">
         <img
@@ -26,13 +27,18 @@ const TournamentCard = ({ tournament }) => {
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
 
         {/* Top Badges */}
-        <div className="absolute top-3 left-3 flex items-center gap-2">
+        <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5">
           <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-950/80 backdrop-blur-md text-emerald-400 border border-emerald-500/30">
             {tournament.sport}
           </span>
           <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-950/80 backdrop-blur-md text-slate-300 border border-slate-700">
             {tournament.format?.replace('_', ' ')}
           </span>
+          {tournament.requireAadhaarVerification && (
+            <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-teal-950/80 backdrop-blur-md text-teal-300 border border-teal-500/30 flex items-center gap-1">
+              <ShieldCheck className="w-3 h-3" /> Aadhaar
+            </span>
+          )}
         </div>
 
         {/* Status Badge */}
@@ -61,6 +67,17 @@ const TournamentCard = ({ tournament }) => {
             {tournament.description || 'Join elite squads competing in Goa. Register your team today.'}
           </p>
         </div>
+
+        {/* If Completed and Winner Declared */}
+        {tournament.status === 'COMPLETED' && tournament.winner && (
+          <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center gap-2 text-xs">
+            <Trophy className="w-4 h-4 text-amber-400 flex-shrink-0" />
+            <div className="truncate">
+              <span className="text-[10px] uppercase font-bold text-amber-400 block">Champion</span>
+              <span className="font-bold text-white truncate block">{tournament.winner}</span>
+            </div>
+          </div>
+        )}
 
         {/* Key Metrics Grid */}
         <div className="grid grid-cols-2 gap-2.5 py-2 border-y border-slate-800/80 text-xs">
@@ -115,7 +132,7 @@ const TournamentCard = ({ tournament }) => {
             to={`/tournaments/${tournament._id}`}
             className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-white transition-all group/btn"
           >
-            <span>View Tournament & Brackets</span>
+            <span>View Tournament & Fixtures</span>
             <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
           </Link>
         </div>

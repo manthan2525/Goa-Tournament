@@ -3,18 +3,50 @@ import {
   registerTeam,
   getMyRegistrations,
   getTournamentRegistrations,
+  getAadhaarDocument,
+  reuploadAadhaar,
+  verifyAadhaar,
+  rejectAadhaar,
+  updateRegistrationStatus,
 } from '../controllers/registrationController.js';
-import { verifyAuth } from '../middleware/authMiddleware.js';
+import { protect, authorize } from '../middleware/authMiddleware.js';
+import { uploadDocument } from '../middleware/uploadMiddleware.js';
 
 const router = express.Router();
 
-// Protected route to register team (Player / Organizer)
-router.post('/', verifyAuth, registerTeam);
+// Participant registration & personal dashboard
+router.post('/', protect, uploadDocument.single('aadhaarDocument'), registerTeam);
+router.get('/my-registrations', protect, getMyRegistrations);
+router.get('/:id/aadhaar', protect, getAadhaarDocument);
+router.put('/:id/aadhaar', protect, uploadDocument.single('aadhaarDocument'), reuploadAadhaar);
 
-// Protected route to view user's team registrations
-router.get('/my-registrations', verifyAuth, getMyRegistrations);
+// Organizer routes
+router.get(
+  '/tournament/:tournamentId',
+  protect,
+  authorize('ORGANIZER', 'ADMIN'),
+  getTournamentRegistrations
+);
 
-// View registrations for a tournament (Public / Participants)
-router.get('/tournament/:tournamentId', getTournamentRegistrations);
+router.put(
+  '/:id/aadhaar/verify',
+  protect,
+  authorize('ORGANIZER', 'ADMIN'),
+  verifyAadhaar
+);
+
+router.put(
+  '/:id/aadhaar/reject',
+  protect,
+  authorize('ORGANIZER', 'ADMIN'),
+  rejectAadhaar
+);
+
+router.put(
+  '/:id/status',
+  protect,
+  authorize('ORGANIZER', 'ADMIN'),
+  updateRegistrationStatus
+);
 
 export default router;

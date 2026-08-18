@@ -10,12 +10,13 @@ import {
   generateGroupKnockoutFixtures,
 } from '../utils/fixtureGenerator.js';
 import { broadcastTournamentUpdate } from '../sockets/matchSocket.js';
+import { createNotification } from '../utils/notify.js';
 
-// @desc    Get all tournaments with filters
+// @desc    Get all tournaments with search, filter, and sorting
 // @route   GET /api/tournaments
 export const getTournaments = async (req, res, next) => {
   try {
-    const { sport, location, status, search, format, feeMax } = req.query;
+    const { sport, location, status, search, format, feeType, sortBy } = req.query;
     const filter = {};
 
     if (sport && sport !== 'All') {
@@ -34,21 +35,38 @@ export const getTournaments = async (req, res, next) => {
       filter.format = format;
     }
 
-    if (feeMax !== undefined && feeMax !== '') {
-      filter.registrationFee = { $lte: Number(feeMax) };
+    if (feeType === 'free') {
+      filter.registrationFee = 0;
+    } else if (feeType === 'paid') {
+      filter.registrationFee = { $gt: 0 };
     }
 
-    if (search) {
+    if (search && search.trim()) {
+      const q = search.trim();
       filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { venue: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
+        { name: { $regex: q, $options: 'i' } },
+        { venue: { $regex: q, $options: 'i' } },
+        { description: { $regex: q, $options: 'i' } },
+        { sport: { $regex: q, $options: 'i' } },
       ];
     }
 
+    let sortOption = { startDate: 1, createdAt: -1 };
+    if (sortBy === 'newest') {
+      sortOption = { createdAt: -1 };
+    } else if (sortBy === 'date') {
+      sortOption = { startDate: 1 };
+    } else if (sortBy === 'deadline') {
+      sortOption = { registrationDeadline: 1 };
+    } else if (sortBy === 'fee_low') {
+      sortOption = { registrationFee: 1 };
+    } else if (sortBy === 'fee_high') {
+      sortOption = { registrationFee: -1 };
+    }
+
     const tournaments = await Tournament.find(filter)
-      .populate('organizer', 'name email phone organizationName profileImage')
-      .sort({ startDate: 1, createdAt: -1 });
+      .populate('organizer', 'name email phone organizationName profilePhoto profileImage')
+      .sort(sortOption);
 
     res.status(200).json({
       success: true,
@@ -66,7 +84,7 @@ export const getTournamentById = async (req, res, next) => {
   try {
     const tournament = await Tournament.findById(req.params.id).populate(
       'organizer',
-      'name email phone organizationName profileImage bio'
+      'name email phone organizationName profilePhoto profileImage bio'
     );
 
     if (!tournament) {
@@ -76,11 +94,11 @@ export const getTournamentById = async (req, res, next) => {
       });
     }
 
-    // Fetch verified teams
+    // Fetch verified teams without exposing sensitive Aadhaar document URLs publicly
     const verifiedRegistrations = await Registration.find({
       tournament: tournament._id,
-      status: 'VERIFIED',
-    }).select('teamName captainName contactPhone playersList createdAt');
+      status: { $in: ['VERIFIED', 'APPROVED'] },
+    }).select('teamName captainName contactPhone playersList status createdAt');
 
     // Fetch total registration count
     const totalRegistrations = await Registration.countDocuments({
@@ -109,6 +127,7 @@ export const createTournament = async (req, res, next) => {
       location,
       startDate,
       endDate,
+      startTime,
       registrationDeadline,
       registrationFee,
       upiId,
@@ -118,6 +137,7 @@ export const createTournament = async (req, res, next) => {
       prizePool,
       rules,
       description,
+      requireAadhaarVerification,
     } = req.body;
 
     if (!name || !venue || !location || !startDate || !endDate) {
@@ -140,21 +160,30 @@ export const createTournament = async (req, res, next) => {
         const file = req.files.bannerImage[0];
         bannerImageUrl = await uploadImageBuffer(file.buffer, file.mimetype, 'banners');
       }
+      if (req.files.banner && req.files.banner[0]) {
+        const file = req.files.banner[0];
+        bannerImageUrl = await uploadImageBuffer(file.buffer, file.mimetype, 'banners');
+      }
     }
 
     const tournament = await Tournament.create({
-      name,
+      name: name.trim(),
       sport: sport || 'Football',
       organizer: req.user._id,
-      venue,
+      venue: venue.trim(),
       location,
       startDate,
       endDate,
+      startTime: startTime || '09:00 AM',
       registrationDeadline: registrationDeadline || startDate,
       registrationFee: Number(registrationFee) || 0,
       upiId: upiId || '',
       qrCode: qrCodeUrl,
       bannerImage: bannerImageUrl,
+      requireAadhaarVerification:
+        requireAadhaarVerification === true ||
+        requireAadhaarVerification === 'true' ||
+        requireAadhaarVerification === '1',
       format: format || 'KNOCKOUT',
       maxTeams: Number(maxTeams) || 16,
       teamSize: Number(teamSize) || 11,
@@ -205,6 +234,17 @@ export const updateTournament = async (req, res, next) => {
         const file = req.files.bannerImage[0];
         req.body.bannerImage = await uploadImageBuffer(file.buffer, file.mimetype, 'banners');
       }
+      if (req.files.banner && req.files.banner[0]) {
+        const file = req.files.banner[0];
+        req.body.bannerImage = await uploadImageBuffer(file.buffer, file.mimetype, 'banners');
+      }
+    }
+
+    if (req.body.requireAadhaarVerification !== undefined) {
+      req.body.requireAadhaarVerification =
+        req.body.requireAadhaarVerification === true ||
+        req.body.requireAadhaarVerification === 'true' ||
+        req.body.requireAadhaarVerification === '1';
     }
 
     tournament = await Tournament.findByIdAndUpdate(req.params.id, req.body, {
@@ -214,9 +254,199 @@ export const updateTournament = async (req, res, next) => {
 
     broadcastTournamentUpdate(tournament._id, { tournament });
 
+    // Notify registered participants that tournament details have been updated
+    const registrations = await Registration.find({ tournament: tournament._id });
+    for (const reg of registrations) {
+      createNotification({
+        recipient: reg.user,
+        title: 'Tournament Updated',
+        message: `Organizer updated details for "${tournament.name}". Check the tournament page for changes.`,
+        type: 'TOURNAMENT',
+        link: `/tournaments/${tournament._id}`,
+      });
+    }
+
     res.status(200).json({
       success: true,
       message: 'Tournament updated successfully.',
+      tournament,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete tournament & safely purge associated data
+// @route   DELETE /api/tournaments/:id
+export const deleteTournament = async (req, res, next) => {
+  try {
+    const tournament = await Tournament.findById(req.params.id);
+
+    if (!tournament) {
+      return res.status(404).json({
+        success: false,
+        message: 'Tournament not found.',
+      });
+    }
+
+    if (tournament.organizer.toString() !== req.user._id.toString() && req.user.role !== 'ADMIN') {
+      return res.status(403).json({
+        success: false,
+        message: 'You are not authorized to delete this tournament.',
+      });
+    }
+
+    // Notify registered participants about cancellation before deletion
+    const registrations = await Registration.find({ tournament: tournament._id });
+    for (const reg of registrations) {
+      createNotification({
+        recipient: reg.user,
+        title: 'Tournament Cancelled / Deleted',
+        message: `The tournament "${tournament.name}" was cancelled or removed by the organizer.`,
+        type: 'TOURNAMENT',
+      });
+    }
+
+    // Safely delete associated data
+    await Promise.all([
+      Registration.deleteMany({ tournament: tournament._id }),
+      Payment.deleteMany({ tournament: tournament._id }),
+      Match.deleteMany({ tournament: tournament._id }),
+      Standings.deleteMany({ tournament: tournament._id }),
+      Tournament.findByIdAndDelete(req.params.id),
+    ]);
+
+    broadcastTournamentUpdate(tournament._id, { deleted: true, tournamentId: tournament._id });
+
+    res.status(200).json({
+      success: true,
+      message: `Tournament "${tournament.name}" and associated records were deleted successfully.`,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Set tournament winners & mark completed
+// @route   PUT /api/tournaments/:id/winners
+export const setTournamentWinners = async (req, res, next) => {
+  try {
+    const { winner, runnerUp, thirdPlace, winnerType } = req.body;
+
+    const tournament = await Tournament.findById(req.params.id);
+
+    if (!tournament) {
+      return res.status(404).json({
+        success: false,
+        message: 'Tournament not found.',
+      });
+    }
+
+    if (tournament.organizer.toString() !== req.user._id.toString() && req.user.role !== 'ADMIN') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only the tournament organizer can declare tournament winners.',
+      });
+    }
+
+    tournament.winner = winner || '';
+    tournament.runnerUp = runnerUp || '';
+    tournament.thirdPlace = thirdPlace || '';
+    tournament.winnerType = winnerType || 'TEAM';
+    tournament.status = 'COMPLETED';
+
+    await tournament.save();
+
+    broadcastTournamentUpdate(tournament._id, { tournament });
+
+    // Notify all participants about winner announcement
+    const registrations = await Registration.find({ tournament: tournament._id });
+    for (const reg of registrations) {
+      createNotification({
+        recipient: reg.user,
+        title: '🏆 Tournament Winners Announced!',
+        message: `Winners for "${tournament.name}" have been published! Champion: ${winner || 'Announced'}.`,
+        type: 'WINNER',
+        link: `/tournaments/${tournament._id}`,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Tournament winners declared successfully! Status updated to COMPLETED.',
+      tournament,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Upload / replace tournament banner
+// @route   POST /api/tournaments/:id/banner
+export const uploadTournamentBanner = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please select a banner image file.',
+      });
+    }
+
+    const tournament = await Tournament.findById(req.params.id);
+    if (!tournament) {
+      return res.status(404).json({
+        success: false,
+        message: 'Tournament not found.',
+      });
+    }
+
+    if (tournament.organizer.toString() !== req.user._id.toString() && req.user.role !== 'ADMIN') {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to update banner for this tournament.',
+      });
+    }
+
+    const bannerUrl = await uploadImageBuffer(req.file.buffer, req.file.mimetype, 'banners');
+    tournament.bannerImage = bannerUrl;
+    await tournament.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Tournament banner updated successfully.',
+      bannerImage: bannerUrl,
+      tournament,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Remove tournament banner
+// @route   DELETE /api/tournaments/:id/banner
+export const removeTournamentBanner = async (req, res, next) => {
+  try {
+    const tournament = await Tournament.findById(req.params.id);
+    if (!tournament) {
+      return res.status(404).json({
+        success: false,
+        message: 'Tournament not found.',
+      });
+    }
+
+    if (tournament.organizer.toString() !== req.user._id.toString() && req.user.role !== 'ADMIN') {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to modify banner for this tournament.',
+      });
+    }
+
+    tournament.bannerImage = '';
+    await tournament.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Tournament banner removed. Default banner will be displayed.',
       tournament,
     });
   } catch (error) {
@@ -247,7 +477,7 @@ export const startTournament = async (req, res, next) => {
     // Fetch verified teams
     const verifiedRegistrations = await Registration.find({
       tournament: tournament._id,
-      status: 'VERIFIED',
+      status: { $in: ['VERIFIED', 'APPROVED'] },
     });
 
     if (verifiedRegistrations.length < 2) {
@@ -314,7 +544,6 @@ export const startTournament = async (req, res, next) => {
           });
         });
       } else {
-        // Group format: extract group assignments from first round group matches
         const teamGroups = {};
         insertedMatches.forEach((m) => {
           if (m.group && m.teamA?.name && m.teamA.name !== 'TBD') {
@@ -382,12 +611,16 @@ export const getOrganizerTournaments = async (req, res, next) => {
           tournament: t._id,
           status: 'PENDING',
         });
+        const pendingAadhaarCount = await Registration.countDocuments({
+          tournament: t._id,
+          aadhaarVerificationStatus: 'PENDING',
+        });
         const totalRegistrations = await Registration.countDocuments({
           tournament: t._id,
         });
         const verifiedTeams = await Registration.countDocuments({
           tournament: t._id,
-          status: 'VERIFIED',
+          status: { $in: ['VERIFIED', 'APPROVED'] },
         });
         const totalMatches = await Match.countDocuments({
           tournament: t._id,
@@ -400,6 +633,7 @@ export const getOrganizerTournaments = async (req, res, next) => {
         return {
           ...t.toObject(),
           pendingPaymentsCount,
+          pendingAadhaarCount,
           totalRegistrations,
           verifiedTeams,
           totalMatches,

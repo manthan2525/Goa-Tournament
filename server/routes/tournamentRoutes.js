@@ -4,10 +4,14 @@ import {
   getTournamentById,
   createTournament,
   updateTournament,
+  deleteTournament,
+  setTournamentWinners,
+  uploadTournamentBanner,
+  removeTournamentBanner,
   startTournament,
   getOrganizerTournaments,
 } from '../controllers/tournamentController.js';
-import { verifyAuth, authorizeRoles } from '../middleware/authMiddleware.js';
+import { protect, authorize } from '../middleware/authMiddleware.js';
 import { upload } from '../middleware/uploadMiddleware.js';
 
 const router = express.Router();
@@ -16,40 +20,71 @@ const router = express.Router();
 router.get('/', getTournaments);
 router.get('/:id', getTournamentById);
 
-// Protected routes (Organizer / Admin)
+// Protected Organizer routes
 router.get(
   '/organizer/my-tournaments',
-  verifyAuth,
-  authorizeRoles('ORGANIZER', 'ADMIN'),
+  protect,
+  authorize('ORGANIZER', 'ADMIN'),
   getOrganizerTournaments
 );
 
 router.post(
   '/',
-  verifyAuth,
-  authorizeRoles('ORGANIZER', 'ADMIN'),
+  protect,
+  authorize('ORGANIZER', 'ADMIN'),
   upload.fields([
     { name: 'qrCode', maxCount: 1 },
     { name: 'bannerImage', maxCount: 1 },
+    { name: 'banner', maxCount: 1 },
   ]),
   createTournament
 );
 
 router.put(
   '/:id',
-  verifyAuth,
-  authorizeRoles('ORGANIZER', 'ADMIN'),
+  protect,
+  authorize('ORGANIZER', 'ADMIN'),
   upload.fields([
     { name: 'qrCode', maxCount: 1 },
     { name: 'bannerImage', maxCount: 1 },
+    { name: 'banner', maxCount: 1 },
   ]),
   updateTournament
 );
 
+router.delete(
+  '/:id',
+  protect,
+  authorize('ORGANIZER', 'ADMIN'),
+  deleteTournament
+);
+
+router.put(
+  '/:id/winners',
+  protect,
+  authorize('ORGANIZER', 'ADMIN'),
+  setTournamentWinners
+);
+
+router.post(
+  '/:id/banner',
+  protect,
+  authorize('ORGANIZER', 'ADMIN'),
+  upload.single('banner'),
+  uploadTournamentBanner
+);
+
+router.delete(
+  '/:id/banner',
+  protect,
+  authorize('ORGANIZER', 'ADMIN'),
+  removeTournamentBanner
+);
+
 router.post(
   '/:id/start',
-  verifyAuth,
-  authorizeRoles('ORGANIZER', 'ADMIN'),
+  protect,
+  authorize('ORGANIZER', 'ADMIN'),
   startTournament
 );
 

@@ -13,18 +13,15 @@ import tournamentRoutes from './routes/tournamentRoutes.js';
 import registrationRoutes from './routes/registrationRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import matchRoutes from './routes/matchRoutes.js';
-
-import { checkAndSeedData } from './utils/seed.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 
 dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
 
-// Connect to MongoDB Atlas (or configured database) and check initial seed
-connectDB().then(() => {
-  checkAndSeedData();
-});
+// Connect to MongoDB Atlas (Production-ready with no demo data auto-seeding)
+connectDB();
 
 // Initialize Socket.IO
 const io = initSocket(server);
@@ -42,7 +39,7 @@ app.use(
       if (!origin || allowedOrigins.includes(origin) || origin.startsWith('http://localhost:')) {
         callback(null, true);
       } else {
-        callback(null, true); // Dev permissive
+        callback(null, true); // Permissive in dev
       }
     },
     credentials: true,
@@ -69,6 +66,7 @@ app.use('/api/tournaments', tournamentRoutes);
 app.use('/api/registrations', registrationRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/matches', matchRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Error Handling Middleware
 app.use(notFoundHandler);

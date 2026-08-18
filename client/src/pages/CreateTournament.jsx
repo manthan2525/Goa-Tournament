@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   ShieldAlert,
   ArrowLeft,
+  Clock,
 } from 'lucide-react';
 import api from '../services/api';
 import { SPORTS_LIST, GOA_LOCATIONS, TOURNAMENT_FORMATS } from '../utils/constants';
@@ -26,6 +27,7 @@ const CreateTournament = () => {
     location: 'Panaji',
     startDate: '',
     endDate: '',
+    startTime: '09:00 AM',
     registrationDeadline: '',
     registrationFee: 0,
     upiId: '',
@@ -35,6 +37,7 @@ const CreateTournament = () => {
     prizePool: '',
     rules: '',
     description: '',
+    requireAadhaarVerification: false,
   });
 
   const [qrCodeFile, setQrCodeFile] = useState(null);
@@ -43,8 +46,11 @@ const CreateTournament = () => {
   const [error, setError] = useState('');
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -101,7 +107,7 @@ const CreateTournament = () => {
             Host a New Tournament in Goa
           </h1>
           <p className="text-xs text-slate-400">
-            Set up registration fees, UPI QR code payment, and tournament bracket format.
+            Set up registration fees, UPI QR code payment, Aadhaar verification, and tournament format.
           </p>
         </div>
       </div>
@@ -194,7 +200,7 @@ const CreateTournament = () => {
             <MapPin className="w-5 h-5" /> 2. Venue & Scheduling
           </h3>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                 Goa Location / Town *
@@ -230,6 +236,20 @@ const CreateTournament = () => {
 
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                Daily Match Start Time
+              </label>
+              <input
+                type="text"
+                name="startTime"
+                placeholder="e.g. 09:00 AM"
+                value={formData.startTime}
+                onChange={handleChange}
+                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:border-emerald-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                 Tournament Start Date *
               </label>
               <input
@@ -255,13 +275,26 @@ const CreateTournament = () => {
                 className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:border-emerald-500"
               />
             </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                Registration Deadline
+              </label>
+              <input
+                type="date"
+                name="registrationDeadline"
+                value={formData.registrationDeadline}
+                onChange={handleChange}
+                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:border-emerald-500"
+              />
+            </div>
           </div>
         </div>
 
         {/* Section 3: Capacity, Rules & Prize */}
         <div className="space-y-4">
           <h3 className="font-display font-bold text-lg text-emerald-400 border-b border-slate-800 pb-2 flex items-center gap-2">
-            <Users className="w-5 h-5" /> 3. Capacity & Prizes
+            <Users className="w-5 h-5" /> 3. Capacity, Identity & Rules
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -310,6 +343,37 @@ const CreateTournament = () => {
               />
             </div>
 
+            {/* Aadhaar Verification Toggle */}
+            <div className="sm:col-span-3 p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+              <div>
+                <p className="text-white font-bold text-xs flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  Enable Mandatory Aadhaar / ID Card Verification
+                </p>
+                <p className="text-[11px] text-slate-400">
+                  Participants must upload an Aadhaar card or government ID document when registering.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    requireAadhaarVerification: !prev.requireAadhaarVerification,
+                  }))
+                }
+                className={`w-12 h-6 rounded-full transition-colors relative flex items-center px-0.5 ${
+                  formData.requireAadhaarVerification ? 'bg-emerald-500' : 'bg-slate-700'
+                }`}
+              >
+                <span
+                  className={`w-5 h-5 rounded-full bg-slate-950 transition-transform ${
+                    formData.requireAadhaarVerification ? 'translate-x-6' : 'translate-x-0'
+                  }`}
+                ></span>
+              </button>
+            </div>
+
             <div className="sm:col-span-3">
               <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                 Official Rules & Regulations
@@ -329,7 +393,7 @@ const CreateTournament = () => {
         {/* Section 4: UPI Payment & QR Setup */}
         <div className="space-y-4">
           <h3 className="font-display font-bold text-lg text-emerald-400 border-b border-slate-800 pb-2 flex items-center gap-2">
-            <IndianRupee className="w-5 h-5" /> 4. UPI Payment & QR Code
+            <IndianRupee className="w-5 h-5" /> 4. UPI Payment & Visuals
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
