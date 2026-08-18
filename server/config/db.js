@@ -2,22 +2,25 @@ import mongoose from 'mongoose';
 
 export const connectDB = async () => {
   try {
-    if (!process.env.MONGO_URI) {
-      throw new Error('MONGO_URI environment variable is not defined');
+    const uri = process.env.MONGO_URI;
+    if (!uri) {
+      console.warn('⚠️ [MongoDB Warning] MONGO_URI is not set in environment variables.');
+      console.warn('⚠️ Please add MONGO_URI in your Render Dashboard -> Environment tab.');
+      return;
     }
 
     mongoose.set('strictQuery', false);
 
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
-      serverSelectionTimeoutMS: 10000,
+    const conn = await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 15000,
     });
 
     console.log(
-      `[MongoDB] Connected to Atlas: ${conn.connection.host}/${conn.connection.name}`
+      `✅ [MongoDB] Connected successfully to Atlas: ${conn.connection.host}/${conn.connection.name}`
     );
   } catch (error) {
-    console.error(`[MongoDB Error] Connection failed: ${error.message}`);
-    process.exit(1);
+    console.error(`❌ [MongoDB Error] Connection failed: ${error.message}`);
+    console.error('👉 Verify your MongoDB Atlas connection string, database user password, and Network Access (allow 0.0.0.0/0 on Atlas).');
   }
 };
 
