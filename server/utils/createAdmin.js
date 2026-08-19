@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import mongoose from 'mongoose';
 import User from '../models/User.js';
+import { connectDB, closeDB } from '../config/db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,46 +13,41 @@ dotenv.config();
 
 const createAdminAccount = async () => {
   try {
-    // 2. Read MONGODB_URI (or MONGO_URI fallback)
-    const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
+    const uri = process.env.MONGO_URI || process.env.MONGODB_URI;
 
-    if (!mongoUri) {
-      console.error('❌ Error: MONGODB_URI environment variable is not defined.');
-      console.error('👉 Please set MONGODB_URI in your server/.env file or environment variables.');
+    if (!uri) {
+      console.error('❌ Error: MONGO_URI environment variable is not defined.');
+      console.error('👉 Please set MONGO_URI in your server/.env file or environment variables.');
       process.exit(1);
     }
 
-    // 3. Read Admin credentials from .env
     const email = (process.env.ADMIN_EMAIL || 'admin@goatournament.com').toLowerCase().trim();
     const password = process.env.ADMIN_PASSWORD || 'AdminGoa2026!';
     const name = process.env.ADMIN_NAME || 'Platform Administrator';
 
     console.log(`Connecting to MongoDB Atlas...`);
 
-    // Configure Mongoose options identically to main app
-    mongoose.set('strictQuery', false);
+    // Use shared connectDB logic to ensure identical options and dbName ('goa_tournament')
+    const conn = await connectDB();
+    if (!conn) {
+      process.exit(1);
+    }
 
-    const conn = await mongoose.connect(mongoUri, {
-      serverSelectionTimeoutMS: 15000,
-    });
-
-    console.log(`✅ [MongoDB] Connected successfully to Atlas: ${conn.connection.host}/${conn.connection.name}`);
-
-    // 4. Check whether Admin already exists
+    // Check whether Admin already exists
     let adminUser = await User.findOne({ email });
 
     if (adminUser) {
       if (adminUser.role === 'ADMIN' && adminUser.isActive !== false) {
-        console.log(`ℹ️ Admin account with email "${email}" already exists. No duplicate account created.`);
+        console.log(`ℹ️ Admin account with email "${email}" already exists in "${conn.connection.name}". No duplicate account created.`);
       } else {
         // Elevate existing account to ADMIN
         adminUser.role = 'ADMIN';
         adminUser.isActive = true;
         await adminUser.save();
-        console.log(`✅ Existing user "${email}" successfully elevated to ADMIN role.`);
+        console.log(`✅ Existing user "${email}" successfully elevated to active ADMIN role in "${conn.connection.name}".`);
       }
     } else {
-      // 5. Create new Admin account (Password is hashed automatically by User model pre-save hook using bcrypt)
+      // Create new Admin account (Password is hashed automatically by User model pre-save hook using bcrypt)
       adminUser = await User.create({
         name,
         email,
@@ -61,22 +56,16 @@ const createAdminAccount = async () => {
         isActive: true,
         location: 'Panaji, Goa',
       });
-      console.log(`✅ New Admin account successfully created!`);
+      console.log(`✅ New Admin account successfully created in "${conn.connection.name}"!`);
       console.log(`   Name:  ${name}`);
       console.log(`   Email: ${email}`);
       console.log(`   Role:  ADMIN`);
     }
 
-    // 6. Close MongoDB connection cleanly
-    await mongoose.connection.close();
-    console.log('✅ [MongoDB] Connection closed cleanly.');
+    await closeDB();
     process.exit(0);
   } catch (error) {
     console.error(`❌ Failed to create Admin account: ${error.message}`);
-    if (error.message.includes('ECONNREFUSED') || error.message.includes('ENOTFOUND')) {
-      console.error('👉 Please check your MONGODB_URI connection string in server/.env.');
-      console.error('👉 Make sure to replace default placeholder credentials with your real MongoDB Atlas connection string and whitelist 0.0.0.0/0 in Atlas Network Access.');
-    }
     process.exit(1);
   }
 };
