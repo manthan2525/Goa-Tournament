@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
-export const verifyAuth = async (req, res, next) => {
+// Authentication verification middleware
+export const protect = async (req, res, next) => {
   try {
     let token = null;
 
@@ -17,10 +18,10 @@ export const verifyAuth = async (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
     }
 
-    if (!token) {
+    if (!token || token === 'none') {
       return res.status(401).json({
         success: false,
-        message: 'Authentication required. Please login.',
+        message: 'Authentication required. Please log in to continue.',
       });
     }
 
@@ -47,7 +48,8 @@ export const verifyAuth = async (req, res, next) => {
   }
 };
 
-export const authorizeRoles = (...roles) => {
+// Role-based authorization middleware
+export const authorize = (...roles) => {
   return (req, res, next) => {
     if (!req.user || !roles.includes(req.user.role)) {
       return res.status(403).json({
@@ -57,4 +59,15 @@ export const authorizeRoles = (...roles) => {
     }
     next();
   };
+};
+
+// Aliases for compatibility
+export const verifyAuth = protect;
+export const authorizeRoles = authorize;
+
+export default {
+  protect,
+  verifyAuth,
+  authorize,
+  authorizeRoles,
 };

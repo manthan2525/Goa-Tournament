@@ -5,7 +5,7 @@ import {
   getMatchById,
   updateMatchScore,
 } from '../controllers/matchController.js';
-import { verifyAuth, authorizeRoles } from '../middleware/authMiddleware.js';
+import { protect, authorize } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -17,8 +17,8 @@ router.get('/:id', getMatchById);
 // Protected routes (Organizer / Admin)
 router.put(
   '/:id/score',
-  verifyAuth,
-  authorizeRoles('ORGANIZER', 'ADMIN'),
+  protect,
+  authorize('ORGANIZER', 'ADMIN'),
   updateMatchScore
 );
 
