@@ -7,46 +7,52 @@ import User from '../models/User.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load .env from server directory
+// 1. Load .env file before accessing process.env
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 dotenv.config();
 
 const createAdminAccount = async () => {
   try {
+    // 2. Read MONGODB_URI (or MONGO_URI fallback)
     const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
 
     if (!mongoUri) {
-      console.error('❌ MONGODB_URI / MONGO_URI environment variable is missing.');
+      console.error('❌ Error: MONGODB_URI environment variable is not defined.');
       console.error('👉 Please set MONGODB_URI in your server/.env file or environment variables.');
       process.exit(1);
     }
 
-    // Prevent local connection fallback if explicitly expecting Atlas
-    if (mongoUri.includes('127.0.0.1:27017') || mongoUri.includes('localhost:27017')) {
-      console.warn('⚠️ Warning: Current MONGODB_URI points to local MongoDB (127.0.0.1:27017).');
-      console.warn('👉 Replace MONGODB_URI in server/.env with your MongoDB Atlas connection string:');
-      console.warn('   MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/goa_tournament?retryWrites=true&w=majority');
-    }
-
+    // 3. Read Admin credentials from .env
     const email = (process.env.ADMIN_EMAIL || 'admin@goatournament.com').toLowerCase().trim();
     const password = process.env.ADMIN_PASSWORD || 'AdminGoa2026!';
     const name = process.env.ADMIN_NAME || 'Platform Administrator';
 
     console.log(`Connecting to MongoDB Atlas...`);
-    await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 15000 });
 
-    let adminUser = await User.findOne({ email }).select('+password');
+    // Configure Mongoose options identically to main app
+    mongoose.set('strictQuery', false);
+
+    const conn = await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 15000,
+    });
+
+    console.log(`✅ [MongoDB] Connected successfully to Atlas: ${conn.connection.host}/${conn.connection.name}`);
+
+    // 4. Check whether Admin already exists
+    let adminUser = await User.findOne({ email });
 
     if (adminUser) {
-      if (adminUser.role !== 'ADMIN' || adminUser.isActive === false) {
+      if (adminUser.role === 'ADMIN' && adminUser.isActive !== false) {
+        console.log(`ℹ️ Admin account with email "${email}" already exists. No duplicate account created.`);
+      } else {
+        // Elevate existing account to ADMIN
         adminUser.role = 'ADMIN';
         adminUser.isActive = true;
         await adminUser.save();
-        console.log(`✅ Existing user "${email}" elevated to active ADMIN role.`);
-      } else {
-        console.log(`ℹ️ Admin user "${email}" already exists with active ADMIN privileges.`);
+        console.log(`✅ Existing user "${email}" successfully elevated to ADMIN role.`);
       }
     } else {
+      // 5. Create new Admin account (Password is hashed automatically by User model pre-save hook using bcrypt)
       adminUser = await User.create({
         name,
         email,
@@ -56,15 +62,21 @@ const createAdminAccount = async () => {
         location: 'Panaji, Goa',
       });
       console.log(`✅ New Admin account successfully created!`);
+      console.log(`   Name:  ${name}`);
       console.log(`   Email: ${email}`);
-      console.log(`   Role: ADMIN`);
+      console.log(`   Role:  ADMIN`);
     }
 
-    await mongoose.disconnect();
-    console.log('✅ MongoDB connection closed cleanly.');
+    // 6. Close MongoDB connection cleanly
+    await mongoose.connection.close();
+    console.log('✅ [MongoDB] Connection closed cleanly.');
     process.exit(0);
   } catch (error) {
-    console.error(`❌ Failed to create Admin account:`, error.message);
+    console.error(`❌ Failed to create Admin account: ${error.message}`);
+    if (error.message.includes('ECONNREFUSED') || error.message.includes('ENOTFOUND')) {
+      console.error('👉 Please check your MONGODB_URI connection string in server/.env.');
+      console.error('👉 Make sure to replace default placeholder credentials with your real MongoDB Atlas connection string and whitelist 0.0.0.0/0 in Atlas Network Access.');
+    }
     process.exit(1);
   }
 };
