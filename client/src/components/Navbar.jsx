@@ -11,6 +11,7 @@ import {
   Menu,
   X,
   ShieldCheck,
+  ShieldAlert,
   Zap,
   Home as HomeIcon,
   Settings,
@@ -31,6 +32,7 @@ const Navbar = () => {
   };
 
   const isActive = (path) => location.pathname === path;
+  const isAdmin = user?.role === 'ADMIN';
   const avatarUrl = user?.profilePhoto || user?.profileImage;
 
   return (
@@ -102,6 +104,20 @@ const Navbar = () => {
                 >
                   <ShieldCheck className="w-4 h-4 text-emerald-400" />
                   Organizer Suite
+                </Link>
+              )}
+
+              {isAdmin && (
+                <Link
+                  to="/admin/dashboard"
+                  className={`px-3.5 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
+                    location.pathname.startsWith('/admin')
+                      ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30 font-bold'
+                      : 'text-rose-400 hover:text-rose-300 hover:bg-rose-500/10'
+                  }`}
+                >
+                  <ShieldAlert className="w-4 h-4 text-rose-400" />
+                  Admin Panel
                 </Link>
               )}
             </nav>
@@ -224,9 +240,9 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Fullscreen / Slide Drawer */}
+        {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden glass-panel border-t border-slate-800 px-4 pt-3 pb-6 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="md:hidden glass-panel border-t border-slate-800 px-4 pt-3 pb-6 space-y-3">
             <Link
               to="/tournaments"
               onClick={() => setMobileMenuOpen(false)}
@@ -293,6 +309,16 @@ const Navbar = () => {
               </>
             )}
 
+            {isAdmin && (
+              <Link
+                to="/admin/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-3 py-2.5 rounded-xl text-sm font-bold bg-rose-600 text-white"
+              >
+                🛡️ Admin Dashboard
+              </Link>
+            )}
+
             <div className="pt-3 border-t border-slate-800">
               {isAuthenticated ? (
                 <div className="flex items-center justify-between bg-slate-900/80 p-3 rounded-xl border border-slate-800">
@@ -343,7 +369,7 @@ const Navbar = () => {
         )}
       </header>
 
-      {/* Mobile Fixed Bottom App Navigation Bar (Only on Phones) */}
+      {/* Mobile Bottom Navigation Bar */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/90 px-2 py-1.5 flex items-center justify-around text-[10px] font-medium text-slate-400">
         <Link
           to="/"
@@ -380,19 +406,21 @@ const Navbar = () => {
 
         {isAuthenticated ? (
           <Link
-            to={isOrganizer ? '/organizer-dashboard' : '/player-dashboard'}
+            to={isAdmin ? '/admin/dashboard' : isOrganizer ? '/organizer-dashboard' : '/player-dashboard'}
             className={`flex flex-col items-center py-1 px-2 rounded-lg transition-colors ${
-              isActive('/organizer-dashboard') || isActive('/player-dashboard')
+              location.pathname.startsWith('/admin') || isActive('/organizer-dashboard') || isActive('/player-dashboard')
                 ? 'text-emerald-400 font-bold'
                 : 'hover:text-white'
             }`}
           >
-            {isOrganizer ? (
+            {isAdmin ? (
+              <ShieldAlert className="w-5 h-5 mb-0.5 text-rose-400" />
+            ) : isOrganizer ? (
               <ShieldCheck className="w-5 h-5 mb-0.5 text-emerald-400" />
             ) : (
               <UserIcon className="w-5 h-5 mb-0.5" />
             )}
-            <span>{isOrganizer ? 'Suite' : 'My Teams'}</span>
+            <span>{isAdmin ? 'Admin' : isOrganizer ? 'Suite' : 'My Teams'}</span>
           </Link>
         ) : (
           <Link

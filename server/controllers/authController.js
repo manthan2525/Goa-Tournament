@@ -4,6 +4,7 @@ import User from '../models/User.js';
 import { uploadImageBuffer } from '../config/cloudinary.js';
 import { sendPasswordResetEmail } from '../utils/emailService.js';
 import { createNotification } from '../utils/notify.js';
+import { logActivity } from '../models/ActivityLog.js';
 
 // Helper to sign JWT and set HTTP-only cookie
 const sendTokenResponse = (user, statusCode, res, message = 'Success') => {
@@ -42,7 +43,7 @@ const sendTokenResponse = (user, statusCode, res, message = 'Success') => {
   });
 };
 
-// @desc    Register a new user (PLAYER or ORGANIZER)
+// @desc    Register a new user (PLAYER or ORGANIZER - Admin cannot be registered via public endpoint)
 // @route   POST /api/auth/register
 export const register = async (req, res, next) => {
   try {
@@ -75,16 +76,29 @@ export const register = async (req, res, next) => {
       profilePhotoUrl = await uploadImageBuffer(req.file.buffer, req.file.mimetype, 'avatars');
     }
 
+    // Never allow ADMIN creation via public register endpoint
+    const assignedRole = role === 'ORGANIZER' ? 'ORGANIZER' : 'PLAYER';
+
     const user = await User.create({
       name: name.trim(),
       email: email.toLowerCase().trim(),
       password,
       phone: phone || '',
-      role: role && ['PLAYER', 'ORGANIZER', 'ADMIN'].includes(role) ? role : 'PLAYER',
+      role: assignedRole,
       organizationName: organizationName || '',
       profilePhoto: profilePhotoUrl,
       bio: bio || '',
       location: location || 'Goa, India',
+    });
+
+    await logActivity({
+      action: assignedRole === 'ORGANIZER' ? 'New Organizer Registered' : 'New User Registered',
+      performedBy: user._id,
+      performerRole: assignedRole,
+      targetType: assignedRole === 'ORGANIZER' ? 'ORGANIZER' : 'USER',
+      targetId: user._id,
+      targetName: user.name,
+      details: `${user.name} registered as ${assignedRole}`,
     });
 
     sendTokenResponse(user, 201, res, 'Registration successful! Welcome to Goa Tournament.');
@@ -111,6 +125,13 @@ export const login = async (req, res, next) => {
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password.',
+      });
+    }
+
+    if (user.isActive === false) {
+      return res.status(403).json({
+        success: false,
+        message: 'Your account has been deactivated by administrator.',
       });
     }
 

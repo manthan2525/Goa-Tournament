@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['PLAYER', 'ORGANIZER', 'ADMIN'],
+      enum: ['PLAYER', 'USER', 'ORGANIZER', 'ADMIN'],
       default: 'PLAYER',
     },
     organizationName: {
@@ -53,6 +53,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: 'Goa, India',
     },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
     resetPasswordToken: {
       type: String,
       default: null,
@@ -69,7 +73,11 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Alias profileImage to profilePhoto for seamless backwards compatibility
+// Indexes for fast searching & admin aggregation
+userSchema.index({ role: 1 });
+userSchema.index({ createdAt: -1 });
+
+// Alias profileImage to profilePhoto for backwards compatibility
 userSchema.virtual('profileImage').get(function () {
   return this.profilePhoto || '';
 }).set(function (val) {

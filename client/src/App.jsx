@@ -7,6 +7,7 @@ import { SocketProvider } from './context/SocketContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminLayout from './components/AdminLayout';
 
 // Pages
 import Home from './pages/Home';
@@ -21,6 +22,17 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+
+// Admin Pages
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminOrganizers from './pages/admin/AdminOrganizers';
+import AdminTournaments from './pages/admin/AdminTournaments';
+import AdminEditTournament from './pages/admin/AdminEditTournament';
+import AdminRegistrations from './pages/admin/AdminRegistrations';
+import AdminReports from './pages/admin/AdminReports';
+import AdminActivity from './pages/admin/AdminActivity';
+import AdminSettings from './pages/admin/AdminSettings';
 
 function App() {
   return (
@@ -81,6 +93,27 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+
+                {/* Admin Protected Routes */}
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute allowedRoles={['ADMIN']}>
+                      <AdminLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                  <Route path="dashboard" element={<AdminDashboard />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="organizers" element={<AdminOrganizers />} />
+                  <Route path="tournaments" element={<AdminTournaments />} />
+                  <Route path="tournaments/:id/edit" element={<AdminEditTournament />} />
+                  <Route path="registrations" element={<AdminRegistrations />} />
+                  <Route path="reports" element={<AdminReports />} />
+                  <Route path="activity" element={<AdminActivity />} />
+                  <Route path="settings" element={<AdminSettings />} />
+                </Route>
 
                 {/* Fallback */}
                 <Route path="*" element={<Navigate to="/" replace />} />
