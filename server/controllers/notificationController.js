@@ -24,7 +24,7 @@ export const getMyNotifications = async (req, res, next) => {
 };
 
 // @desc    Mark single notification as read
-// @route   PUT /api/notifications/:id/read
+// @route   PUT/PATCH /api/notifications/:id/read
 export const markAsRead = async (req, res, next) => {
   try {
     const notification = await Notification.findOne({
@@ -35,7 +35,7 @@ export const markAsRead = async (req, res, next) => {
     if (!notification) {
       return res.status(404).json({
         success: false,
-        message: 'Notification not found.',
+        message: 'Notification not found or unauthorized.',
       });
     }
 
@@ -52,7 +52,7 @@ export const markAsRead = async (req, res, next) => {
 };
 
 // @desc    Mark all notifications as read
-// @route   PUT /api/notifications/read-all
+// @route   PUT/PATCH /api/notifications/read-all
 export const markAllAsRead = async (req, res, next) => {
   try {
     await Notification.updateMany(
@@ -73,14 +73,21 @@ export const markAllAsRead = async (req, res, next) => {
 // @route   DELETE /api/notifications/:id
 export const deleteNotification = async (req, res, next) => {
   try {
-    await Notification.findOneAndDelete({
+    const deleted = await Notification.findOneAndDelete({
       _id: req.params.id,
       recipient: req.user._id,
     });
 
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: 'Notification not found or unauthorized.',
+      });
+    }
+
     res.status(200).json({
       success: true,
-      message: 'Notification deleted.',
+      message: 'Notification deleted successfully.',
     });
   } catch (error) {
     next(error);
