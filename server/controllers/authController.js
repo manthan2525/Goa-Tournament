@@ -362,10 +362,14 @@ export const resetPassword = async (req, res, next) => {
 // @desc    Logout user & clear cookie
 // @route   POST /api/auth/logout
 export const logout = async (req, res) => {
-  res.cookie('token', 'none', {
+  const cookieOptions = {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
-  });
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  };
+
+  res.cookie('token', 'none', cookieOptions);
 
   res.status(200).json({
     success: true,

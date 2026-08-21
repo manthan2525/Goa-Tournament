@@ -325,7 +325,13 @@ const TournamentDetail = () => {
             <div>
               {tournament.status === 'REGISTRATION_OPEN' && (
                 <button
-                  onClick={() => setShowRegisterModal(true)}
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      navigate('/login', { state: { message: 'Please login or create an account to register for this tournament.' } });
+                    } else {
+                      setShowRegisterModal(true);
+                    }
+                  }}
                   className="px-6 py-3 rounded-xl font-display font-bold text-xs uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-xl shadow-emerald-500/25 transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
                 >
                   Register Team ({tournament.registrationFee === 0 ? 'FREE' : `₹${tournament.registrationFee}`})

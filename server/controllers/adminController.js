@@ -445,7 +445,15 @@ export const updateAdminTournament = async (req, res, next) => {
 
     allowedFields.forEach((field) => {
       if (req.body[field] !== undefined) {
-        tournament[field] = req.body[field];
+        if (field === 'location' && typeof req.body.location === 'string') {
+          try {
+            tournament.location = JSON.parse(req.body.location);
+          } catch (e) {
+            tournament.location = req.body.location;
+          }
+        } else {
+          tournament[field] = req.body[field];
+        }
       }
     });
 
