@@ -164,7 +164,9 @@ const AdminTournaments = () => {
                     </td>
                     <td className="px-4 py-3 text-slate-400 whitespace-nowrap">{t.sport}</td>
                     <td className="px-4 py-3 text-slate-400 whitespace-nowrap">{t.organizer?.name || '—'}</td>
-                    <td className="px-4 py-3 text-slate-400 whitespace-nowrap">{t.location}</td>
+                    <td className="px-4 py-3 text-slate-400 whitespace-nowrap truncate max-w-[120px]">
+                      {typeof t.location === 'object' && t.location !== null ? t.location.address : t.location}
+                    </td>
                     <td className="px-4 py-3 text-slate-400 whitespace-nowrap">
                       {new Date(t.startDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}
                     </td>

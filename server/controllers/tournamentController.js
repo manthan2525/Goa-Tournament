@@ -24,7 +24,13 @@ export const getTournaments = async (req, res, next) => {
     }
 
     if (location && location !== 'All') {
-      filter.location = location;
+      if (!filter.$and) filter.$and = [];
+      filter.$and.push({
+        $or: [
+          { location: location },
+          { "location.address": { $regex: location, $options: 'i' } }
+        ]
+      });
     }
 
     if (status && status !== 'All') {
@@ -43,12 +49,15 @@ export const getTournaments = async (req, res, next) => {
 
     if (search && search.trim()) {
       const q = search.trim();
-      filter.$or = [
-        { name: { $regex: q, $options: 'i' } },
-        { venue: { $regex: q, $options: 'i' } },
-        { description: { $regex: q, $options: 'i' } },
-        { sport: { $regex: q, $options: 'i' } },
-      ];
+      if (!filter.$and) filter.$and = [];
+      filter.$and.push({
+        $or: [
+          { name: { $regex: q, $options: 'i' } },
+          { venue: { $regex: q, $options: 'i' } },
+          { description: { $regex: q, $options: 'i' } },
+          { sport: { $regex: q, $options: 'i' } },
+        ]
+      });
     }
 
     let sortOption = { startDate: 1, createdAt: -1 };
@@ -147,6 +156,15 @@ export const createTournament = async (req, res, next) => {
       });
     }
 
+    let parsedLocation = location;
+    if (typeof location === 'string') {
+      try {
+        parsedLocation = JSON.parse(location);
+      } catch (e) {
+        // Assume it's an old-style string (e.g. "Panaji") if parsing fails
+      }
+    }
+
     let qrCodeUrl = '';
     let bannerImageUrl = '';
 
@@ -171,7 +189,7 @@ export const createTournament = async (req, res, next) => {
       sport: sport || 'Football',
       organizer: req.user._id,
       venue: venue.trim(),
-      location,
+      location: parsedLocation,
       startDate,
       endDate,
       startTime: startTime || '09:00 AM',
@@ -245,6 +263,14 @@ export const updateTournament = async (req, res, next) => {
         req.body.requireAadhaarVerification === true ||
         req.body.requireAadhaarVerification === 'true' ||
         req.body.requireAadhaarVerification === '1';
+    }
+
+    if (typeof req.body.location === 'string') {
+      try {
+        req.body.location = JSON.parse(req.body.location);
+      } catch (e) {
+        // Keep as string if parsing fails
+      }
     }
 
     tournament = await Tournament.findByIdAndUpdate(req.params.id, req.body, {

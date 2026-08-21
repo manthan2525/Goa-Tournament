@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { X, Edit3, Image as ImageIcon, Calendar, Clock, MapPin, IndianRupee, Users, ShieldAlert, ShieldCheck, Check } from 'lucide-react';
 import api from '../services/api';
 import { GOA_LOCATIONS, SPORTS_LIST, TOURNAMENT_FORMATS } from '../utils/constants';
+import LocationPicker from './map/LocationPicker';
 
 const EditTournamentModal = ({ tournament, onClose, onUpdated }) => {
   const [name, setName] = useState(tournament.name || '');
   const [sport, setSport] = useState(tournament.sport || 'Football');
   const [venue, setVenue] = useState(tournament.venue || '');
-  const [location, setLocation] = useState(tournament.location || 'Panaji');
+  const [location, setLocation] = useState(tournament.location || null);
   const [startDate, setStartDate] = useState(tournament.startDate ? tournament.startDate.substring(0, 10) : '');
   const [endDate, setEndDate] = useState(tournament.endDate ? tournament.endDate.substring(0, 10) : '');
   const [startTime, setStartTime] = useState(tournament.startTime || '09:00 AM');
@@ -55,7 +56,13 @@ const EditTournamentModal = ({ tournament, onClose, onUpdated }) => {
       formData.append('name', name.trim());
       formData.append('sport', sport);
       formData.append('venue', venue.trim());
-      formData.append('location', location);
+      
+      if (location !== null && typeof location === 'object') {
+        formData.append('location', JSON.stringify(location));
+      } else {
+        formData.append('location', location);
+      }
+      
       formData.append('startDate', startDate);
       formData.append('endDate', endDate);
       formData.append('startTime', startTime);
@@ -172,17 +179,12 @@ const EditTournamentModal = ({ tournament, onClose, onUpdated }) => {
                 className="w-full min-h-[42px] px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-emerald-500"
               />
             </div>
-            <div>
-              <label className="block text-slate-300 font-semibold mb-1">Location in Goa *</label>
-              <select
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="w-full min-h-[42px] px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-emerald-500"
-              >
-                {GOA_LOCATIONS.map((loc) => (
-                  <option key={loc} value={loc}>{loc}</option>
-                ))}
-              </select>
+            <div className="sm:col-span-2">
+              <label className="block text-slate-300 font-semibold mb-1">Exact Map Location *</label>
+              <LocationPicker
+                location={location}
+                setLocation={setLocation}
+              />
             </div>
           </div>
 

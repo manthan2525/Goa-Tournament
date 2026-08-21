@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import { SPORTS_LIST, GOA_LOCATIONS, TOURNAMENT_FORMATS } from '../utils/constants';
+import LocationPicker from '../components/map/LocationPicker';
 
 const CreateTournament = () => {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ const CreateTournament = () => {
     name: '',
     sport: 'Football',
     venue: '',
-    location: 'Panaji',
+    location: null,
     startDate: '',
     endDate: '',
     startTime: '09:00 AM',
@@ -67,7 +68,11 @@ const CreateTournament = () => {
       const data = new FormData();
 
       Object.entries(formData).forEach(([key, val]) => {
-        data.append(key, val);
+        if (val !== null && typeof val === 'object' && !(val instanceof File)) {
+          data.append(key, JSON.stringify(val));
+        } else {
+          data.append(key, val);
+        }
       });
 
       if (qrCodeFile) {
@@ -201,22 +206,14 @@ const CreateTournament = () => {
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
+            <div className="sm:col-span-3">
               <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                Goa Location / Town *
+                Exact Map Location *
               </label>
-              <select
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:border-emerald-500"
-              >
-                {GOA_LOCATIONS.filter((l) => l !== 'All').map((l) => (
-                  <option key={l} value={l}>
-                    {l}
-                  </option>
-                ))}
-              </select>
+              <LocationPicker 
+                location={formData.location}
+                setLocation={(loc) => setFormData(prev => ({ ...prev, location: loc }))}
+              />
             </div>
 
             <div>

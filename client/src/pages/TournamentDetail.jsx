@@ -34,6 +34,7 @@ import ScoreUpdateModal from '../components/ScoreUpdateModal';
 import EditTournamentModal from '../components/EditTournamentModal';
 import DeleteTournamentModal from '../components/DeleteTournamentModal';
 import DeclareWinnersModal from '../components/DeclareWinnersModal';
+import MapPreview from '../components/map/MapPreview';
 import { STATUS_COLORS } from '../utils/constants';
 
 const TournamentDetail = () => {
@@ -299,7 +300,7 @@ const TournamentDetail = () => {
               <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300 font-medium">
                 <div className="flex items-center gap-1.5">
                   <MapPin className="w-4 h-4 text-emerald-400" />
-                  <span>{tournament.venue}, {tournament.location}, Goa</span>
+                  <span>{tournament.venue}, {typeof tournament.location === 'object' && tournament.location !== null ? tournament.location.address : `${tournament.location}, Goa`}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Calendar className="w-4 h-4 text-slate-400" />
@@ -590,10 +591,18 @@ const TournamentDetail = () => {
               <div>
                 <p className="text-slate-500 font-medium">Stadium / Ground</p>
                 <p className="font-semibold text-white">{tournament.venue}</p>
-                <p className="text-slate-400">{tournament.location}, Goa</p>
+                <p className="text-slate-400">
+                  {typeof tournament.location === 'object' && tournament.location !== null 
+                    ? tournament.location.address 
+                    : `${tournament.location}, Goa`}
+                </p>
               </div>
 
-              <div className="pt-2 border-t border-slate-800">
+              {typeof tournament.location === 'object' && tournament.location !== null && tournament.location.latitude && (
+                <MapPreview location={tournament.location} venueName={tournament.venue} />
+              )}
+
+              <div className="pt-4 border-t border-slate-800">
                 <p className="text-slate-500 font-medium">Organizer Details</p>
                 <p className="font-semibold text-white">{tournament.organizer?.name}</p>
                 {tournament.organizer?.organizationName && (

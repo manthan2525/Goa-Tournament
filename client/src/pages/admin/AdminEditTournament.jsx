@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ShieldAlert, ShieldCheck } from 'lucide-react';
 import api from '../../services/api';
 import { SPORTS_LIST, GOA_LOCATIONS, TOURNAMENT_FORMATS } from '../../utils/constants';
+import LocationPicker from '../../components/map/LocationPicker';
 
 const statusOptions = ['UPCOMING', 'REGISTRATION_OPEN', 'REGISTRATION_CLOSED', 'ONGOING', 'COMPLETED', 'CANCELLED', 'DRAFT'];
 
@@ -28,7 +29,7 @@ const AdminEditTournament = () => {
             sport: t.sport || 'Football',
             description: t.description || '',
             venue: t.venue || '',
-            location: t.location || 'Panaji',
+            location: t.location || null,
             startDate: t.startDate ? t.startDate.split('T')[0] : '',
             endDate: t.endDate ? t.endDate.split('T')[0] : '',
             startTime: t.startTime || '09:00 AM',
@@ -67,7 +68,13 @@ const AdminEditTournament = () => {
       setSaving(true);
       setError('');
       const data = new FormData();
-      Object.entries(form).forEach(([k, v]) => data.append(k, v));
+      Object.entries(form).forEach(([k, v]) => {
+        if (v !== null && typeof v === 'object' && !(v instanceof File)) {
+          data.append(k, JSON.stringify(v));
+        } else {
+          data.append(k, v);
+        }
+      });
       if (bannerFile) data.append('bannerImage', bannerFile);
       const res = await api.put(`/admin/tournaments/${id}`, data, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -139,11 +146,12 @@ const AdminEditTournament = () => {
                 {statusOptions.map(s => <option key={s}>{s}</option>)}
               </select>
             </div>
-            <div>
-              <label className={labelClass}>Location</label>
-              <select name="location" value={form.location} onChange={handleChange} className={fieldClass}>
-                {GOA_LOCATIONS.filter(l => l !== 'All').map(l => <option key={l}>{l}</option>)}
-              </select>
+            <div className="sm:col-span-2">
+              <label className={labelClass}>Exact Map Location</label>
+              <LocationPicker 
+                location={form.location}
+                setLocation={(loc) => setForm(prev => ({ ...prev, location: loc }))}
+              />
             </div>
             <div className="sm:col-span-2">
               <label className={labelClass}>Description</label>

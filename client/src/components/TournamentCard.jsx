@@ -52,7 +52,9 @@ const TournamentCard = ({ tournament }) => {
         <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs text-slate-300">
           <div className="flex items-center gap-1.5 font-medium truncate">
             <MapPin className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-            <span className="truncate">{tournament.venue}, {tournament.location}</span>
+            <span className="truncate">
+              {tournament.venue}, {typeof tournament.location === 'object' && tournament.location !== null ? tournament.location.address : tournament.location}
+            </span>
           </div>
         </div>
       </div>
