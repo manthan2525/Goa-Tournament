@@ -9,13 +9,23 @@ export const AuthProvider = ({ children }) => {
 
   const checkUser = async () => {
     try {
+      const storedToken = localStorage.getItem('token');
+      if (!storedToken) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
       const res = await api.get('/auth/me');
-      if (res.data.success) {
+      if (res.data?.success && res.data?.user) {
         setUser(res.data.user);
       } else {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
         setUser(null);
       }
     } catch (err) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       setUser(null);
     } finally {
       setLoading(false);
@@ -28,7 +38,10 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const res = await api.post('/auth/login', { email, password });
-    if (res.data.success) {
+    if (res.data?.success) {
+      if (res.data.token) {
+        localStorage.setItem('token', res.data.token);
+      }
       setUser(res.data.user);
       return res.data;
     }
@@ -40,7 +53,10 @@ export const AuthProvider = ({ children }) => {
         'Content-Type': formData instanceof FormData ? 'multipart/form-data' : 'application/json',
       },
     });
-    if (res.data.success) {
+    if (res.data?.success) {
+      if (res.data.token) {
+        localStorage.setItem('token', res.data.token);
+      }
       setUser(res.data.user);
       return res.data;
     }
@@ -48,7 +64,7 @@ export const AuthProvider = ({ children }) => {
 
   const updateProfile = async (profileData) => {
     const res = await api.put('/auth/profile', profileData);
-    if (res.data.success) {
+    if (res.data?.success) {
       setUser(res.data.user);
       return res.data;
     }
@@ -60,7 +76,7 @@ export const AuthProvider = ({ children }) => {
     const res = await api.post('/auth/profile-photo', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-    if (res.data.success) {
+    if (res.data?.success) {
       setUser(res.data.user);
       return res.data;
     }
@@ -68,7 +84,7 @@ export const AuthProvider = ({ children }) => {
 
   const removeProfilePhoto = async () => {
     const res = await api.delete('/auth/profile-photo');
-    if (res.data.success) {
+    if (res.data?.success) {
       setUser(res.data.user);
       return res.data;
     }
@@ -76,10 +92,14 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       await api.post('/auth/logout');
     } catch (err) {
-      console.error(err);
+      console.error('Logout API error:', err);
     } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       setUser(null);
     }
   };

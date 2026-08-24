@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Calendar, Users, Trophy, IndianRupee, ArrowRight, ShieldCheck, Award } from 'lucide-react';
-import { STATUS_COLORS } from '../utils/constants';
+import { STATUS_COLORS, formatLocation } from '../utils/constants';
 
 const TournamentCard = ({ tournament }) => {
   const statusInfo = STATUS_COLORS[tournament.status] || STATUS_COLORS.REGISTRATION_OPEN;
@@ -16,7 +16,7 @@ const TournamentCard = ({ tournament }) => {
     'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80';
 
   return (
-    <div className="group relative rounded-3xl glass-card border border-slate-800/80 hover:border-emerald-500/40 transition-all duration-300 flex flex-col overflow-hidden hover:shadow-xl hover:shadow-emerald-950/20">
+    <div className="group relative rounded-3xl glass-card border border-slate-800/80 hover:border-emerald-500/40 card-hover flex flex-col overflow-hidden">
       {/* Banner / Media Container */}
       <div className="relative h-44 w-full overflow-hidden bg-slate-900">
         <img
@@ -53,7 +53,7 @@ const TournamentCard = ({ tournament }) => {
           <div className="flex items-center gap-1.5 font-medium truncate">
             <MapPin className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
             <span className="truncate">
-              {tournament.venue}, {typeof tournament.location === 'object' && tournament.location !== null ? tournament.location.address : tournament.location}
+              {tournament.venue}, {formatLocation(tournament.location)}
             </span>
           </div>
         </div>

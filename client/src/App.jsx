@@ -34,12 +34,14 @@ import AdminReports from './pages/admin/AdminReports';
 import AdminActivity from './pages/admin/AdminActivity';
 import AdminSettings from './pages/admin/AdminSettings';
 import ErrorBoundary from './components/ErrorBoundary';
+import CustomCursor from './components/CustomCursor';
 
 function App() {
   return (
     <AuthProvider>
       <SocketProvider>
         <Router>
+          <CustomCursor />
           <div className="flex flex-col min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500 selection:text-slate-950">
             {/* Top Navbar */}
             <Navbar />
