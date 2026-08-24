@@ -109,6 +109,10 @@ const matchSchema = new mongoose.Schema(
       enum: ['teamA', 'teamB', null],
       default: null,
     },
+    isTestData: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

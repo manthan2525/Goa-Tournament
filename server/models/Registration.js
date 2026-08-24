@@ -90,6 +90,10 @@ const registrationSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    isTestData: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
