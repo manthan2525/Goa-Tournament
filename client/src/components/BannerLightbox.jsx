@@ -1,52 +1,62 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { X } from 'lucide-react';
 
 const BannerLightbox = ({ imageUrl, altText = 'Tournament Banner', onClose }) => {
+  const handleClose = useCallback(() => onClose(), [onClose]);
+
   useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
+      if (e.key === 'Escape') handleClose();
     };
     window.addEventListener('keydown', handleKeyDown);
-    document.body.style.overflow = 'hidden';
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = prev || '';
     };
-  }, [onClose]);
+  }, [handleClose]);
 
   if (!imageUrl) return null;
 
   return (
+    /*
+     * Overlay — covers 100dvh so mobile address-bar doesn't cut it off.
+     * Clicking the backdrop (but NOT the image) closes the viewer.
+     */
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md overflow-hidden cursor-zoom-out"
-      onClick={onClose}
+      className="banner-lightbox-overlay"
+      onClick={handleClose}
       role="dialog"
       aria-modal="true"
-      aria-label="Full Tournament Banner Image Viewer"
+      aria-label="Full tournament banner image viewer"
     >
-      {/* Lightbox Container */}
+      {/*
+       * Close button — fixed to the viewport so it is ALWAYS visible
+       * regardless of how tall/wide the image is on any screen size.
+       * 48×48 px touch target (≥44px requirement met).
+       */}
+      <button
+        onClick={(e) => { e.stopPropagation(); handleClose(); }}
+        aria-label="Close image viewer"
+        title="Close (ESC)"
+        className="banner-lightbox-close"
+      >
+        <X className="w-5 h-5" />
+      </button>
+
+      {/* Image container — stops click from propagating to the backdrop */}
       <div
-        className="relative max-w-5xl max-h-[92vh] w-auto h-auto flex items-center justify-center cursor-default"
+        className="banner-lightbox-img-wrap"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          aria-label="Close image viewer"
-          className="absolute -top-12 right-0 sm:top-3 sm:right-3 z-10 p-2.5 rounded-full bg-slate-900/90 hover:bg-slate-800 text-white border border-slate-700 shadow-2xl transition-all hover:scale-105 active:scale-95"
-          title="Close image viewer (ESC)"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        {/* Full Image with object-contain to preserve full aspect ratio */}
         <img
           src={imageUrl}
           alt={altText}
-          className="max-h-[85vh] max-w-[92vw] sm:max-w-[90vw] object-contain rounded-2xl shadow-2xl border border-slate-800/80"
+          className="banner-lightbox-img"
+          draggable={false}
         />
       </div>
     </div>

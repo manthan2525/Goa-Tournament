@@ -2,11 +2,166 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Global box-sizing ─── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* ─── Prevent horizontal overflow at the root ─── */
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
 @layer base {
   body {
     @apply bg-slate-950 text-slate-100 min-h-screen overflow-x-hidden;
+    /* Use dynamic viewport height so mobile address bars don't cause overflow */
+    min-height: 100dvh;
   }
 }
+
+/* ═══════════════════════════════════════════════════
+   BANNER LIGHTBOX — Mobile-first, always-visible close
+   ═══════════════════════════════════════════════════ */
+
+/* Full-viewport overlay using 100dvh (dynamic viewport height)
+   so mobile browser chrome doesn't clip the modal */
+.banner-lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;          /* dynamic — respects mobile address bar */
+  height: 100vh;           /* fallback for browsers without dvh */
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+  /* Padding keeps image away from edges AND away from the close button */
+  padding: max(64px, calc(16px + env(safe-area-inset-top)))
+           max(16px, env(safe-area-inset-right))
+           max(16px, env(safe-area-inset-bottom))
+           max(16px, env(safe-area-inset-left));
+}
+
+/* Close button — FIXED to viewport so it's ALWAYS visible.
+   48×48 touch target (> 44px a11y recommendation).       */
+.banner-lightbox-close {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top, 12px));
+  right: max(12px, env(safe-area-inset-right, 12px));
+  z-index: 10001;           /* above everything */
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(100, 116, 139, 0.6);
+  color: #f1f5f9;
+  cursor: pointer;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.banner-lightbox-close:hover {
+  background: rgba(30, 41, 59, 1);
+  transform: scale(1.08);
+}
+.banner-lightbox-close:active {
+  transform: scale(0.95);
+}
+
+/* Image wrapper — stops click propagation; sized so image
+   never overlaps the close button area               */
+.banner-lightbox-img-wrap {
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* The image itself — always object-contain, never cropped */
+.banner-lightbox-img {
+  max-width: 100%;
+  max-height: calc(100dvh - 100px);
+  max-height: calc(100vh - 100px);   /* fallback */
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+@media (max-width: 480px) {
+  .banner-lightbox-img {
+    border-radius: 8px;
+    max-height: calc(100dvh - 80px);
+    max-height: calc(100vh - 80px);
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE UTILITIES
+   ═══════════════════════════════════════════════ */
+
+/* Tables that must stay scrollable without widening the page */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+.table-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+/* No horizontal scrollbar helper */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Responsive card pattern — used by organizer/admin tables on mobile */
+@media (max-width: 640px) {
+  .responsive-table thead {
+    display: none;
+  }
+  .responsive-table tr {
+    display: block;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+    padding: 12px 0;
+  }
+  .responsive-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 0.75rem;
+  }
+  .responsive-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #94a3b8;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+    margin-right: 8px;
+  }
+}
+
+
 
 /* Custom modern scrollbar */
 ::-webkit-scrollbar {

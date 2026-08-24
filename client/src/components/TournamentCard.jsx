@@ -22,18 +22,19 @@ const TournamentCard = ({ tournament }) => {
       {/* Banner / Media Container */}
       <div
         onClick={() => setShowLightbox(true)}
-        className="relative h-44 w-full overflow-hidden bg-slate-900 cursor-zoom-in group/banner"
+        className="relative h-44 w-full overflow-hidden bg-slate-950 cursor-zoom-in group/banner"
         title="Click to view full tournament banner"
+        role="button"
+        aria-label="View full tournament banner"
       >
         <img
           src={fallbackBanner}
           alt={`${tournament.name} banner`}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-contain"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
 
         {/* Fullsize indicator icon on hover */}
-        <div className="absolute inset-0 bg-slate-950/30 opacity-0 group-hover/banner:opacity-100 transition-opacity flex items-center justify-center">
+        <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover/banner:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
           <span className="px-3 py-1.5 rounded-xl bg-slate-900/80 backdrop-blur-md text-white text-xs font-bold border border-slate-700 flex items-center gap-1.5 shadow-lg">
             <Maximize2 className="w-3.5 h-3.5 text-emerald-400" /> View Full Banner
           </span>
