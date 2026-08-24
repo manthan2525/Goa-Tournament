@@ -20,6 +20,10 @@ import {
   Check,
   X,
   Filter,
+  Mail,
+  Phone,
+  MessageSquare,
+  Search,
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -29,6 +33,7 @@ import EditTournamentModal from '../components/EditTournamentModal';
 import DeleteTournamentModal from '../components/DeleteTournamentModal';
 import DeclareWinnersModal from '../components/DeclareWinnersModal';
 import AadhaarReviewModal from '../components/AadhaarReviewModal';
+import TeamDetailsModal from '../components/TeamDetailsModal';
 import { STATUS_COLORS, formatLocation } from '../utils/constants';
 
 const OrganizerDashboard = () => {
@@ -460,28 +465,42 @@ const OrganizerDashboard = () => {
       {/* TAB 2: Participant Management */}
       {activeTab === 'participants' && (
         <div className="space-y-6">
-          {/* Tournament Selector Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl glass-panel border border-slate-800">
-            <div className="flex items-center gap-3">
-              <label className="text-xs font-semibold text-slate-400">Select Tournament:</label>
-              <select
-                value={selectedTournamentForParticipants?._id || ''}
-                onChange={(e) => {
-                  const t = tournaments.find((item) => item._id === e.target.value);
-                  if (t) setSelectedTournamentForParticipants(t);
-                }}
-                className="px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:border-emerald-500 min-w-[200px]"
-              >
-                {tournaments.map((t) => (
-                  <option key={t._id} value={t._id}>
-                    {t.name} ({t.sport})
-                  </option>
-                ))}
-              </select>
+          {/* Tournament Selector & Search & Filter Bar */}
+          <div className="p-4 sm:p-5 rounded-2xl glass-panel border border-slate-800 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <label className="text-xs font-semibold text-slate-400 flex-shrink-0">Select Tournament:</label>
+                <select
+                  value={selectedTournamentForParticipants?._id || ''}
+                  onChange={(e) => {
+                    const t = tournaments.find((item) => item._id === e.target.value);
+                    if (t) setSelectedTournamentForParticipants(t);
+                  }}
+                  className="px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:border-emerald-500 min-w-[200px]"
+                >
+                  {tournaments.map((t) => (
+                    <option key={t._id} value={t._id}>
+                      {t.name} ({t.sport})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Search Bar */}
+              <div className="relative flex-1 max-w-md">
+                <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
+                <input
+                  type="text"
+                  placeholder="Search team, captain, email, or phone..."
+                  value={participantSearch}
+                  onChange={(e) => setParticipantSearch(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
+                />
+              </div>
             </div>
 
-            {/* Filter Buttons */}
-            <div className="flex items-center gap-2">
+            {/* Filter Pills */}
+            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80">
               <button
                 onClick={() => setParticipantFilter('ALL')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
@@ -512,107 +531,286 @@ const OrganizerDashboard = () => {
               >
                 Pending Aadhaar
               </button>
+              <button
+                onClick={() => setParticipantFilter('VERIFIED')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                  participantFilter === 'VERIFIED'
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                    : 'bg-slate-900 text-slate-400 hover:text-white'
+                }`}
+              >
+                Verified / Approved
+              </button>
+              <button
+                onClick={() => setParticipantFilter('REJECTED')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                  participantFilter === 'REJECTED'
+                    ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                    : 'bg-slate-900 text-slate-400 hover:text-white'
+                }`}
+              >
+                Rejected
+              </button>
             </div>
           </div>
 
-          {/* Participants Table */}
+          {/* Participants Display Container */}
           {loadingParticipants ? (
             <div className="p-12 text-center text-xs text-slate-400">
               Loading participant records...
             </div>
           ) : filteredRegistrations.length > 0 ? (
-            <div className="rounded-2xl glass-panel border border-slate-800 overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-900/90 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
-                  <tr>
-                    <th className="p-3.5">Team Name</th>
-                    <th className="p-3.5">Captain / In-Charge</th>
-                    <th className="p-3.5">Contact Phone</th>
-                    <th className="p-3.5">Payment Status</th>
-                    <th className="p-3.5">Aadhaar Status</th>
-                    <th className="p-3.5">Overall Entry</th>
-                    <th className="p-3.5 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/60">
-                  {filteredRegistrations.map((reg) => (
-                    <tr key={reg._id} className="hover:bg-slate-900/40 transition-colors">
-                      <td className="p-3.5 font-bold text-white whitespace-nowrap">
-                        {reg.teamName}
-                      </td>
-                      <td className="p-3.5 text-slate-300 whitespace-nowrap">
-                        {reg.captainName}
-                      </td>
-                      <td className="p-3.5 text-slate-400 font-mono whitespace-nowrap">
-                        {reg.contactPhone}
-                      </td>
-                      <td className="p-3.5 whitespace-nowrap">
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase font-mono ${
-                            reg.paymentStatus === 'VERIFIED'
-                              ? 'bg-emerald-500/15 text-emerald-400'
-                              : reg.paymentStatus === 'REJECTED'
-                              ? 'bg-rose-500/15 text-rose-400'
-                              : 'bg-yellow-500/15 text-yellow-400'
-                          }`}
-                        >
-                          {reg.paymentStatus || 'PENDING'}
-                        </span>
-                      </td>
-                      <td className="p-3.5 whitespace-nowrap">
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase font-mono ${
-                            reg.aadhaarVerificationStatus === 'VERIFIED'
-                              ? 'bg-emerald-500/15 text-emerald-400'
-                              : reg.aadhaarVerificationStatus === 'REJECTED'
-                              ? 'bg-rose-500/15 text-rose-400'
-                              : reg.aadhaarVerificationStatus === 'NOT_REQUIRED'
-                              ? 'bg-slate-800 text-slate-400'
-                              : 'bg-teal-500/15 text-teal-400'
-                          }`}
-                        >
-                          {reg.aadhaarVerificationStatus || 'NOT_REQUIRED'}
-                        </span>
-                      </td>
-                      <td className="p-3.5 whitespace-nowrap">
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase font-mono ${
-                            reg.status === 'VERIFIED'
-                              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                              : reg.status === 'REJECTED'
-                              ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
-                              : 'bg-yellow-500/15 text-yellow-400 border border-yellow-500/30'
-                          }`}
-                        >
-                          {reg.status}
-                        </span>
-                      </td>
-                      <td className="p-3.5 text-right whitespace-nowrap space-x-2">
-                        {reg.aadhaarDocument && (
-                          <button
-                            onClick={() => setSelectedRegistrationForAadhaar(reg)}
-                            className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-teal-500/20 text-teal-300 hover:bg-teal-500/30 border border-teal-500/40"
-                          >
-                            Review Aadhaar
-                          </button>
-                        )}
-                        {reg.payment && (
-                          <button
-                            onClick={() => setActivePaymentForReview(reg.payment)}
-                            className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/40"
-                          >
-                            Review Payment
-                          </button>
-                        )}
-                      </td>
+            <div className="space-y-4">
+              {/* DESKTOP TABLE VIEW (Visible on md and larger) */}
+              <div className="hidden md:block rounded-2xl glass-panel border border-slate-800 overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-900/90 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                    <tr>
+                      <th className="p-3.5">Team Name</th>
+                      <th className="p-3.5">Captain</th>
+                      <th className="p-3.5">Contact Details</th>
+                      <th className="p-3.5">Payment</th>
+                      <th className="p-3.5">Aadhaar</th>
+                      <th className="p-3.5">Entry Status</th>
+                      <th className="p-3.5 text-right">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60">
+                    {filteredRegistrations.map((reg) => {
+                      const email = reg.contactEmail || reg.user?.email || 'N/A';
+                      const phone = reg.contactPhone || reg.user?.phone || 'N/A';
+                      const whatsapp = reg.contactWhatsapp || reg.user?.whatsapp || phone;
+
+                      return (
+                        <tr key={reg._id} className="hover:bg-slate-900/40 transition-colors">
+                          <td className="p-3.5">
+                            <div className="font-bold text-white">{reg.teamName}</div>
+                            <div className="text-[10px] text-slate-400 font-mono">
+                              {reg.playersList?.length || 0} Players
+                            </div>
+                          </td>
+                          <td className="p-3.5 text-slate-300 whitespace-nowrap font-medium">
+                            {reg.captainName}
+                          </td>
+                          <td className="p-3.5">
+                            <div className="space-y-1">
+                              {email !== 'N/A' && (
+                                <div className="text-slate-300 text-[11px] truncate max-w-[180px]">
+                                  📧 {email}
+                                </div>
+                              )}
+                              {phone !== 'N/A' && (
+                                <div className="text-slate-400 font-mono text-[11px]">
+                                  📞 {phone}
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap">
+                            <span
+                              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase font-mono ${
+                                reg.paymentStatus === 'VERIFIED'
+                                  ? 'bg-emerald-500/15 text-emerald-400'
+                                  : reg.paymentStatus === 'REJECTED'
+                                  ? 'bg-rose-500/15 text-rose-400'
+                                  : 'bg-yellow-500/15 text-yellow-400'
+                              }`}
+                            >
+                              {reg.paymentStatus || 'PENDING'}
+                            </span>
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap">
+                            <span
+                              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase font-mono ${
+                                reg.aadhaarVerificationStatus === 'VERIFIED'
+                                  ? 'bg-emerald-500/15 text-emerald-400'
+                                  : reg.aadhaarVerificationStatus === 'REJECTED'
+                                  ? 'bg-rose-500/15 text-rose-400'
+                                  : reg.aadhaarVerificationStatus === 'NOT_REQUIRED'
+                                  ? 'bg-slate-800 text-slate-400'
+                                  : 'bg-teal-500/15 text-teal-400'
+                              }`}
+                            >
+                              {reg.aadhaarVerificationStatus || 'NOT_REQUIRED'}
+                            </span>
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap">
+                            <span
+                              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase font-mono ${
+                                reg.status === 'VERIFIED'
+                                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                                  : reg.status === 'REJECTED'
+                                  ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
+                                  : 'bg-yellow-500/15 text-yellow-400 border border-yellow-500/30'
+                              }`}
+                            >
+                              {reg.status}
+                            </span>
+                          </td>
+                          <td className="p-3.5 text-right whitespace-nowrap space-x-1.5">
+                            {/* View Team Details Button */}
+                            <button
+                              onClick={() => setSelectedRegDetails(reg)}
+                              className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition-colors"
+                            >
+                              View Team
+                            </button>
+
+                            {/* Direct WhatsApp Button */}
+                            {phone !== 'N/A' && (
+                              <a
+                                href={formatWhatsAppUrl(whatsapp !== 'N/A' ? whatsapp : phone)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/40 transition-colors"
+                                title="Chat on WhatsApp"
+                              >
+                                WhatsApp
+                              </a>
+                            )}
+
+                            {/* Direct Call Button */}
+                            {phone !== 'N/A' && (
+                              <a
+                                href={`tel:${phone}`}
+                                className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors"
+                                title="Call Captain"
+                              >
+                                Call
+                              </a>
+                            )}
+
+                            {/* Aadhaar review button */}
+                            {reg.aadhaarDocument && (
+                              <button
+                                onClick={() => setSelectedRegistrationForAadhaar(reg)}
+                                className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-teal-500/20 text-teal-300 hover:bg-teal-500/30 border border-teal-500/40"
+                              >
+                                Aadhaar
+                              </button>
+                            )}
+
+                            {/* Payment review button */}
+                            {reg.payment && (
+                              <button
+                                onClick={() => setActivePaymentForReview(reg.payment)}
+                                className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/40"
+                              >
+                                Payment
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* MOBILE CARDS VIEW (Visible on small screens < md) */}
+              <div className="md:hidden grid grid-cols-1 gap-4">
+                {filteredRegistrations.map((reg) => {
+                  const email = reg.contactEmail || reg.user?.email || 'N/A';
+                  const phone = reg.contactPhone || reg.user?.phone || 'N/A';
+                  const whatsapp = reg.contactWhatsapp || reg.user?.whatsapp || phone;
+                  const isSame = phone !== 'N/A' && (phone === whatsapp || whatsapp === 'N/A');
+
+                  return (
+                    <div key={reg._id} className="p-4 rounded-2xl glass-card border border-slate-800 space-y-3.5 shadow-md">
+                      {/* Team & Captain */}
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h4 className="font-bold text-base text-white">{reg.teamName}</h4>
+                          <p className="text-xs text-slate-300 font-medium mt-0.5">
+                            Captain: <span className="text-white font-bold">{reg.captainName}</span>
+                          </p>
+                        </div>
+                        <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                          {reg.playersList?.length || 0} Players
+                        </span>
+                      </div>
+
+                      {/* Contact Info Box */}
+                      <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800/80 text-xs space-y-1.5">
+                        {email !== 'N/A' && (
+                          <div className="flex items-center gap-2 text-slate-300 truncate">
+                            <Mail className="w-3.5 h-3.5 text-sky-400 flex-shrink-0" />
+                            <span className="truncate">{email}</span>
+                          </div>
+                        )}
+                        {phone !== 'N/A' && (
+                          <div className="flex items-center gap-2 text-slate-300 font-mono">
+                            <Phone className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                            <span>{isSame ? 'Phone / WhatsApp: ' : 'Phone: '}{phone}</span>
+                          </div>
+                        )}
+                        {!isSame && whatsapp !== 'N/A' && (
+                          <div className="flex items-center gap-2 text-emerald-400 font-mono">
+                            <MessageSquare className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                            <span>WhatsApp: {whatsapp}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Status Badges */}
+                      <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase font-mono">
+                        <span className={`px-2 py-0.5 rounded-full ${
+                          reg.paymentStatus === 'VERIFIED' ? 'bg-emerald-500/15 text-emerald-400' :
+                          reg.paymentStatus === 'REJECTED' ? 'bg-rose-500/15 text-rose-400' : 'bg-yellow-500/15 text-yellow-400'
+                        }`}>
+                          Payment: {reg.paymentStatus || 'PENDING'}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded-full ${
+                          reg.status === 'VERIFIED' ? 'bg-emerald-500/15 text-emerald-400' :
+                          reg.status === 'REJECTED' ? 'bg-rose-500/15 text-rose-400' : 'bg-yellow-500/15 text-yellow-400'
+                        }`}>
+                          Entry: {reg.status}
+                        </span>
+                      </div>
+
+                      {/* Action Buttons Grid */}
+                      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800 text-xs">
+                        <button
+                          onClick={() => setSelectedRegDetails(reg)}
+                          className="w-full py-2 rounded-xl font-bold bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 text-center transition-colors"
+                        >
+                          View Details
+                        </button>
+                        {phone !== 'N/A' && (
+                          <a
+                            href={formatWhatsAppUrl(whatsapp !== 'N/A' ? whatsapp : phone)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full py-2 rounded-xl font-bold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-center flex items-center justify-center gap-1.5 transition-colors"
+                          >
+                            <MessageSquare className="w-3.5 h-3.5" /> WhatsApp
+                          </a>
+                        )}
+                        {phone !== 'N/A' && (
+                          <a
+                            href={`tel:${phone}`}
+                            className="w-full py-2 rounded-xl font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-center flex items-center justify-center gap-1.5 transition-colors"
+                          >
+                            <Phone className="w-3.5 h-3.5 text-emerald-400" /> Call
+                          </a>
+                        )}
+                        {email !== 'N/A' && (
+                          <a
+                            href={`mailto:${email}`}
+                            className="w-full py-2 rounded-xl font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-center flex items-center justify-center gap-1.5 transition-colors"
+                          >
+                            <Mail className="w-3.5 h-3.5 text-sky-400" /> Email
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           ) : (
             <div className="p-12 text-center text-xs text-slate-400 rounded-2xl glass-card border border-slate-800">
-              No participants matching filter criteria.
+              No participants matching search or filter criteria.
             </div>
           )}
         </div>
@@ -824,6 +1022,20 @@ const OrganizerDashboard = () => {
           onUpdated={() => {
             setActiveMatchForScore(null);
             fetchOrganizerData();
+          }}
+        />
+      )}
+
+      {/* Team Details Modal */}
+      {selectedRegDetails && (
+        <TeamDetailsModal
+          registration={selectedRegDetails}
+          onClose={() => setSelectedRegDetails(null)}
+          onReviewPayment={(reg) => {
+            if (reg.payment) setActivePaymentForReview(reg.payment);
+          }}
+          onReviewAadhaar={(reg) => {
+            if (reg.aadhaarDocument) setSelectedRegistrationForAadhaar(reg);
           }}
         />
       )}

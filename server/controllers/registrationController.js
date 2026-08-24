@@ -178,7 +178,7 @@ export const getTournamentRegistrations = async (req, res, next) => {
     const registrations = await Registration.find({
       tournament: req.params.tournamentId,
     })
-      .populate('user', 'name email phone profilePhoto profileImage')
+      .populate('user', 'name email phone whatsapp profilePhoto profileImage')
       .populate('payment')
       .sort({ createdAt: -1 });
 

@@ -37,16 +37,19 @@ import ErrorBoundary from './components/ErrorBoundary';
 import CustomCursor from './components/CustomCursor';
 import DynamicBackground from './components/DynamicBackground';
 
+import { ThemeProvider } from './context/ThemeContext';
+
 function App() {
   return (
-    <AuthProvider>
-      <SocketProvider>
-        <Router>
-          <CustomCursor />
-          <DynamicBackground />
-          <div className="relative z-10 flex flex-col min-h-screen bg-slate-950/80 text-slate-100 font-sans selection:bg-emerald-500 selection:text-slate-950">
-            {/* Top Navbar */}
-            <Navbar />
+    <ThemeProvider>
+      <AuthProvider>
+        <SocketProvider>
+          <Router>
+            <CustomCursor />
+            <DynamicBackground />
+            <div className="relative z-10 flex flex-col min-h-screen bg-slate-950/80 text-slate-100 font-sans selection:bg-emerald-500 selection:text-slate-950">
+              {/* Top Navbar */}
+              <Navbar />
 
             {/* Main Page Body */}
             <main className="flex-grow">
@@ -133,6 +136,7 @@ function App() {
         </Router>
       </SocketProvider>
     </AuthProvider>
+    </ThemeProvider>
   );
 }
 
