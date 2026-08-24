@@ -60,7 +60,17 @@ const OrganizerDashboard = () => {
   const [selectedTournamentForParticipants, setSelectedTournamentForParticipants] = useState(null);
   const [participantRegistrations, setParticipantRegistrations] = useState([]);
   const [loadingParticipants, setLoadingParticipants] = useState(false);
-  const [participantFilter, setParticipantFilter] = useState('ALL'); // 'ALL' | 'PENDING_PAYMENT' | 'PENDING_AADHAAR'
+  const [participantFilter, setParticipantFilter] = useState('ALL'); // 'ALL' | 'PENDING_PAYMENT' | 'PENDING_AADHAAR' | 'VERIFIED' | 'REJECTED'
+  const [selectedRegDetails, setSelectedRegDetails] = useState(null);
+  const [participantSearch, setParticipantSearch] = useState('');
+
+  const formatWhatsAppUrl = (phoneStr) => {
+    if (!phoneStr) return '#';
+    const clean = String(phoneStr).replace(/\D/g, '');
+    if (!clean) return '#';
+    const formatted = clean.length === 10 ? `91${clean}` : clean;
+    return `https://wa.me/${formatted}`;
+  };
 
   // Score modal states
   const [activeMatchForScore, setActiveMatchForScore] = useState(null);
@@ -181,11 +191,26 @@ const OrganizerDashboard = () => {
   );
 
   const filteredRegistrations = participantRegistrations.filter((reg) => {
+    if (participantSearch) {
+      const q = participantSearch.toLowerCase();
+      const matchTeam = reg.teamName?.toLowerCase().includes(q);
+      const matchCaptain = reg.captainName?.toLowerCase().includes(q);
+      const matchEmail = (reg.contactEmail || reg.user?.email || '').toLowerCase().includes(q);
+      const matchPhone = (reg.contactPhone || reg.user?.phone || '').includes(q);
+      if (!matchTeam && !matchCaptain && !matchEmail && !matchPhone) return false;
+    }
+
     if (participantFilter === 'PENDING_PAYMENT') {
       return reg.paymentStatus === 'PENDING' || reg.payment?.status === 'PENDING';
     }
     if (participantFilter === 'PENDING_AADHAAR') {
       return reg.aadhaarVerificationStatus === 'PENDING';
+    }
+    if (participantFilter === 'VERIFIED') {
+      return reg.status === 'VERIFIED' || reg.status === 'APPROVED';
+    }
+    if (participantFilter === 'REJECTED') {
+      return reg.status === 'REJECTED';
     }
     return true;
   });
