@@ -35,6 +35,7 @@ import AdminActivity from './pages/admin/AdminActivity';
 import AdminSettings from './pages/admin/AdminSettings';
 import ErrorBoundary from './components/ErrorBoundary';
 import CustomCursor from './components/CustomCursor';
+import DynamicBackground from './components/DynamicBackground';
 
 function App() {
   return (
@@ -42,7 +43,8 @@ function App() {
       <SocketProvider>
         <Router>
           <CustomCursor />
-          <div className="flex flex-col min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500 selection:text-slate-950">
+          <DynamicBackground />
+          <div className="relative z-10 flex flex-col min-h-screen bg-slate-950/80 text-slate-100 font-sans selection:bg-emerald-500 selection:text-slate-950">
             {/* Top Navbar */}
             <Navbar />
 

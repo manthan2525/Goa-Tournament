@@ -6,19 +6,20 @@ export const protect = async (req, res, next) => {
   try {
     let token = null;
 
-    // 1. Try reading from signed/unsigned HTTP-only cookies
-    if (req.cookies && req.cookies.token) {
-      token = req.cookies.token;
-    } 
-    // 2. Fallback to Authorization Header (Bearer token)
-    else if (
+    // 1. Try reading from Authorization Header (Bearer token) first
+    if (
       req.headers.authorization &&
       req.headers.authorization.startsWith('Bearer ')
     ) {
       token = req.headers.authorization.split(' ')[1];
     }
 
-    if (!token || token === 'none') {
+    // 2. Fallback to HTTP-only cookies if Bearer header is missing or 'none'
+    if ((!token || token === 'none' || token === 'null') && req.cookies && req.cookies.token) {
+      token = req.cookies.token;
+    }
+
+    if (!token || token === 'none' || token === 'null' || token === 'undefined') {
       return res.status(401).json({
         success: false,
         message: 'Authentication required. Please log in to continue.',
