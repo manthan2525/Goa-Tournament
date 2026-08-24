@@ -69,3 +69,12 @@ export const PAYMENT_STATUS_COLORS = {
     label: 'Rejected',
   },
 };
+
+export const formatLocation = (loc) => {
+  if (!loc) return 'Goa, India';
+  if (typeof loc === 'string') return loc;
+  if (typeof loc === 'object' && loc !== null) {
+    return loc.address || (loc.latitude && loc.longitude ? `${loc.latitude.toFixed(4)}, ${loc.longitude.toFixed(4)}` : 'Goa, India');
+  }
+  return String(loc);
+};

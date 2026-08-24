@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart3, Trophy, Users, MapPin, Building2, TrendingUp } from 'lucide-react';
 import api from '../../services/api';
+import { formatLocation } from '../../utils/constants';
 
 const AdminReports = () => {
   const [reports, setReports] = useState(null);
@@ -88,7 +89,7 @@ const AdminReports = () => {
               reports.locationData.map((item) => (
                 <div key={item._id} className="space-y-1">
                   <div className="flex justify-between text-xs">
-                    <span className="font-semibold text-slate-300">{item._id}</span>
+                    <span className="font-semibold text-slate-300">{formatLocation(item._id)}</span>
                     <span className="font-mono text-emerald-400">{item.count} venues</span>
                   </div>
                   <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden">

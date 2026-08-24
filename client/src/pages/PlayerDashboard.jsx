@@ -19,7 +19,7 @@ import {
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import PaymentModal from '../components/PaymentModal';
-import { PAYMENT_STATUS_COLORS } from '../utils/constants';
+import { PAYMENT_STATUS_COLORS, formatLocation } from '../utils/constants';
 
 const PlayerDashboard = () => {
   const { user } = useAuth();
@@ -216,7 +216,7 @@ const PlayerDashboard = () => {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-slate-400">Venue:</span>
-                        <span className="text-slate-200">{reg.tournament?.venue}, {reg.tournament?.location}</span>
+                        <span className="text-slate-200">{reg.tournament?.venue}, {formatLocation(reg.tournament?.location)}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-slate-400">Fee Amount:</span>

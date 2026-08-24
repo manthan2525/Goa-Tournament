@@ -1,6 +1,7 @@
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { ShieldAlert, ArrowLeft } from 'lucide-react';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading, isAuthenticated } = useAuth();
@@ -23,12 +24,26 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   if (allowedRoles && !allowedRoles.includes(user?.role)) {
     return (
-      <div className="max-w-md mx-auto my-20 p-8 glass-panel rounded-2xl text-center">
-        <h2 className="text-xl font-bold text-rose-400 mb-2">Access Restricted</h2>
-        <p className="text-sm text-slate-300 mb-6">
-          This area is restricted to {allowedRoles.join(' / ')} accounts.
-        </p>
-        <Navigate to="/" replace />
+      <div className="max-w-md mx-auto my-20 p-8 glass-panel border border-slate-800 rounded-3xl text-center space-y-4 shadow-2xl">
+        <div className="w-12 h-12 rounded-full bg-rose-500/15 text-rose-400 flex items-center justify-center mx-auto border border-rose-500/30">
+          <ShieldAlert className="w-6 h-6" />
+        </div>
+        <div>
+          <h2 className="font-display font-bold text-xl text-rose-400 mb-1">Access Restricted</h2>
+          <p className="text-xs text-slate-300">
+            This area requires an <span className="font-mono font-bold text-emerald-400">{allowedRoles.join(' or ')}</span> account.
+          </p>
+          <p className="text-[11px] text-slate-500 mt-1">
+            Logged in as: <span className="font-semibold text-slate-300">{user?.email}</span> ({user?.role})
+          </p>
+        </div>
+        <Link
+          to="/"
+          className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs border border-slate-700 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Return to Home</span>
+        </Link>
       </div>
     );
   }

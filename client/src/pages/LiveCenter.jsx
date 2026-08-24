@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import { useSocket } from '../context/SocketContext';
+import { formatLocation } from '../utils/constants';
 
 const LiveCenter = () => {
   const [liveMatches, setLiveMatches] = useState([]);
@@ -134,7 +135,7 @@ const LiveCenter = () => {
                 </h3>
                 <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-1">
                   <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>{m.tournament?.venue}, {m.tournament?.location} • {m.venueCourt}</span>
+                  <span>{m.tournament?.venue}, {formatLocation(m.tournament?.location)} • {m.venueCourt}</span>
                 </div>
               </div>
 

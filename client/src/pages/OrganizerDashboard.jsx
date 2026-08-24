@@ -29,12 +29,13 @@ import EditTournamentModal from '../components/EditTournamentModal';
 import DeleteTournamentModal from '../components/DeleteTournamentModal';
 import DeclareWinnersModal from '../components/DeclareWinnersModal';
 import AadhaarReviewModal from '../components/AadhaarReviewModal';
-import { STATUS_COLORS } from '../utils/constants';
+import { STATUS_COLORS, formatLocation } from '../utils/constants';
 
 const OrganizerDashboard = () => {
   const { user } = useAuth();
   const [tournaments, setTournaments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState('');
   const [actionMessage, setActionMessage] = useState('');
   const [activeTab, setActiveTab] = useState('tournaments'); // 'tournaments' | 'participants'
 
@@ -64,15 +65,19 @@ const OrganizerDashboard = () => {
   const fetchOrganizerData = async () => {
     try {
       setLoading(true);
+      setApiError('');
       const res = await api.get('/tournaments/organizer/my-tournaments');
-      if (res.data.success) {
+      if (res.data?.success) {
         setTournaments(res.data.tournaments || []);
         if (res.data.tournaments && res.data.tournaments.length > 0 && !selectedTournamentForParticipants) {
           setSelectedTournamentForParticipants(res.data.tournaments[0]);
         }
+      } else {
+        setApiError(res.data?.message || 'Failed to fetch organizer tournaments.');
       }
     } catch (err) {
-      console.error(err);
+      console.error('Organizer Suite fetch error:', err);
+      setApiError(err.message || 'Failed to load organizer data. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -210,6 +215,21 @@ const OrganizerDashboard = () => {
         </Link>
       </div>
 
+      {apiError && (
+        <div className="p-4 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-xs text-rose-300 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-rose-400 flex-shrink-0" />
+            <span className="font-bold">{apiError}</span>
+          </div>
+          <button
+            onClick={fetchOrganizerData}
+            className="px-4 py-1.5 rounded-xl bg-rose-500 text-white font-bold text-xs hover:bg-rose-400 transition-colors flex-shrink-0"
+          >
+            Try Again
+          </button>
+        </div>
+      )}
+
       {actionMessage && (
         <div className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-xs font-bold text-emerald-300 flex items-center gap-2">
           <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0" />
@@ -324,7 +344,7 @@ const OrganizerDashboard = () => {
                         <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400">
                           <span className="flex items-center gap-1">
                             <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                            {t.venue}, {t.location}
+                            {t.venue}, {formatLocation(t.location)}
                           </span>
                           <span className="flex items-center gap-1">
                             <Users className="w-3.5 h-3.5 text-teal-400" />

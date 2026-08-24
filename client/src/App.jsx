@@ -33,6 +33,7 @@ import AdminRegistrations from './pages/admin/AdminRegistrations';
 import AdminReports from './pages/admin/AdminReports';
 import AdminActivity from './pages/admin/AdminActivity';
 import AdminSettings from './pages/admin/AdminSettings';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   return (
@@ -45,7 +46,8 @@ function App() {
 
             {/* Main Page Body */}
             <main className="flex-grow">
-              <Routes>
+              <ErrorBoundary>
+                <Routes>
                 {/* Public Spectator Routes */}
                 <Route path="/" element={<Home />} />
                 <Route path="/tournaments" element={<Tournaments />} />
@@ -118,6 +120,7 @@ function App() {
                 {/* Fallback */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
+              </ErrorBoundary>
             </main>
 
             {/* Footer */}
