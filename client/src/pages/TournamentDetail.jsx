@@ -22,6 +22,7 @@ import {
   Play,
   Camera,
   Layers,
+  Maximize2,
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -35,6 +36,7 @@ import EditTournamentModal from '../components/EditTournamentModal';
 import DeleteTournamentModal from '../components/DeleteTournamentModal';
 import DeclareWinnersModal from '../components/DeclareWinnersModal';
 import MapPreview from '../components/map/MapPreview';
+import BannerLightbox from '../components/BannerLightbox';
 import { STATUS_COLORS } from '../utils/constants';
 
 const TournamentDetail = () => {
@@ -56,6 +58,7 @@ const TournamentDetail = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showWinnersModal, setShowWinnersModal] = useState(false);
+  const [showBannerLightbox, setShowBannerLightbox] = useState(false);
   const [activeRegistration, setActiveRegistration] = useState(null);
   const [selectedMatchForScore, setSelectedMatchForScore] = useState(null);
   const [startingTournament, setStartingTournament] = useState(false);
@@ -262,13 +265,24 @@ const TournamentDetail = () => {
       {/* Hero Header Card */}
       <div className="relative rounded-3xl glass-panel border border-slate-800 overflow-hidden">
         {/* Banner Media */}
-        <div className="relative h-64 sm:h-80 w-full overflow-hidden bg-slate-900">
+        <div
+          onClick={() => setShowBannerLightbox(true)}
+          className="relative h-64 sm:h-80 w-full overflow-hidden bg-slate-900 cursor-zoom-in group/banner"
+          title="Click to view full tournament banner"
+        >
           <img
             src={bannerImg}
-            alt={tournament.name}
-            className="w-full h-full object-cover"
+            alt={`${tournament.name} banner`}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent"></div>
+
+          {/* Fullsize overlay indicator */}
+          <div className="absolute inset-0 bg-slate-950/30 opacity-0 group-hover/banner:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+            <span className="px-3.5 py-2 rounded-xl bg-slate-900/90 backdrop-blur-md text-white text-xs font-bold border border-slate-700 flex items-center gap-2 shadow-xl">
+              <Maximize2 className="w-4 h-4 text-emerald-400" /> View Full Banner
+            </span>
+          </div>
 
           {/* Top Badges */}
           <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2">
@@ -683,10 +697,20 @@ const TournamentDetail = () => {
           match={selectedMatchForScore}
           onClose={() => setSelectedMatchForScore(null)}
           onUpdated={(updatedMatch) => {
+            setSelectedMatchForScore(null);
             setMatches((prev) =>
               prev.map((m) => (m._id === updatedMatch._id ? updatedMatch : m))
             );
           }}
+        />
+      )}
+
+      {/* Banner Fullsize Lightbox */}
+      {showBannerLightbox && (
+        <BannerLightbox
+          imageUrl={bannerImg}
+          altText={`${tournament.name} banner`}
+          onClose={() => setShowBannerLightbox(false)}
         />
       )}
     </div>

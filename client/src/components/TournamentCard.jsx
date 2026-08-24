@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Calendar, Users, Trophy, IndianRupee, ArrowRight, ShieldCheck, Award } from 'lucide-react';
+import { MapPin, Calendar, Users, Trophy, IndianRupee, ArrowRight, ShieldCheck, Award, Maximize2 } from 'lucide-react';
 import { STATUS_COLORS, formatLocation } from '../utils/constants';
+import BannerLightbox from './BannerLightbox';
 
 const TournamentCard = ({ tournament }) => {
+  const [showLightbox, setShowLightbox] = useState(false);
   const statusInfo = STATUS_COLORS[tournament.status] || STATUS_COLORS.REGISTRATION_OPEN;
   const progressPercent = Math.min(
     100,
@@ -18,13 +20,24 @@ const TournamentCard = ({ tournament }) => {
   return (
     <div className="group relative rounded-3xl glass-card border border-slate-800/80 hover:border-emerald-500/40 card-hover flex flex-col overflow-hidden">
       {/* Banner / Media Container */}
-      <div className="relative h-44 w-full overflow-hidden bg-slate-900">
+      <div
+        onClick={() => setShowLightbox(true)}
+        className="relative h-44 w-full overflow-hidden bg-slate-900 cursor-zoom-in group/banner"
+        title="Click to view full tournament banner"
+      >
         <img
           src={fallbackBanner}
-          alt={tournament.name}
+          alt={`${tournament.name} banner`}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+
+        {/* Fullsize indicator icon on hover */}
+        <div className="absolute inset-0 bg-slate-950/30 opacity-0 group-hover/banner:opacity-100 transition-opacity flex items-center justify-center">
+          <span className="px-3 py-1.5 rounded-xl bg-slate-900/80 backdrop-blur-md text-white text-xs font-bold border border-slate-700 flex items-center gap-1.5 shadow-lg">
+            <Maximize2 className="w-3.5 h-3.5 text-emerald-400" /> View Full Banner
+          </span>
+        </div>
 
         {/* Top Badges */}
         <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5">
@@ -139,6 +152,14 @@ const TournamentCard = ({ tournament }) => {
           </Link>
         </div>
       </div>
+
+      {showLightbox && (
+        <BannerLightbox
+          imageUrl={fallbackBanner}
+          altText={`${tournament.name} banner`}
+          onClose={() => setShowLightbox(false)}
+        />
+      )}
     </div>
   );
 };
