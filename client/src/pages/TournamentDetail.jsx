@@ -264,28 +264,30 @@ const TournamentDetail = () => {
 
       {/* Hero Header Card */}
       <div className="relative rounded-3xl glass-panel border border-slate-800 overflow-hidden">
-        {/* Banner Media */}
+
+        {/* ─── Banner: ONLY this div opens the lightbox ─── */}
         <div
           onClick={() => setShowBannerLightbox(true)}
-          className="relative h-64 sm:h-80 w-full overflow-hidden bg-slate-900 cursor-zoom-in group/banner"
+          className="relative w-full bg-slate-950 cursor-zoom-in group/banner"
           title="Click to view full tournament banner"
+          role="button"
+          aria-label="View full tournament banner"
         >
           <img
             src={bannerImg}
             alt={`${tournament.name} banner`}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full max-h-[520px] object-contain"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent"></div>
 
-          {/* Fullsize overlay indicator */}
-          <div className="absolute inset-0 bg-slate-950/30 opacity-0 group-hover/banner:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+          {/* Hover overlay — click hint */}
+          <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover/banner:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
             <span className="px-3.5 py-2 rounded-xl bg-slate-900/90 backdrop-blur-md text-white text-xs font-bold border border-slate-700 flex items-center gap-2 shadow-xl">
               <Maximize2 className="w-4 h-4 text-emerald-400" /> View Full Banner
             </span>
           </div>
 
-          {/* Top Badges */}
-          <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2">
+          {/* Top Badges — absolutely positioned, pointer-events-none so they don't block clicks */}
+          <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2 pointer-events-none">
             <span className="px-3 py-1 rounded-xl text-xs font-bold bg-slate-950/80 backdrop-blur-md text-emerald-400 border border-emerald-500/30">
               {tournament.sport}
             </span>
@@ -299,61 +301,64 @@ const TournamentDetail = () => {
             )}
           </div>
 
-          <div className="absolute top-4 right-4">
+          <div className="absolute top-4 right-4 pointer-events-none">
             <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${statusInfo.badge}`}>
               {statusInfo.label}
             </span>
           </div>
+        </div>
+        {/* ─── End of Banner click zone ─── */}
 
-          {/* Title Overlay */}
-          <div className="absolute bottom-6 left-6 right-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <div className="space-y-1.5 max-w-2xl">
-              <h1 className="font-display font-black text-2xl sm:text-4xl text-white">
-                {tournament.name}
-              </h1>
-              <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300 font-medium">
-                <div className="flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4 text-emerald-400" />
-                  <span>{tournament.venue}, {typeof tournament.location === 'object' && tournament.location !== null ? tournament.location.address : `${tournament.location}, Goa`}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4 text-slate-400" />
-                  <span>
-                    {new Date(tournament.startDate).toLocaleDateString('en-IN', {
-                      day: 'numeric',
-                      month: 'short',
-                      year: 'numeric',
-                    })}
-                  </span>
-                </div>
-                {tournament.startTime && (
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="w-4 h-4 text-slate-400" />
-                    <span>{tournament.startTime}</span>
-                  </div>
-                )}
+        {/* ─── Tournament Info & Register — SEPARATE from banner, no banner click ─── */}
+        <div className="p-6 sm:p-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4 bg-gradient-to-t from-slate-950 to-slate-900/60">
+          <div className="space-y-1.5 max-w-2xl">
+            <h1 className="font-display font-black text-2xl sm:text-4xl text-white">
+              {tournament.name}
+            </h1>
+            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300 font-medium">
+              <div className="flex items-center gap-1.5">
+                <MapPin className="w-4 h-4 text-emerald-400" />
+                <span>{tournament.venue}, {typeof tournament.location === 'object' && tournament.location !== null ? tournament.location.address : `${tournament.location}, Goa`}</span>
               </div>
-            </div>
-
-            {/* Registration CTA Action */}
-            <div>
-              {tournament.status === 'REGISTRATION_OPEN' && (
-                <button
-                  onClick={() => {
-                    if (!isAuthenticated) {
-                      navigate('/login', { state: { message: 'Please login or create an account to register for this tournament.' } });
-                    } else {
-                      setShowRegisterModal(true);
-                    }
-                  }}
-                  className="px-6 py-3 rounded-xl font-display font-bold text-xs uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-xl shadow-emerald-500/25 transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
-                >
-                  Register Team ({tournament.registrationFee === 0 ? 'FREE' : `₹${tournament.registrationFee}`})
-                </button>
+              <div className="flex items-center gap-1.5">
+                <Calendar className="w-4 h-4 text-slate-400" />
+                <span>
+                  {new Date(tournament.startDate).toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                  })}
+                </span>
+              </div>
+              {tournament.startTime && (
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-slate-400" />
+                  <span>{tournament.startTime}</span>
+                </div>
               )}
             </div>
           </div>
+
+          {/* ─── Register Button — COMPLETELY SEPARATE click handler, no banner involvement ─── */}
+          <div>
+            {tournament.status === 'REGISTRATION_OPEN' && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // belt-and-suspenders: prevent any parent bubbling
+                  if (!isAuthenticated) {
+                    navigate('/login', { state: { message: 'Please login or create an account to register for this tournament.' } });
+                  } else {
+                    setShowRegisterModal(true);
+                  }
+                }}
+                className="px-6 py-3 rounded-xl font-display font-bold text-xs uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-xl shadow-emerald-500/25 transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+              >
+                Register Team ({tournament.registrationFee === 0 ? 'FREE' : `₹${tournament.registrationFee}`})
+              </button>
+            )}
+          </div>
         </div>
+        {/* ─── End of Tournament Info section ─── */}
 
         {/* Quick Details Ribbon */}
         <div className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-800 bg-slate-900/60 text-xs">
