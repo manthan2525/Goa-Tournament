@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Calendar, Users, Trophy, IndianRupee, ArrowRight, ShieldCheck, Award, Maximize2 } from 'lucide-react';
+import { MapPin, Calendar, Users, Trophy, IndianRupee, ArrowRight, ShieldCheck } from 'lucide-react';
 import { STATUS_COLORS, formatLocation } from '../utils/constants';
-import BannerLightbox from './BannerLightbox';
 
 const TournamentCard = ({ tournament }) => {
-  const [showLightbox, setShowLightbox] = useState(false);
   const statusInfo = STATUS_COLORS[tournament.status] || STATUS_COLORS.REGISTRATION_OPEN;
   const progressPercent = Math.min(
     100,
@@ -19,29 +17,16 @@ const TournamentCard = ({ tournament }) => {
 
   return (
     <div className="group relative rounded-3xl glass-card border border-slate-800/80 hover:border-emerald-500/40 card-hover flex flex-col overflow-hidden">
-      {/* Banner / Media Container */}
-      <div
-        onClick={() => setShowLightbox(true)}
-        className="relative h-44 w-full overflow-hidden bg-slate-950 cursor-zoom-in group/banner"
-        title="Click to view full tournament banner"
-        role="button"
-        aria-label="View full tournament banner"
-      >
+      {/* Banner — static preview only, no lightbox here */}
+      <div className="relative h-44 w-full overflow-hidden bg-slate-950">
         <img
           src={fallbackBanner}
           alt={`${tournament.name} banner`}
           className="w-full h-full object-contain"
         />
 
-        {/* Fullsize indicator icon on hover */}
-        <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover/banner:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-          <span className="px-3 py-1.5 rounded-xl bg-slate-900/80 backdrop-blur-md text-white text-xs font-bold border border-slate-700 flex items-center gap-1.5 shadow-lg">
-            <Maximize2 className="w-3.5 h-3.5 text-emerald-400" /> View Full Banner
-          </span>
-        </div>
-
         {/* Top Badges */}
-        <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5">
+        <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5 pointer-events-none">
           <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-950/80 backdrop-blur-md text-emerald-400 border border-emerald-500/30">
             {tournament.sport}
           </span>
@@ -56,14 +41,14 @@ const TournamentCard = ({ tournament }) => {
         </div>
 
         {/* Status Badge */}
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 pointer-events-none">
           <span className={`px-2.5 py-1 rounded-full text-xs font-bold tracking-wide uppercase ${statusInfo.badge}`}>
             {statusInfo.label}
           </span>
         </div>
 
         {/* Location overlay bottom */}
-        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs text-slate-300">
+        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs text-slate-300 pointer-events-none">
           <div className="flex items-center gap-1.5 font-medium truncate">
             <MapPin className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
             <span className="truncate">
@@ -148,19 +133,11 @@ const TournamentCard = ({ tournament }) => {
             to={`/tournaments/${tournament._id}`}
             className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-white transition-all group/btn"
           >
-            <span>View Tournament & Fixtures</span>
+            <span>View Tournament &amp; Fixtures</span>
             <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
           </Link>
         </div>
       </div>
-
-      {showLightbox && (
-        <BannerLightbox
-          imageUrl={fallbackBanner}
-          altText={`${tournament.name} banner`}
-          onClose={() => setShowLightbox(false)}
-        />
-      )}
     </div>
   );
 };
