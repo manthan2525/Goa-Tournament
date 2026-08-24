@@ -128,14 +128,30 @@ export const getTournamentMatches = async (req, res, next) => {
 // @route   GET /api/matches/live
 export const getLiveMatches = async (req, res, next) => {
   try {
-    const liveMatches = await Match.find({ status: 'LIVE' })
+    const rawMatches = await Match.find({ status: 'LIVE' })
       .populate('tournament', 'name sport venue location bannerImage format')
       .sort({ updatedAt: -1 });
 
+    const validMatches = [];
+    const orphanedMatchIds = [];
+
+    for (const m of rawMatches) {
+      if (m.tournament && m.tournament._id && m.tournament.name) {
+        validMatches.push(m);
+      } else {
+        orphanedMatchIds.push(m._id);
+      }
+    }
+
+    // Auto-purge orphaned matches from database
+    if (orphanedMatchIds.length > 0) {
+      await Match.deleteMany({ _id: { $in: orphanedMatchIds } });
+    }
+
     res.status(200).json({
       success: true,
-      count: liveMatches.length,
-      matches: liveMatches,
+      count: validMatches.length,
+      matches: validMatches,
     });
   } catch (error) {
     next(error);

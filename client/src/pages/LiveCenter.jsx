@@ -24,7 +24,10 @@ const LiveCenter = () => {
       setLoading(true);
       const res = await api.get('/matches/live');
       if (res.data.success) {
-        setLiveMatches(res.data.matches || []);
+        const filtered = (res.data.matches || []).filter(
+          (m) => m.tournament && (m.tournament._id || m.tournament.name)
+        );
+        setLiveMatches(filtered);
       }
     } catch (err) {
       console.error(err);
@@ -38,6 +41,7 @@ const LiveCenter = () => {
 
     const onGlobalScore = (payload) => {
       if (payload.match) {
+        if (!payload.match.tournament) return;
         setLiveMatches((prev) => {
           const idx = prev.findIndex((m) => m._id === payload.match._id);
           if (idx !== -1) {

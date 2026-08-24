@@ -12,7 +12,11 @@ const LiveScoreTicker = () => {
     try {
       const res = await api.get('/matches/live');
       if (res.data.success) {
-        setLiveMatches(res.data.matches);
+        // Filter out any match whose tournament was deleted (null population)
+        const valid = (res.data.matches || []).filter(
+          (m) => m.tournament && (m.tournament._id || m.tournament.name)
+        );
+        setLiveMatches(valid);
       }
     } catch (err) {
       console.error(err);
@@ -26,9 +30,14 @@ const LiveScoreTicker = () => {
   // Update real-time if live score event occurs
   useEffect(() => {
     if (lastLiveScore) {
+      // Ignore updates from orphaned matches
+      if (!lastLiveScore.match?.tournament) return;
       setLiveMatches((prev) => {
         const matchIdx = prev.findIndex((m) => m._id === lastLiveScore.matchId);
         if (matchIdx !== -1) {
+          if (lastLiveScore.match?.status !== 'LIVE') {
+            return prev.filter((m) => m._id !== lastLiveScore.matchId);
+          }
           const updated = [...prev];
           updated[matchIdx] = lastLiveScore.match;
           return updated;
