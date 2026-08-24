@@ -529,29 +529,6 @@ const TournamentDetail = () => {
       {/* Tab 1: Fixtures & Brackets */}
       {activeTab === 'fixtures' && (
         <div className="space-y-4">
-
-          {/* ── Full banner at top of Fixtures section ── */}
-          <div
-            onClick={() => setShowBannerLightbox(true)}
-            className="relative w-full bg-slate-950 rounded-2xl overflow-hidden cursor-zoom-in group/fixbanner border border-slate-800"
-            title="Click to view full tournament banner"
-            role="button"
-            aria-label="View full tournament banner"
-          >
-            <img
-              src={bannerImg}
-              alt={`${tournament.name} banner`}
-              className="w-full max-h-64 sm:max-h-80 object-contain"
-            />
-            {/* Subtle hover indicator */}
-            <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover/fixbanner:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-              <span className="px-3 py-1.5 rounded-xl bg-slate-900/90 backdrop-blur-md text-white text-xs font-bold border border-slate-700 flex items-center gap-1.5 shadow-xl">
-                <Maximize2 className="w-3.5 h-3.5 text-emerald-400" /> View Full Banner
-              </span>
-            </div>
-          </div>
-          {/* ── End fixtures banner ── */}
-
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
