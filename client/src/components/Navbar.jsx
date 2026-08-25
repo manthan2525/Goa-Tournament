@@ -15,8 +15,6 @@ import {
   Zap,
   Home as HomeIcon,
   Settings,
-  Sun,
-  Moon,
 } from 'lucide-react';
 import NotificationDropdown from './NotificationDropdown';
 import { useTheme } from '../context/ThemeContext';
@@ -24,7 +22,7 @@ import { useTheme } from '../context/ThemeContext';
 const Navbar = () => {
   const { user, isAuthenticated, isOrganizer, logout } = useAuth();
   const { isConnected } = useSocket();
-  const { theme, toggleTheme, isDark } = useTheme();
+  useTheme(); // kept so ThemeProvider still mounts dark class on first render
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -145,14 +143,6 @@ const Navbar = () => {
                 {isConnected ? 'LIVE SYNC' : 'OFFLINE'}
               </div>
 
-              {/* Theme Toggle Button */}
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center justify-center min-h-[36px] min-w-[36px]"
-                title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              >
-                {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-400" />}
-              </button>
 
               {/* In-App Notifications Dropdown */}
               {isAuthenticated && <NotificationDropdown />}
@@ -332,23 +322,6 @@ const Navbar = () => {
               </Link>
             )}
 
-            <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 my-2">
-              <span className="text-xs font-semibold text-slate-300">Theme</span>
-              <button
-                onClick={toggleTheme}
-                className="px-3 py-1.5 rounded-lg bg-slate-800 text-xs font-bold text-slate-200 hover:text-white flex items-center gap-1.5 border border-slate-700"
-              >
-                {isDark ? (
-                  <>
-                    <Sun className="w-3.5 h-3.5 text-amber-400" /> <span>Light Mode</span>
-                  </>
-                ) : (
-                  <>
-                    <Moon className="w-3.5 h-3.5 text-indigo-400" /> <span>Dark Mode</span>
-                  </>
-                )}
-              </button>
-            </div>
 
             <div className="pt-3 border-t border-slate-800">
               {isAuthenticated ? (

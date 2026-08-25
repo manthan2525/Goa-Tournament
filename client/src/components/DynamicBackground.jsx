@@ -1,5 +1,17 @@
 import React, { useEffect, useRef } from 'react';
 
+/**
+ * DynamicBackground — Dark mode only, stronger effect.
+ *
+ * Layers (back to front):
+ *  1. Deep dark gradient base
+ *  2. Three slow-drifting radial glow orbs (emerald / teal / indigo)
+ *  3. Subtle grid
+ *  4. Floating particles (dots + small diamonds)
+ *  5. Slow diagonal shimmer streaks
+ *
+ * pointer-events: none — never blocks any UI element.
+ */
 const DynamicBackground = () => {
   const canvasRef = useRef(null);
 
@@ -9,159 +21,148 @@ const DynamicBackground = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Check reduced motion preference
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     const isReducedMotion = motionQuery.matches;
 
     let animationFrameId;
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
-
     const isMobile = width < 768;
-    const particleCount = isReducedMotion ? 0 : isMobile ? 12 : 32;
 
-    // Particles array
-    const particles = [];
-    for (let i = 0; i < particleCount; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        radius: Math.random() * 2.5 + 1.2,
-        alpha: Math.random() * 0.45 + 0.15,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: -Math.random() * 0.5 - 0.15,
-        color: i % 2 === 0 ? '16, 185, 129' : '20, 184, 166', // Emerald / Teal
-      });
-    }
+    // ── Particles ──────────────────────────────────────────
+    const PARTICLE_COUNT = isReducedMotion ? 0 : isMobile ? 20 : 55;
+    const particles = Array.from({ length: PARTICLE_COUNT }, (_, i) => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      radius: Math.random() * 2.2 + 0.8,
+      alpha: Math.random() * 0.55 + 0.2,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: -Math.random() * 0.45 - 0.1,
+      // Alternate emerald / teal / indigo
+      color: ['16,185,129', '20,184,166', '99,102,241'][i % 3],
+      // Some particles are diamonds (rotated squares)
+      isDiamond: i % 5 === 0,
+    }));
 
-    let orbAngle = 0;
+    // ── Shimmer streaks ─────────────────────────────────────
+    const STREAK_COUNT = isReducedMotion ? 0 : isMobile ? 3 : 7;
+    const streaks = Array.from({ length: STREAK_COUNT }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      length: Math.random() * 180 + 80,
+      angle: Math.PI / 4 + (Math.random() - 0.5) * 0.4,
+      speed: Math.random() * 0.3 + 0.1,
+      alpha: Math.random() * 0.06 + 0.02,
+      width: Math.random() * 1.2 + 0.4,
+    }));
+
+    // ── Orbs ───────────────────────────────────────────────
+    let orbT = 0;
 
     const handleResize = () => {
       if (!canvas) return;
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
     };
-
     window.addEventListener('resize', handleResize);
 
+    // ── Render ──────────────────────────────────────────────
     const render = () => {
-      const isLightMode = document.documentElement.classList.contains('light');
       ctx.clearRect(0, 0, width, height);
 
-      if (isLightMode) {
-        // Light Mode Background
-        const bgGrad = ctx.createLinearGradient(0, 0, width, height);
-        bgGrad.addColorStop(0, '#f8fafc');
-        bgGrad.addColorStop(0.5, '#f1f5f9');
-        bgGrad.addColorStop(1, '#e2e8f0');
-        ctx.fillStyle = bgGrad;
+      // 1. Deep base gradient
+      const base = ctx.createLinearGradient(0, 0, width, height);
+      base.addColorStop(0,   '#06090f');
+      base.addColorStop(0.4, '#080d17');
+      base.addColorStop(1,   '#040810');
+      ctx.fillStyle = base;
+      ctx.fillRect(0, 0, width, height);
+
+      if (!isReducedMotion) orbT += 0.0025;
+
+      // 2. Three glow orbs
+      const orbDefs = [
+        { cx: 0.18, cy: 0.25, r: 0.55, dt: 1.0,  color0: 'rgba(16,185,129,0.22)',  color1: 'rgba(6,9,15,0)' },
+        { cx: 0.82, cy: 0.70, r: 0.60, dt: 0.75, color0: 'rgba(20,184,166,0.18)',  color1: 'rgba(6,9,15,0)' },
+        { cx: 0.50, cy: 0.85, r: 0.50, dt: 1.30, color0: 'rgba(99,102,241,0.13)',  color1: 'rgba(6,9,15,0)' },
+      ];
+
+      orbDefs.forEach(({ cx, cy, r, dt, color0, color1 }) => {
+        const ox = width  * cx + Math.cos(orbT * dt) * width  * 0.06;
+        const oy = height * cy + Math.sin(orbT * dt) * height * 0.06;
+        const rad = Math.max(width, height) * r;
+        const g = ctx.createRadialGradient(ox, oy, 0, ox, oy, rad);
+        g.addColorStop(0, color0);
+        g.addColorStop(0.55, color0.replace(/[\d.]+\)$/, '0.04)'));
+        g.addColorStop(1, color1);
+        ctx.fillStyle = g;
         ctx.fillRect(0, 0, width, height);
+      });
 
-        // Light Ambient Orbs
-        orbAngle += isReducedMotion ? 0 : 0.002;
-        const orb1X = width * 0.25 + Math.cos(orbAngle) * 45;
-        const orb1Y = height * 0.3 + Math.sin(orbAngle) * 45;
-        const orb2X = width * 0.75 + Math.sin(orbAngle * 0.7) * 55;
-        const orb2Y = height * 0.7 + Math.cos(orbAngle * 0.7) * 55;
-
-        const grad1 = ctx.createRadialGradient(orb1X, orb1Y, 0, orb1X, orb1Y, Math.max(width, height) * 0.45);
-        grad1.addColorStop(0, 'rgba(16, 185, 129, 0.06)');
-        grad1.addColorStop(1, 'rgba(248, 250, 252, 0)');
-        ctx.fillStyle = grad1;
-        ctx.fillRect(0, 0, width, height);
-
-        const grad2 = ctx.createRadialGradient(orb2X, orb2Y, 0, orb2X, orb2Y, Math.max(width, height) * 0.5);
-        grad2.addColorStop(0, 'rgba(14, 165, 233, 0.05)');
-        grad2.addColorStop(1, 'rgba(248, 250, 252, 0)');
-        ctx.fillStyle = grad2;
-        ctx.fillRect(0, 0, width, height);
-
-        // Light Mode Grid
-        ctx.strokeStyle = 'rgba(148, 163, 184, 0.08)';
-        ctx.lineWidth = 1;
-        const gridSize = 65;
-        for (let x = 0; x < width; x += gridSize) {
-          ctx.beginPath();
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x, height);
-          ctx.stroke();
-        }
-        for (let y = 0; y < height; y += gridSize) {
-          ctx.beginPath();
-          ctx.moveTo(0, y);
-          ctx.lineTo(width, y);
-          ctx.stroke();
-        }
-      } else {
-        // Dark Mode Background
-        const bgGrad = ctx.createLinearGradient(0, 0, width, height);
-        bgGrad.addColorStop(0, '#020617');
-        bgGrad.addColorStop(0.5, '#071120');
-        bgGrad.addColorStop(1, '#020617');
-        ctx.fillStyle = bgGrad;
-        ctx.fillRect(0, 0, width, height);
-
-        // Animated Glowing Orbs (More visible)
-        orbAngle += isReducedMotion ? 0 : 0.003;
-        const orb1X = width * 0.2 + Math.cos(orbAngle) * 50;
-        const orb1Y = height * 0.3 + Math.sin(orbAngle) * 50;
-        const orb2X = width * 0.8 + Math.sin(orbAngle * 0.8) * 60;
-        const orb2Y = height * 0.7 + Math.cos(orbAngle * 0.8) * 60;
-
-        const grad1 = ctx.createRadialGradient(orb1X, orb1Y, 0, orb1X, orb1Y, Math.max(width, height) * 0.45);
-        grad1.addColorStop(0, 'rgba(16, 185, 129, 0.15)');
-        grad1.addColorStop(0.6, 'rgba(16, 185, 129, 0.04)');
-        grad1.addColorStop(1, 'rgba(2, 6, 23, 0)');
-        ctx.fillStyle = grad1;
-        ctx.fillRect(0, 0, width, height);
-
-        const grad2 = ctx.createRadialGradient(orb2X, orb2Y, 0, orb2X, orb2Y, Math.max(width, height) * 0.5);
-        grad2.addColorStop(0, 'rgba(20, 184, 166, 0.12)');
-        grad2.addColorStop(0.6, 'rgba(20, 184, 166, 0.03)');
-        grad2.addColorStop(1, 'rgba(2, 6, 23, 0)');
-        ctx.fillStyle = grad2;
-        ctx.fillRect(0, 0, width, height);
-
-        // Grid Lines
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.025)';
-        ctx.lineWidth = 1;
-        const gridSize = 60;
-        for (let x = 0; x < width; x += gridSize) {
-          ctx.beginPath();
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x, height);
-          ctx.stroke();
-        }
-        for (let y = 0; y < height; y += gridSize) {
-          ctx.beginPath();
-          ctx.moveTo(0, y);
-          ctx.lineTo(width, y);
-          ctx.stroke();
-        }
+      // 3. Grid
+      ctx.strokeStyle = 'rgba(255,255,255,0.032)';
+      ctx.lineWidth = 1;
+      const gridSize = isMobile ? 48 : 60;
+      for (let x = 0; x < width; x += gridSize) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
+      }
+      for (let y = 0; y < height; y += gridSize) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
       }
 
-      // Draw Floating Particles
+      // 4. Particles
       if (!isReducedMotion) {
         particles.forEach((p) => {
           p.x += p.vx;
           p.y += p.vy;
+          if (p.y < -5)      p.y = height + 5;
+          if (p.x < -5)      p.x = width + 5;
+          if (p.x > width+5) p.x = -5;
 
-          if (p.y < 0) p.y = height;
-          if (p.x < 0) p.x = width;
-          if (p.x > width) p.x = 0;
+          ctx.save();
+          ctx.globalAlpha = p.alpha;
+          ctx.fillStyle = `rgb(${p.color})`;
 
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-          ctx.fillStyle = isLightMode
-            ? `rgba(5, 150, 105, ${p.alpha * 0.6})`
-            : `rgba(${p.color}, ${p.alpha})`;
-          ctx.fill();
+          if (p.isDiamond) {
+            // Small rotated square (diamond)
+            ctx.translate(p.x, p.y);
+            ctx.rotate(Math.PI / 4);
+            const s = p.radius * 1.6;
+            ctx.fillRect(-s / 2, -s / 2, s, s);
+          } else {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
         });
       }
 
+      // 5. Shimmer streaks
       if (!isReducedMotion) {
-        animationFrameId = requestAnimationFrame(render);
+        streaks.forEach((s) => {
+          s.x += Math.cos(s.angle) * s.speed;
+          s.y += Math.sin(s.angle) * s.speed;
+          // Wrap around
+          if (s.x > width + 200)  { s.x = -200; s.y = Math.random() * height; }
+          if (s.y > height + 200) { s.y = -200; s.x = Math.random() * width;  }
+
+          ctx.save();
+          ctx.globalAlpha = s.alpha;
+          ctx.strokeStyle = 'rgba(16,185,129,1)';
+          ctx.lineWidth = s.width;
+          ctx.beginPath();
+          ctx.moveTo(s.x, s.y);
+          ctx.lineTo(
+            s.x - Math.cos(s.angle) * s.length,
+            s.y - Math.sin(s.angle) * s.length,
+          );
+          ctx.stroke();
+          ctx.restore();
+        });
       }
+
+      animationFrameId = requestAnimationFrame(render);
     };
 
     render();
@@ -173,7 +174,11 @@ const DynamicBackground = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+    <div
+      className="fixed inset-0 z-0 overflow-hidden"
+      style={{ pointerEvents: 'none' }}
+      aria-hidden="true"
+    >
       <canvas ref={canvasRef} className="w-full h-full block" />
     </div>
   );
