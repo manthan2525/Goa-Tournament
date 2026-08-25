@@ -184,6 +184,17 @@ export const createTournament = async (req, res, next) => {
       }
     }
 
+    let parsedPrizes = [];
+    if (req.body.prizes) {
+      if (typeof req.body.prizes === 'string') {
+        try {
+          parsedPrizes = JSON.parse(req.body.prizes);
+        } catch (e) {}
+      } else if (Array.isArray(req.body.prizes)) {
+        parsedPrizes = req.body.prizes;
+      }
+    }
+
     const tournament = await Tournament.create({
       name: name.trim(),
       sport: sport || 'Football',
@@ -206,6 +217,7 @@ export const createTournament = async (req, res, next) => {
       maxTeams: Number(maxTeams) || 16,
       teamSize: Number(teamSize) || 11,
       prizePool: prizePool || '',
+      prizes: parsedPrizes,
       rules: rules || '',
       description: description || '',
       status: 'REGISTRATION_OPEN',
@@ -265,12 +277,27 @@ export const updateTournament = async (req, res, next) => {
         req.body.requireAadhaarVerification === '1';
     }
 
+    let parsedPrizes = [];
+    if (req.body.prizes) {
+      if (typeof req.body.prizes === 'string') {
+        try {
+          parsedPrizes = JSON.parse(req.body.prizes);
+        } catch (e) {}
+      } else if (Array.isArray(req.body.prizes)) {
+        parsedPrizes = req.body.prizes;
+      }
+    }
+
     if (typeof req.body.location === 'string') {
       try {
         req.body.location = JSON.parse(req.body.location);
       } catch (e) {
         // Keep as string if parsing fails
       }
+    }
+
+    if (req.body.prizes !== undefined) {
+      req.body.prizes = parsedPrizes;
     }
 
     tournament = await Tournament.findByIdAndUpdate(req.params.id, req.body, {

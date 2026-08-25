@@ -35,6 +35,7 @@ import ScoreUpdateModal from '../components/ScoreUpdateModal';
 import EditTournamentModal from '../components/EditTournamentModal';
 import DeleteTournamentModal from '../components/DeleteTournamentModal';
 import DeclareWinnersModal from '../components/DeclareWinnersModal';
+import ManualMatchModal from '../components/ManualMatchModal';
 import MapPreview from '../components/map/MapPreview';
 import BannerLightbox from '../components/BannerLightbox';
 import { STATUS_COLORS } from '../utils/constants';
@@ -58,6 +59,8 @@ const TournamentDetail = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showWinnersModal, setShowWinnersModal] = useState(false);
+  const [showManualMatchModal, setShowManualMatchModal] = useState(false);
+  const [editingMatch, setEditingMatch] = useState(null);
   const [showBannerLightbox, setShowBannerLightbox] = useState(false);
   const [activeRegistration, setActiveRegistration] = useState(null);
   const [selectedMatchForScore, setSelectedMatchForScore] = useState(null);
@@ -215,11 +218,24 @@ const TournamentDetail = () => {
                 onClick={handleStartTournament}
                 disabled={startingTournament}
                 className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-1.5 transition-all shadow-md"
+                title="Auto-generate brackets / fixtures from registered teams"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
-                {startingTournament ? 'Generating Fixtures...' : 'Start Tournament'}
+                {startingTournament ? 'Generating...' : 'Auto Fixtures'}
               </button>
             )}
+
+            <button
+              onClick={() => {
+                setEditingMatch(null);
+                setShowManualMatchModal(true);
+              }}
+              className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-teal-500 hover:bg-teal-400 text-slate-950 flex items-center gap-1.5 transition-all shadow-md"
+              title="Create a match fixture manually"
+            >
+              <Zap className="w-3.5 h-3.5" />
+              + Manual Fixture
+            </button>
 
             <button
               onClick={() => setShowWinnersModal(true)}
@@ -477,6 +493,72 @@ const TournamentDetail = () => {
         </div>
       )}
 
+      {/* 🏆 TOURNAMENT PRIZES BREAKDOWN SECTION */}
+      {((tournament.prizes && tournament.prizes.length > 0) || tournament.prizePool) && (
+        <div className="p-6 sm:p-8 rounded-3xl glass-panel border border-amber-500/30 bg-slate-950/60 space-y-4">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
+              <Trophy className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-display font-bold text-lg text-white">🏆 Tournament Prizes</h3>
+              <p className="text-xs text-slate-400">Official reward structure for top finishing teams</p>
+            </div>
+          </div>
+
+          {tournament.prizes && tournament.prizes.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-2">
+              {tournament.prizes.map((p, idx) => {
+                let badgeEmoji = '🏆';
+                let badgeClass = 'bg-slate-800 text-slate-300 border-slate-700';
+                if (p.position === 1 || idx === 0) {
+                  badgeEmoji = '🥇';
+                  badgeClass = 'bg-amber-500/20 text-amber-400 border-amber-500/40 font-black';
+                } else if (p.position === 2 || idx === 1) {
+                  badgeEmoji = '🥈';
+                  badgeClass = 'bg-slate-700/50 text-slate-200 border-slate-600 font-bold';
+                } else if (p.position === 3 || idx === 2) {
+                  badgeEmoji = '🥉';
+                  badgeClass = 'bg-amber-950/60 text-amber-400 border-amber-800/50 font-bold';
+                } else if (p.position === 4 || idx === 3) {
+                  badgeEmoji = '4️⃣';
+                } else if (p.position === 5 || idx === 4) {
+                  badgeEmoji = '5️⃣';
+                }
+
+                return (
+                  <div
+                    key={p._id || idx}
+                    className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-start justify-between gap-3 shadow-md hover:border-amber-500/40 transition-colors"
+                  >
+                    <div className="space-y-1">
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs border ${badgeClass}`}>
+                        <span>{badgeEmoji}</span> {p.title || `${p.position}th Prize`}
+                      </span>
+                      {p.description && (
+                        <p className="text-[11px] text-slate-400 pt-1 leading-normal">{p.description}</p>
+                      )}
+                    </div>
+
+                    <div className="text-right flex-shrink-0">
+                      <span className="text-[10px] text-slate-500 uppercase font-semibold block">Prize</span>
+                      <span className="font-mono font-black text-emerald-400 text-base">
+                        ₹{Number(p.amount || 0).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-between text-xs">
+              <span className="text-slate-300">Total Prize Pool:</span>
+              <span className="font-mono font-bold text-amber-400 text-sm">{tournament.prizePool}</span>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Tabs Navigation */}
       <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar">
         <button
@@ -529,15 +611,39 @@ const TournamentDetail = () => {
       {/* Tab 1: Fixtures & Brackets */}
       {activeTab === 'fixtures' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-950/80 border border-slate-800">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <h3 className="font-display font-bold text-lg text-white">Live Tournament Tree</h3>
+              <div>
+                <h3 className="font-display font-bold text-lg text-white">Live Match Schedule & Brackets</h3>
+                <p className="text-xs text-slate-400">Real-time match tree and scheduled fixtures</p>
+              </div>
             </div>
+
             {isTournamentOwner && (
-              <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/30">
-                Click any match to launch live score control pad
-              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={handleStartTournament}
+                  disabled={startingTournament}
+                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 flex items-center gap-1.5 transition-all"
+                  title="Generate automatic brackets from registered teams"
+                >
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  {startingTournament ? 'Generating...' : '○ Auto Fixtures'}
+                </button>
+
+                <button
+                  onClick={() => {
+                    setEditingMatch(null);
+                    setShowManualMatchModal(true);
+                  }}
+                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-1.5 transition-all shadow-sm"
+                  title="Manually create a custom fixture match"
+                >
+                  <Zap className="w-3.5 h-3.5" />
+                  + Manual Fixture
+                </button>
+              </div>
             )}
           </div>
 
@@ -706,6 +812,27 @@ const TournamentDetail = () => {
             setMatches((prev) =>
               prev.map((m) => (m._id === updatedMatch._id ? updatedMatch : m))
             );
+          }}
+          onEditDetails={(matchToEdit) => {
+            setSelectedMatchForScore(null);
+            setEditingMatch(matchToEdit);
+            setShowManualMatchModal(true);
+          }}
+        />
+      )}
+
+      {/* Manual Match Modal */}
+      {showManualMatchModal && (
+        <ManualMatchModal
+          tournament={tournament}
+          verifiedTeams={verifiedTeams}
+          editingMatch={editingMatch}
+          onClose={() => {
+            setShowManualMatchModal(false);
+            setEditingMatch(null);
+          }}
+          onSuccess={() => {
+            fetchTournamentData();
           }}
         />
       )}

@@ -4,6 +4,8 @@ import api from '../services/api';
 import { GOA_LOCATIONS, SPORTS_LIST, TOURNAMENT_FORMATS } from '../utils/constants';
 import LocationPicker from './map/LocationPicker';
 
+import PrizeManager from './PrizeManager';
+
 const EditTournamentModal = ({ tournament, onClose, onUpdated }) => {
   const [name, setName] = useState(tournament.name || '');
   const [sport, setSport] = useState(tournament.sport || 'Football');
@@ -21,6 +23,15 @@ const EditTournamentModal = ({ tournament, onClose, onUpdated }) => {
   const [maxTeams, setMaxTeams] = useState(tournament.maxTeams || 16);
   const [teamSize, setTeamSize] = useState(tournament.teamSize || 11);
   const [prizePool, setPrizePool] = useState(tournament.prizePool || '');
+  const [prizes, setPrizes] = useState(
+    tournament.prizes && tournament.prizes.length > 0
+      ? tournament.prizes
+      : [
+          { position: 1, title: '1st Prize', amount: 25000, description: 'Trophy + Medals' },
+          { position: 2, title: '2nd Prize', amount: 15000, description: 'Runner Up Trophy' },
+          { position: 3, title: '3rd Prize', amount: 10000, description: 'Bronze Trophy' },
+        ]
+  );
   const [rules, setRules] = useState(tournament.rules || '');
   const [description, setDescription] = useState(tournament.description || '');
   const [requireAadhaarVerification, setRequireAadhaarVerification] = useState(
@@ -73,6 +84,7 @@ const EditTournamentModal = ({ tournament, onClose, onUpdated }) => {
       formData.append('maxTeams', maxTeams);
       formData.append('teamSize', teamSize);
       formData.append('prizePool', prizePool.trim());
+      formData.append('prizes', JSON.stringify(prizes));
       formData.append('rules', rules.trim());
       formData.append('description', description.trim());
       formData.append('requireAadhaarVerification', requireAadhaarVerification);
@@ -323,10 +335,15 @@ const EditTournamentModal = ({ tournament, onClose, onUpdated }) => {
             </button>
           </div>
 
+          {/* Prize Manager */}
+          <div>
+            <PrizeManager prizes={prizes} onChange={setPrizes} />
+          </div>
+
           {/* Prize Pool & Rules */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">Prize Pool</label>
+              <label className="block text-slate-300 font-semibold mb-1">Prize Pool Summary</label>
               <input
                 type="text"
                 placeholder="e.g. ₹50,000 + Trophy"

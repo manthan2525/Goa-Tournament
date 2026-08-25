@@ -192,22 +192,39 @@ const ScoreUpdateModal = ({ match, onClose, onUpdated }) => {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800 flex-shrink-0">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2.5 min-h-[44px] text-xs font-semibold text-slate-400 hover:text-white rounded-xl transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-6 py-2.5 min-h-[44px] rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 disabled:opacity-50 transition-all"
-            >
-              <Radio className="w-4 h-4 animate-pulse" />
-              {submitting ? 'Broadcasting...' : 'Broadcast Score'}
-            </button>
+          <div className="flex items-center justify-between pt-3 border-t border-slate-800 flex-shrink-0">
+            {onEditDetails ? (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onEditDetails(match);
+                }}
+                className="px-3.5 py-2.5 min-h-[44px] text-xs font-bold text-teal-400 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/30 rounded-xl transition-colors"
+              >
+                Edit Fixture Details →
+              </button>
+            ) : (
+              <div />
+            )}
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2.5 min-h-[44px] text-xs font-semibold text-slate-400 hover:text-white rounded-xl transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-5 py-2.5 min-h-[44px] rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 disabled:opacity-50 transition-all"
+              >
+                <Radio className="w-4 h-4 animate-pulse" />
+                {submitting ? 'Broadcasting...' : 'Broadcast Score'}
+              </button>
+            </div>
           </div>
         </form>
       </div>

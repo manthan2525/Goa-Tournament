@@ -303,3 +303,155 @@ export const updateMatchScore = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Create manual match (Organizer/Admin)
+// @route   POST /api/matches/manual
+export const createManualMatch = async (req, res, next) => {
+  try {
+    const {
+      tournamentId,
+      round,
+      matchNumber,
+      teamA,
+      teamB,
+      startTime,
+      date,
+      time,
+      venueCourt,
+      venue,
+      status,
+      summary,
+    } = req.body;
+
+    const tournament = await Tournament.findById(tournamentId);
+    if (!tournament) {
+      return res.status(404).json({ success: false, message: 'Tournament not found.' });
+    }
+
+    if (
+      tournament.organizer.toString() !== req.user._id.toString() &&
+      req.user.role !== 'ADMIN'
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to create matches for this tournament.',
+      });
+    }
+
+    let mNum = matchNumber;
+    if (!mNum) {
+      const highestMatch = await Match.findOne({ tournament: tournamentId }).sort({
+        matchNumber: -1,
+      });
+      mNum = highestMatch ? highestMatch.matchNumber + 1 : 1;
+    }
+
+    const match = await Match.create({
+      tournament: tournamentId,
+      round: round || 'Quarter Final',
+      matchNumber: mNum,
+      teamA: typeof teamA === 'object' ? teamA : { name: teamA || 'TBD' },
+      teamB: typeof teamB === 'object' ? teamB : { name: teamB || 'TBD' },
+      startTime: startTime || Date.now(),
+      date: date || '',
+      time: time || '',
+      venueCourt: venueCourt || venue || 'Main Arena',
+      venue: venue || venueCourt || 'Main Arena',
+      status: status || 'SCHEDULED',
+      summary: summary || '',
+      fixtureType: 'manual',
+    });
+
+    broadcastScoreUpdate(match);
+
+    res.status(201).json({
+      success: true,
+      message: 'Manual match created successfully.',
+      match,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update manual match details (Organizer/Admin)
+// @route   PUT /api/matches/:id/details
+export const updateManualMatch = async (req, res, next) => {
+  try {
+    const {
+      round,
+      matchNumber,
+      teamA,
+      teamB,
+      startTime,
+      date,
+      time,
+      venueCourt,
+      venue,
+      status,
+      summary,
+    } = req.body;
+
+    const match = await Match.findById(req.params.id).populate('tournament');
+    if (!match) {
+      return res.status(404).json({ success: false, message: 'Match not found.' });
+    }
+
+    if (
+      match.tournament.organizer.toString() !== req.user._id.toString() &&
+      req.user.role !== 'ADMIN'
+    ) {
+      return res.status(403).json({ success: false, message: 'Not authorized.' });
+    }
+
+    if (round) match.round = round;
+    if (matchNumber !== undefined) match.matchNumber = matchNumber;
+    if (teamA) match.teamA = typeof teamA === 'object' ? teamA : { name: teamA };
+    if (teamB) match.teamB = typeof teamB === 'object' ? teamB : { name: teamB };
+    if (startTime) match.startTime = startTime;
+    if (date !== undefined) match.date = date;
+    if (time !== undefined) match.time = time;
+    if (venueCourt || venue) match.venueCourt = venueCourt || venue;
+    if (venue || venueCourt) match.venue = venue || venueCourt;
+    if (status) match.status = status;
+    if (summary !== undefined) match.summary = summary;
+
+    await match.save();
+    broadcastScoreUpdate(match);
+
+    res.status(200).json({
+      success: true,
+      message: 'Match updated successfully.',
+      match,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete single match (Organizer/Admin)
+// @route   DELETE /api/matches/:id
+export const deleteMatch = async (req, res, next) => {
+  try {
+    const match = await Match.findById(req.params.id).populate('tournament');
+    if (!match) {
+      return res.status(404).json({ success: false, message: 'Match not found.' });
+    }
+
+    if (
+      match.tournament.organizer.toString() !== req.user._id.toString() &&
+      req.user.role !== 'ADMIN'
+    ) {
+      return res.status(403).json({ success: false, message: 'Not authorized.' });
+    }
+
+    await match.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: 'Match deleted successfully.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};

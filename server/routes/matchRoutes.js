@@ -4,6 +4,9 @@ import {
   getLiveMatches,
   getMatchById,
   updateMatchScore,
+  createManualMatch,
+  updateManualMatch,
+  deleteMatch,
 } from '../controllers/matchController.js';
 import { protect, authorize } from '../middleware/authMiddleware.js';
 
@@ -15,11 +18,32 @@ router.get('/tournament/:tournamentId', getTournamentMatches);
 router.get('/:id', getMatchById);
 
 // Protected routes (Organizer / Admin)
+router.post(
+  '/manual',
+  protect,
+  authorize('ORGANIZER', 'ADMIN'),
+  createManualMatch
+);
+
 router.put(
   '/:id/score',
   protect,
   authorize('ORGANIZER', 'ADMIN'),
   updateMatchScore
+);
+
+router.put(
+  '/:id/details',
+  protect,
+  authorize('ORGANIZER', 'ADMIN'),
+  updateManualMatch
+);
+
+router.delete(
+  '/:id',
+  protect,
+  authorize('ORGANIZER', 'ADMIN'),
+  deleteMatch
 );
 
 export default router;

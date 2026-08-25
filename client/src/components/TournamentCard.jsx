@@ -80,6 +80,23 @@ const TournamentCard = ({ tournament }) => {
           </div>
         )}
 
+        {/* Prize Pool Summary Badge */}
+        {((tournament.prizes && tournament.prizes.length > 0) || tournament.prizePool) && (
+          <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-between text-xs">
+            <span className="text-[11px] text-amber-400 font-bold flex items-center gap-1">
+              <Trophy className="w-3.5 h-3.5 text-amber-400" />
+              {tournament.prizes && tournament.prizes.length > 0
+                ? `${tournament.prizes[0].title || '1st Prize'}: ₹${Number(tournament.prizes[0].amount || 0).toLocaleString('en-IN')}`
+                : 'Prize Pool'}
+            </span>
+            <span className="text-[10px] text-slate-400 font-mono">
+              {tournament.prizes && tournament.prizes.length > 1
+                ? `+${tournament.prizes.length - 1} More Prizes`
+                : tournament.prizePool || ''}
+            </span>
+          </div>
+        )}
+
         {/* Key Metrics Grid */}
         <div className="grid grid-cols-2 gap-2.5 py-2 border-y border-slate-800/80 text-xs">
           <div className="flex items-center gap-2 text-slate-300">

@@ -93,6 +93,14 @@ const tournamentSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    prizes: [
+      {
+        position: { type: Number, default: 1 },
+        title: { type: String, required: true, default: 'Prize' },
+        amount: { type: Number, default: 0 },
+        description: { type: String, default: '' },
+      },
+    ],
     rules: {
       type: String,
       default: '',

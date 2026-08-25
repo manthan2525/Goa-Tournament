@@ -109,6 +109,23 @@ const matchSchema = new mongoose.Schema(
       enum: ['teamA', 'teamB', null],
       default: null,
     },
+    fixtureType: {
+      type: String,
+      enum: ['automatic', 'manual'],
+      default: 'automatic',
+    },
+    date: {
+      type: String,
+      default: '',
+    },
+    time: {
+      type: String,
+      default: '',
+    },
+    venue: {
+      type: String,
+      default: '',
+    },
     isTestData: {
       type: Boolean,
       default: false,

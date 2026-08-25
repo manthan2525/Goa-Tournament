@@ -16,10 +16,16 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import { SPORTS_LIST, GOA_LOCATIONS, TOURNAMENT_FORMATS } from '../utils/constants';
-import LocationPicker from '../components/map/LocationPicker';
+import PrizeManager from '../components/PrizeManager';
 
 const CreateTournament = () => {
   const navigate = useNavigate();
+
+  const [prizes, setPrizes] = useState([
+    { position: 1, title: '1st Prize', amount: 25000, description: 'Trophy + Medals' },
+    { position: 2, title: '2nd Prize', amount: 15000, description: 'Runner Up Trophy' },
+    { position: 3, title: '3rd Prize', amount: 10000, description: 'Bronze Trophy' },
+  ]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -74,6 +80,8 @@ const CreateTournament = () => {
           data.append(key, val);
         }
       });
+
+      data.append('prizes', JSON.stringify(prizes));
 
       if (qrCodeFile) {
         data.append('qrCode', qrCodeFile);
@@ -326,9 +334,13 @@ const CreateTournament = () => {
               />
             </div>
 
+            <div className="sm:col-span-3">
+              <PrizeManager prizes={prizes} onChange={setPrizes} />
+            </div>
+
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                Prize Pool Info
+                Prize Pool Summary Info
               </label>
               <input
                 type="text"
