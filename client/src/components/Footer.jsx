@@ -1,110 +1,205 @@
 import React from 'react';
-import { Trophy, MapPin, Heart, Shield } from 'lucide-react';
+import { Trophy, Mail, Phone, MessageCircle, Instagram, Facebook, Youtube, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+// ─────────────────────────────────────────────
+// CONFIGURABLE CONTACT & SOCIAL INFO
+// Update these values to reflect real details.
+// ─────────────────────────────────────────────
+const CONTACT = {
+  email: 'support@goatournament.com',
+  phone: '+91 XXXXXXXXXX',
+  whatsapp: '+91 XXXXXXXXXX',
+};
+
+// Set a real URL string to enable the link, or null to hide it.
+const SOCIAL = {
+  instagram: null,   // e.g. 'https://instagram.com/goatournament'
+  facebook:  null,   // e.g. 'https://facebook.com/goatournament'
+  youtube:   null,   // e.g. 'https://youtube.com/@goatournament'
+};
+// ─────────────────────────────────────────────
+
 const Footer = () => {
+  const hasSocial = Object.values(SOCIAL).some(Boolean);
+
   return (
     <footer className="bg-slate-950 border-t border-slate-800/80 text-slate-400 text-sm mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Brand Info */}
-          <div className="space-y-4 md:col-span-1">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
+
+        {/* Main grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+
+          {/* ── Brand ── */}
+          <div className="sm:col-span-2 lg:col-span-1 space-y-4">
+            <div className="flex items-center space-x-2.5">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 flex-shrink-0">
                 <Trophy className="w-5 h-5 text-slate-950 stroke-[2.5]" />
               </div>
-              <span className="font-display font-bold text-lg text-white">
+              <span className="font-display font-black text-lg text-white tracking-tight">
                 GOA<span className="text-emerald-400">TOURNAMENT</span>
               </span>
             </div>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Empowering Goa's sports community with real-time tournament brackets, automated scheduling, UPI QR payments, and instant live scoreboards.
+            <p className="text-xs text-slate-400 leading-relaxed max-w-xs">
+              Discover, register, and manage sports tournaments across Goa.
+              Real-time fixtures, live scores, and UPI payments — all in one platform.
             </p>
-            <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-mono">
-              <MapPin className="w-3.5 h-3.5" />
-              <span>Panaji • Mapusa • Margao • Vasco</span>
-            </div>
+            <p className="text-[11px] text-emerald-500/80 font-mono">
+              Multi-Sport Arena Platform
+            </p>
           </div>
 
-          {/* Quick Links */}
+          {/* ── Quick Links ── */}
           <div>
-            <h4 className="font-semibold text-white text-xs uppercase tracking-wider mb-4">
-              Explore Tournaments
+            <h4 className="font-semibold text-white text-xs uppercase tracking-widest mb-4">
+              Quick Links
             </h4>
-            <ul className="space-y-2 text-xs">
+            <ul className="space-y-2.5 text-xs">
+              <li>
+                <Link to="/" className="hover:text-emerald-400 transition-colors flex items-center gap-1.5">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link to="/tournaments" className="hover:text-emerald-400 transition-colors">
+                  All Tournaments
+                </Link>
+              </li>
               <li>
                 <Link to="/tournaments?sport=Football" className="hover:text-emerald-400 transition-colors">
-                  Football Tournaments
+                  Football
                 </Link>
               </li>
               <li>
                 <Link to="/tournaments?sport=Cricket" className="hover:text-emerald-400 transition-colors">
-                  Cricket Leagues
+                  Cricket
                 </Link>
               </li>
               <li>
                 <Link to="/tournaments?sport=Badminton" className="hover:text-emerald-400 transition-colors">
-                  Badminton Opens
+                  Badminton
                 </Link>
               </li>
               <li>
                 <Link to="/tournaments?sport=Kabaddi" className="hover:text-emerald-400 transition-colors">
-                  Kabaddi Championships
+                  Kabaddi
                 </Link>
               </li>
               <li>
-                <Link to="/live" className="hover:text-emerald-400 transition-colors">
-                  Live Match Center
+                <Link to="/live" className="hover:text-emerald-400 transition-colors flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 inline-block" />
+                  Live Matches
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Goa Venues */}
+          {/* ── Contact ── */}
           <div>
-            <h4 className="font-semibold text-white text-xs uppercase tracking-wider mb-4">
-              Key Goa Venues
+            <h4 className="font-semibold text-white text-xs uppercase tracking-widest mb-4">
+              Contact Us
             </h4>
-            <ul className="space-y-2 text-xs">
-              <li className="text-slate-400">Tilak Maidan Stadium (Vasco)</li>
-              <li className="text-slate-400">Campal Indoor Complex (Panaji)</li>
-              <li className="text-slate-400">Peddem Sports Complex (Mapusa)</li>
-              <li className="text-slate-400">Fatorda Multipurpose (Margao)</li>
-              <li className="text-slate-400">Duler Stadium (Mapusa)</li>
+            <ul className="space-y-3 text-xs">
+              <li>
+                <a
+                  href={`mailto:${CONTACT.email}`}
+                  className="flex items-start gap-2.5 hover:text-emerald-400 transition-colors group"
+                >
+                  <Mail className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5 group-hover:text-emerald-400" />
+                  <span className="break-all">{CONTACT.email}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href={`tel:${CONTACT.phone.replace(/\s/g, '')}`}
+                  className="flex items-center gap-2.5 hover:text-emerald-400 transition-colors group"
+                >
+                  <Phone className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 group-hover:text-emerald-400" />
+                  <span>{CONTACT.phone}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href={`https://wa.me/${CONTACT.whatsapp.replace(/\D/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 hover:text-emerald-400 transition-colors group"
+                >
+                  <MessageCircle className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 group-hover:text-emerald-400" />
+                  <span>WhatsApp Us</span>
+                </a>
+              </li>
             </ul>
           </div>
 
-          {/* System & MCA Info */}
+          {/* ── Social / Account ── */}
           <div>
-            <h4 className="font-semibold text-white text-xs uppercase tracking-wider mb-4">
-              Platform Architecture
+            <h4 className="font-semibold text-white text-xs uppercase tracking-widest mb-4">
+              {hasSocial ? 'Follow Us' : 'Your Account'}
             </h4>
-            <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2 text-xs">
-              <div className="flex items-center justify-between text-[11px]">
-                <span className="text-slate-400">Engine:</span>
-                <span className="text-emerald-400 font-mono">React + Vite + Socket.IO</span>
-              </div>
-              <div className="flex items-center justify-between text-[11px]">
-                <span className="text-slate-400">Backend:</span>
-                <span className="text-teal-400 font-mono">Node.js / Express / Mongo</span>
-              </div>
-              <div className="flex items-center justify-between text-[11px]">
-                <span className="text-slate-400">Auth & Payments:</span>
-                <span className="text-amber-400 font-mono">JWT + QR Cloudinary</span>
-              </div>
-              <div className="pt-2 border-t border-slate-800 text-[10px] text-slate-500">
-                Master of Computer Applications (MCA) Capstone Platform
-              </div>
-            </div>
+
+            {hasSocial ? (
+              <ul className="space-y-2.5 text-xs">
+                {SOCIAL.instagram && (
+                  <li>
+                    <a href={SOCIAL.instagram} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-2.5 hover:text-emerald-400 transition-colors group">
+                      <Instagram className="w-3.5 h-3.5 text-pink-400 group-hover:text-emerald-400" />
+                      Instagram
+                      <ExternalLink className="w-3 h-3 opacity-50" />
+                    </a>
+                  </li>
+                )}
+                {SOCIAL.facebook && (
+                  <li>
+                    <a href={SOCIAL.facebook} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-2.5 hover:text-emerald-400 transition-colors group">
+                      <Facebook className="w-3.5 h-3.5 text-blue-400 group-hover:text-emerald-400" />
+                      Facebook
+                      <ExternalLink className="w-3 h-3 opacity-50" />
+                    </a>
+                  </li>
+                )}
+                {SOCIAL.youtube && (
+                  <li>
+                    <a href={SOCIAL.youtube} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-2.5 hover:text-emerald-400 transition-colors group">
+                      <Youtube className="w-3.5 h-3.5 text-rose-400 group-hover:text-emerald-400" />
+                      YouTube
+                      <ExternalLink className="w-3 h-3 opacity-50" />
+                    </a>
+                  </li>
+                )}
+              </ul>
+            ) : (
+              /* Show account links when no social media is configured */
+              <ul className="space-y-2.5 text-xs">
+                <li>
+                  <Link to="/login" className="hover:text-emerald-400 transition-colors">Sign In</Link>
+                </li>
+                <li>
+                  <Link to="/register" className="hover:text-emerald-400 transition-colors">Create Account</Link>
+                </li>
+                <li>
+                  <Link to="/player-dashboard" className="hover:text-emerald-400 transition-colors">My Registrations</Link>
+                </li>
+                <li>
+                  <Link to="/profile" className="hover:text-emerald-400 transition-colors">My Profile</Link>
+                </li>
+              </ul>
+            )}
           </div>
+
         </div>
 
-        <div className="mt-12 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-          <p>© {new Date().getFullYear()} Goa Tournament Engine. All rights reserved.</p>
-          <p className="flex items-center gap-1">
-            Built for Goa's Multi-Sport Athletes & Organizers
+        {/* ── Bottom bar ── */}
+        <div className="mt-10 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-3">
+          <p>© {new Date().getFullYear()} Goa Tournament. All rights reserved.</p>
+          <p className="text-slate-600 text-center">
+            Made for Goa's athletes, teams &amp; organizers.
           </p>
         </div>
+
       </div>
     </footer>
   );
