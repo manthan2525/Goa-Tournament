@@ -9,12 +9,12 @@ import { Link } from 'react-router-dom';
 const CONTACT = {
   email: 'support@goatournament.com',
   phone: '+91 XXXXXXXXXX',
-  whatsapp: '+91 XXXXXXXXXX',
+  whatsapp: '+91 8605477064',
 };
 
 // Set a real URL string to enable the link, or null to hide it.
 const SOCIAL = {
-  instagram: null,   // e.g. 'https://instagram.com/goatournament'
+  instagram: 'https://www.instagram.com/__manthan25__?igsi=MXVvM3J4ZWwxbWRtdA==',   // e.g. 'https://instagram.com/goatournament'
   facebook:  null,   // e.g. 'https://facebook.com/goatournament'
   youtube:   null,   // e.g. 'https://youtube.com/@goatournament'
 };
