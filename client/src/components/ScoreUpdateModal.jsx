@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, Zap, Plus, Minus, CheckCircle, ShieldAlert, Radio } from 'lucide-react';
 import api from '../services/api';
 
-const ScoreUpdateModal = ({ match, onClose, onUpdated }) => {
+const ScoreUpdateModal = ({ match, onClose, onUpdated, onEditDetails }) => {
   const [scoreA, setScoreA] = useState(match?.scoreA?.current || 0);
   const [scoreB, setScoreB] = useState(match?.scoreB?.current || 0);
   const [status, setStatus] = useState(match?.status || 'SCHEDULED');
