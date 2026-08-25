@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import { SPORTS_LIST, GOA_LOCATIONS, TOURNAMENT_FORMATS } from '../utils/constants';
+import LocationPicker from '../components/map/LocationPicker';
 import PrizeManager from '../components/PrizeManager';
 
 const CreateTournament = () => {

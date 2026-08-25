@@ -8,6 +8,7 @@
     "start": "node server/server.js",
     "server": "node server/server.js",
     "seed-test-data": "node server/seedTestData.js",
+    "seed-teams": "node server/seedTeamsWithoutFixtures.js",
     "clear-test-data": "node server/clearTestData.js",
     "build": "cd server && npm install",
     "postinstall": "cd server && npm install"
