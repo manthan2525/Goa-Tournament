@@ -36,6 +36,13 @@ import EditTournamentModal from '../components/EditTournamentModal';
 import DeleteTournamentModal from '../components/DeleteTournamentModal';
 import DeclareWinnersModal from '../components/DeclareWinnersModal';
 import ManualMatchModal from '../components/ManualMatchModal';
+import FixtureWarningModal from '../components/FixtureWarningModal';
+import {
+  isTournamentStarted,
+  getFixtureEditWarning,
+  getFixtureCreateWarning,
+  getRegenerateWarning,
+} from '../utils/fixtureWarnings';
 import MapPreview from '../components/map/MapPreview';
 import BannerLightbox from '../components/BannerLightbox';
 import { STATUS_COLORS } from '../utils/constants';
@@ -66,6 +73,11 @@ const TournamentDetail = () => {
   const [selectedMatchForScore, setSelectedMatchForScore] = useState(null);
   const [startingTournament, setStartingTournament] = useState(false);
   const [actionError, setActionError] = useState('');
+
+  // Warning Modal state
+  const [warningModalOpen, setWarningModalOpen] = useState(false);
+  const [warningConfig, setWarningConfig] = useState(null);
+  const [pendingAction, setPendingAction] = useState(null);
 
   const fetchTournamentData = async () => {
     try {
@@ -155,7 +167,7 @@ const TournamentDetail = () => {
     }
   };
 
-  const handleStartTournament = async () => {
+  const executeStartTournament = async () => {
     try {
       setStartingTournament(true);
       setActionError('');
@@ -168,6 +180,45 @@ const TournamentDetail = () => {
     } finally {
       setStartingTournament(false);
     }
+  };
+
+  const handleStartTournament = async () => {
+    const warning = getRegenerateWarning(tournament);
+    if (warning) {
+      setWarningConfig(warning);
+      setPendingAction(() => () => executeStartTournament());
+      setWarningModalOpen(true);
+      return;
+    }
+    await executeStartTournament();
+  };
+
+  const handleOpenCreateManual = () => {
+    setEditingMatch(null);
+    const warning = getFixtureCreateWarning(tournament);
+    if (warning) {
+      setWarningConfig(warning);
+      setPendingAction(() => () => setShowManualMatchModal(true));
+      setWarningModalOpen(true);
+      return;
+    }
+    setShowManualMatchModal(true);
+  };
+
+  const handleOpenEditManual = (matchToEdit) => {
+    setSelectedMatchForScore(null);
+    const warning = getFixtureEditWarning(matchToEdit, tournament);
+    if (warning) {
+      setWarningConfig(warning);
+      setPendingAction(() => () => {
+        setEditingMatch(matchToEdit);
+        setShowManualMatchModal(true);
+      });
+      setWarningModalOpen(true);
+      return;
+    }
+    setEditingMatch(matchToEdit);
+    setShowManualMatchModal(true);
   };
 
   if (loading) {
@@ -226,10 +277,7 @@ const TournamentDetail = () => {
             )}
 
             <button
-              onClick={() => {
-                setEditingMatch(null);
-                setShowManualMatchModal(true);
-              }}
+              onClick={handleOpenCreateManual}
               className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-teal-500 hover:bg-teal-400 text-slate-950 flex items-center gap-1.5 transition-all shadow-md"
               title="Create a match fixture manually"
             >
@@ -633,10 +681,7 @@ const TournamentDetail = () => {
                 </button>
 
                 <button
-                  onClick={() => {
-                    setEditingMatch(null);
-                    setShowManualMatchModal(true);
-                  }}
+                  onClick={handleOpenCreateManual}
                   className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-1.5 transition-all shadow-sm"
                   title="Manually create a custom fixture match"
                 >
@@ -814,11 +859,7 @@ const TournamentDetail = () => {
               prev.map((m) => (m._id === updatedMatch._id ? updatedMatch : m))
             );
           }}
-          onEditDetails={(matchToEdit) => {
-            setSelectedMatchForScore(null);
-            setEditingMatch(matchToEdit);
-            setShowManualMatchModal(true);
-          }}
+          onEditDetails={(matchToEdit) => handleOpenEditManual(matchToEdit)}
         />
       )}
 
@@ -844,6 +885,28 @@ const TournamentDetail = () => {
           imageUrl={bannerImg}
           altText={`${tournament.name} banner`}
           onClose={() => setShowBannerLightbox(false)}
+        />
+      )}
+
+      {/* Fixture Warning & Confirmation Modal */}
+      {warningConfig && (
+        <FixtureWarningModal
+          isOpen={warningModalOpen}
+          title={warningConfig.title}
+          level={warningConfig.level}
+          details={warningConfig.details}
+          comparison={warningConfig.comparison}
+          confirmText={warningConfig.confirmText}
+          cancelText="Cancel"
+          loading={startingTournament}
+          onConfirm={() => {
+            setWarningModalOpen(false);
+            if (pendingAction) pendingAction();
+          }}
+          onCancel={() => {
+            setWarningModalOpen(false);
+            setPendingAction(null);
+          }}
         />
       )}
     </div>

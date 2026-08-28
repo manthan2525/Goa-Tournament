@@ -34,6 +34,8 @@ import DeleteTournamentModal from '../components/DeleteTournamentModal';
 import DeclareWinnersModal from '../components/DeclareWinnersModal';
 import AadhaarReviewModal from '../components/AadhaarReviewModal';
 import TeamDetailsModal from '../components/TeamDetailsModal';
+import FixtureWarningModal from '../components/FixtureWarningModal';
+import { getRegenerateWarning } from '../utils/fixtureWarnings';
 import { STATUS_COLORS, formatLocation } from '../utils/constants';
 
 const OrganizerDashboard = () => {
@@ -125,16 +127,9 @@ const OrganizerDashboard = () => {
     }
   }, [selectedTournamentForParticipants]);
 
-  const handleStartTournament = async (tournamentId, tournamentName) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to generate bracket fixtures and start '${tournamentName}'?`
-      )
-    ) {
-      return;
-    }
-
+  const executeStartTournament = async (tournamentId, tournamentName) => {
     try {
+      setStartingTournament(true);
       const res = await api.post(`/tournaments/${tournamentId}/start`);
       if (res.data.success) {
         setActionMessage(res.data.message);
@@ -142,8 +137,34 @@ const OrganizerDashboard = () => {
         fetchOrganizerData();
       }
     } catch (err) {
-      alert(err.message || 'Failed to generate fixtures.');
+      setApiError(err.response?.data?.message || err.message || 'Failed to generate fixtures.');
+    } finally {
+      setStartingTournament(false);
     }
+  };
+
+  const handleStartTournament = async (tournamentObjOrId, tournamentNameProp) => {
+    const tId = typeof tournamentObjOrId === 'object' ? tournamentObjOrId._id : tournamentObjOrId;
+    const tObj = typeof tournamentObjOrId === 'object' ? tournamentObjOrId : tournaments.find((t) => t._id === tId);
+    const name = tObj?.name || tournamentNameProp || 'Tournament';
+
+    const warning = getRegenerateWarning(tObj);
+    if (warning) {
+      setWarningConfig(warning);
+      setPendingAction(() => () => executeStartTournament(tId, name));
+      setWarningModalOpen(true);
+      return;
+    }
+
+    // Default pre-start confirmation (custom modal, no browser confirm)
+    setWarningConfig({
+      title: 'Generate Automatic Fixtures?',
+      level: 'NORMAL',
+      details: [`Generate automatic knockout/round-robin brackets for '${name}' from verified registered squads.`],
+      confirmText: 'Generate Fixtures',
+    });
+    setPendingAction(() => () => executeStartTournament(tId, name));
+    setWarningModalOpen(true);
   };
 
   const handleOpenPaymentReview = async (tournamentId, name) => {
@@ -1050,6 +1071,28 @@ const OrganizerDashboard = () => {
           onUpdated={() => {
             setActiveMatchForScore(null);
             fetchOrganizerData();
+          }}
+        />
+      )}
+
+      {/* Fixture Warning & Confirmation Modal */}
+      {warningConfig && (
+        <FixtureWarningModal
+          isOpen={warningModalOpen}
+          title={warningConfig.title}
+          level={warningConfig.level}
+          details={warningConfig.details}
+          comparison={warningConfig.comparison}
+          confirmText={warningConfig.confirmText}
+          cancelText="Cancel"
+          loading={startingTournament}
+          onConfirm={() => {
+            setWarningModalOpen(false);
+            if (pendingAction) pendingAction();
+          }}
+          onCancel={() => {
+            setWarningModalOpen(false);
+            setPendingAction(null);
           }}
         />
       )}
