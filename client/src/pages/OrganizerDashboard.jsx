@@ -80,6 +80,12 @@ const OrganizerDashboard = () => {
   const [showMatchSelectorModal, setShowMatchSelectorModal] = useState(false);
   const [selectedTournamentSport, setSelectedTournamentSport] = useState(null);
 
+  // Warning Modal state
+  const [warningModalOpen, setWarningModalOpen] = useState(false);
+  const [warningConfig, setWarningConfig] = useState(null);
+  const [pendingAction, setPendingAction] = useState(null);
+  const [startingTournament, setStartingTournament] = useState(false);
+
   const fetchOrganizerData = async () => {
     try {
       setLoading(true);
