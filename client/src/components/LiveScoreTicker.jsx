@@ -55,7 +55,7 @@ const LiveScoreTicker = () => {
 
   return (
     <div className="bg-slate-900/90 border-y border-rose-500/30 py-2.5 px-4 overflow-hidden backdrop-blur-md">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-4">
         {/* Live Badge */}
         <div className="flex items-center gap-2 flex-shrink-0">
           <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40 text-xs font-black tracking-wider uppercase font-mono">

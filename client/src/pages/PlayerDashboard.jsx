@@ -85,7 +85,7 @@ const PlayerDashboard = () => {
   const avatarUrl = user?.profilePhoto || user?.profileImage;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header Profile Area */}
       <div className="rounded-3xl glass-panel border border-slate-800 p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div className="flex items-center gap-4">

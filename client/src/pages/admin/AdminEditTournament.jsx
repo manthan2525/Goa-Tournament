@@ -105,7 +105,7 @@ const AdminEditTournament = () => {
   const labelClass = "block text-xs font-semibold text-slate-300 mb-1.5";
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-[1400px]">
       <div className="flex items-center gap-3">
         <button onClick={() => navigate('/admin/tournaments')} className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white">
           <ArrowLeft className="w-5 h-5" />

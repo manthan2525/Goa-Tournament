@@ -269,7 +269,7 @@ const Home = () => {
       <LiveScoreTicker />
 
       {/* ── Sport Filter Pills — drives the hero banner below ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
           {SPORTS_LIST.map((sport) => (
             <button
@@ -289,7 +289,7 @@ const Home = () => {
 
       {/* ── Sport-Reactive Hero ── */}
       {/* NOTE: uses ONLY CSS gradients + emoji + text — NO organizer banners */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative rounded-3xl overflow-hidden glass-panel border border-slate-800 p-8 sm:p-14 transition-all duration-500">
           {/* Sport-coloured ambient glows */}
           <div className={`absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full ${theme.glow1} blur-3xl pointer-events-none transition-colors duration-700`} />
@@ -303,7 +303,7 @@ const Home = () => {
             {theme.emoji}
           </div>
 
-          <div className="relative z-10 max-w-3xl space-y-6">
+          <div className="relative z-10 max-w-4xl space-y-6">
             {/* Sport badge */}
             <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full ${theme.badgeBg} border ${theme.border} ${theme.badgeText} text-xs font-bold tracking-wide uppercase font-mono`}>
               <Flame className="w-4 h-4" />
@@ -316,7 +316,7 @@ const Home = () => {
             </h1>
 
             {/* Subtitle */}
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl">
+            <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-3xl">
               {theme.sub}
             </p>
 
@@ -359,7 +359,7 @@ const Home = () => {
       </section>
 
       {/* ── Tournaments Grid ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="font-display font-bold text-2xl text-white">
@@ -381,13 +381,13 @@ const Home = () => {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((n) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((n) => (
               <div key={n} className="h-96 rounded-2xl glass-card border border-slate-800 animate-pulse" />
             ))}
           </div>
         ) : filteredTournaments.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredTournaments.map((t) => (
               <TournamentCard key={t._id} tournament={t} />
             ))}
@@ -404,7 +404,7 @@ const Home = () => {
       </section>
 
       {/* ── Feature Highlights ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-6 rounded-2xl glass-panel border border-slate-800 space-y-3">
             <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">

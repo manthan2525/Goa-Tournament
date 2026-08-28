@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Activity, Radio } from "lucide-react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
@@ -76,7 +76,7 @@ const LiveCenter = () => {
   const visibleMatches = liveMatches.filter((m) => matchesSportFilter(m, activeTab));
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
         <div>
@@ -126,13 +126,13 @@ const LiveCenter = () => {
 
       {/* Matches grid */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {[1, 2].map((n) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {[1, 2, 3].map((n) => (
             <div key={n} className="h-64 rounded-3xl glass-card border border-slate-800 animate-pulse" />
           ))}
         </div>
       ) : visibleMatches.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {visibleMatches.map((m) => (
             <SportLiveCard key={m._id} match={m} />
           ))}

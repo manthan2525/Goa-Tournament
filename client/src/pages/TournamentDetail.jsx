@@ -172,7 +172,7 @@ const TournamentDetail = () => {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center">
+      <div className="max-w-[1600px] mx-auto px-4 py-16 text-center">
         <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mx-auto mb-4"></div>
         <p className="text-xs font-mono text-slate-400">Loading Goa tournament arena...</p>
       </div>
@@ -181,7 +181,7 @@ const TournamentDetail = () => {
 
   if (!tournament) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center">
+      <div className="max-w-[1600px] mx-auto px-4 py-16 text-center">
         <h2 className="text-xl font-bold text-white">Tournament Not Found</h2>
         <Link to="/tournaments" className="mt-4 inline-block text-xs font-bold text-emerald-400">
           ← Back to Tournaments
@@ -200,7 +200,7 @@ const TournamentDetail = () => {
   const organizerAvatar = tournament.organizer?.profilePhoto || tournament.organizer?.profileImage;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Organizer Action Bar (If Owner) */}
       {isTournamentOwner && (
         <div className="p-4 rounded-2xl glass-panel border border-emerald-500/30 flex flex-wrap items-center justify-between gap-3 bg-emerald-950/20 animate-in fade-in">

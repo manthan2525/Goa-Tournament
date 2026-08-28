@@ -62,7 +62,7 @@ const Tournaments = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -86,8 +86,8 @@ const Tournaments = () => {
       </div>
 
       {/* Sport Quick Filter Pills */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-        {['All', ...SPORTS_LIST].map((s) => (
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
+        {SPORTS_LIST.map((s) => (
           <button
             key={s}
             onClick={() => setSport(s)}
@@ -220,13 +220,13 @@ const Tournaments = () => {
 
       {/* Grid */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3, 4, 5, 6].map((n) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
             <div key={n} className="h-96 rounded-2xl glass-card border border-slate-800 animate-pulse"></div>
           ))}
         </div>
       ) : tournaments.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {tournaments.map((t) => (
             <TournamentCard key={t._id} tournament={t} />
           ))}

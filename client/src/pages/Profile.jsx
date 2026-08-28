@@ -90,7 +90,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Header Banner */}
       <div className="relative rounded-3xl glass-panel border border-slate-800 p-6 sm:p-8 overflow-hidden">
         <div className="flex flex-col sm:flex-row items-center gap-6">

@@ -46,7 +46,7 @@ const AdminSettings = () => {
   const avatarUrl = user?.profilePhoto || user?.profileImage;
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 max-w-[1200px]">
       <div>
         <h1 className="font-display font-black text-2xl text-white flex items-center gap-2">
           <Settings className="w-6 h-6 text-slate-400" /> Admin Settings & Profile
