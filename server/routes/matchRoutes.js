@@ -5,6 +5,7 @@ import {
   getMatchById,
   updateMatchScore,
   createManualMatch,
+  createBatchManualMatches,
   updateManualMatch,
   deleteMatch,
 } from '../controllers/matchController.js';
@@ -18,6 +19,13 @@ router.get('/tournament/:tournamentId', getTournamentMatches);
 router.get('/:id', getMatchById);
 
 // Protected routes (Organizer / Admin)
+router.post(
+  '/manual/batch',
+  protect,
+  authorize('ORGANIZER', 'ADMIN'),
+  createBatchManualMatches
+);
+
 router.post(
   '/manual',
   protect,

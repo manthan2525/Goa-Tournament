@@ -379,6 +379,66 @@ export const createManualMatch = async (req, res, next) => {
   }
 };
 
+// @desc    Create batch manual matches for a round (e.g. Round of 16, QF, SF)
+// @route   POST /api/matches/manual/batch
+export const createBatchManualMatches = async (req, res, next) => {
+  try {
+    const { tournamentId, round, matches } = req.body;
+    const tournament = await Tournament.findById(tournamentId);
+    if (!tournament) {
+      return res.status(404).json({ success: false, message: 'Tournament not found.' });
+    }
+
+    if (
+      tournament.organizer.toString() !== req.user._id.toString() &&
+      req.user.role !== 'ADMIN'
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to create matches for this tournament.',
+      });
+    }
+
+    if (!Array.isArray(matches) || matches.length === 0) {
+      return res.status(400).json({ success: false, message: 'No valid matches provided in batch.' });
+    }
+
+    // Determine starting match number
+    const highestMatch = await Match.findOne({ tournament: tournamentId }).sort({ matchNumber: -1 });
+    let startMatchNum = highestMatch ? highestMatch.matchNumber + 1 : 1;
+
+    const createdMatches = [];
+    for (let i = 0; i < matches.length; i++) {
+      const mData = matches[i];
+      const match = await Match.create({
+        tournament: tournamentId,
+        round: round || mData.round || 'Round of 16',
+        matchNumber: mData.matchNumber || (startMatchNum + i),
+        teamA: typeof mData.teamA === 'object' ? mData.teamA : { name: mData.teamA || 'TBD' },
+        teamB: typeof mData.teamB === 'object' ? mData.teamB : { name: mData.teamB || 'TBD' },
+        startTime: Date.now(),
+        date: mData.date || '',
+        time: mData.time || '',
+        venueCourt: mData.venue || mData.venueCourt || tournament.venue || 'Main Arena',
+        venue: mData.venue || mData.venueCourt || tournament.venue || 'Main Arena',
+        status: mData.status || 'SCHEDULED',
+        summary: mData.summary || '',
+        fixtureType: 'manual',
+      });
+      broadcastScoreUpdate(match);
+      createdMatches.push(match);
+    }
+
+    res.status(201).json({
+      success: true,
+      message: `Successfully created ${createdMatches.length} manual fixture matches for ${round || 'Tournament'}.`,
+      matches: createdMatches,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Update manual match details (Organizer/Admin)
 // @route   PUT /api/matches/:id/details
 export const updateManualMatch = async (req, res, next) => {
