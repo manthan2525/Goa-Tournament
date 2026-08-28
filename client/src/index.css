@@ -2,15 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Global box-sizing ─── */
+/* ─── Global box-sizing & Responsive Images ─── */
 *, *::before, *::after {
   box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ─── Standard Responsive Application Container ─── */
+.app-container {
+  width: min(100% - 48px, 1600px);
+  margin-inline: auto;
+}
+
+@media (max-width: 1024px) {
+  .app-container {
+    width: min(100% - 40px, 1600px);
+  }
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    width: min(100% - 32px, 1600px);
+  }
+}
+
+@media (max-width: 480px) {
+  .app-container {
+    width: min(100% - 20px, 1600px);
+  }
 }
 
 /* ─── Prevent horizontal overflow at the root ─── */
 html {
   overflow-x: hidden;
   scroll-behavior: smooth;
+  width: 100%;
 }
 
 @layer base {
