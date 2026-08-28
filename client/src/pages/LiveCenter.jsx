@@ -4,24 +4,14 @@ import { Link } from "react-router-dom";
 import api from "../services/api";
 import { useSocket } from "../context/SocketContext";
 import SportLiveCard, { SPORT_META } from "../components/SportLiveCard";
-
-// ─── Sport filter tabs ────────────────────────────────────────────────────────
-const ALL_SPORTS = ["All", ...Object.keys(SPORT_META)];
-
-const SPORT_GROUPS = {
-  Football: ["Football", "Futsal"],
-  Badminton: ["Badminton", "Table Tennis", "Tennis"],
-};
+import { SPORTS_LIST } from "../utils/constants";
 
 const matchesSportFilter = (match, tab) => {
   if (tab === "All") return true;
   const sport = match.tournament?.sport || "";
-  const group = SPORT_GROUPS[tab];
-  if (group) return group.includes(sport);
-  return sport === tab;
+  return sport.toLowerCase().trim() === tab.toLowerCase().trim();
 };
 
-// ─── Component ────────────────────────────────────────────────────────────────
 const LiveCenter = () => {
   const [liveMatches, setLiveMatches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -78,11 +68,10 @@ const LiveCenter = () => {
     };
   }, []);
 
-  // Deduplicate tabs — only show sports that have live matches (+ always show All)
-  const availableTabs = ALL_SPORTS.filter((tab) => {
-    if (tab === "All") return true;
-    return liveMatches.some((m) => matchesSportFilter(m, tab));
-  });
+  // Deduplicate tabs based on SPORTS_LIST (which is the single source of truth)
+  // The user requested to see ALL SPORTS in the filter, not just those with live matches.
+  // Converting it to a Set just in case there were any accidental duplicates in constants.js
+  const availableTabs = [...new Set(SPORTS_LIST)];
 
   const visibleMatches = liveMatches.filter((m) => matchesSportFilter(m, activeTab));
 
@@ -113,26 +102,27 @@ const LiveCenter = () => {
       </div>
 
       {/* Sport filter tabs */}
-      {!loading && liveMatches.length > 0 && (
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-          {availableTabs.map((tab) => {
-            const meta = SPORT_META[tab];
-            return (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 border ${
-                  activeTab === tab
-                    ? "bg-emerald-500 text-slate-950 border-emerald-500 shadow-md shadow-emerald-500/20"
-                    : "bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-300"
-                }`}
-              >
-                {meta ? `${meta.emoji} ${meta.label}` : tab}
-              </button>
-            );
-          })}
-        </div>
-      )}
+      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+        {availableTabs.map((tab) => {
+          const meta = SPORT_META[tab] || { emoji: "🏆", label: tab };
+          // If tab is "All", don't show emoji or show a generic one. But SPORT_META doesn't have "All", so it falls back to 🏆 All.
+          // Let's omit emoji for "All".
+          const displayLabel = tab === "All" ? "All" : `${meta.emoji} ${meta.label}`;
+          return (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 border ${
+                activeTab === tab
+                  ? "bg-emerald-500 text-slate-950 border-emerald-500 shadow-md shadow-emerald-500/20"
+                  : "bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-300"
+              }`}
+            >
+              {displayLabel}
+            </button>
+          );
+        })}
+      </div>
 
       {/* Matches grid */}
       {loading ? (

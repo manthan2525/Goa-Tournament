@@ -24,6 +24,7 @@ export const SPORTS_LIST = [
   'Volleyball',
   'Basketball',
   'Futsal',
+  'Tennis',
 ];
 
 export const TOURNAMENT_FORMATS = [
