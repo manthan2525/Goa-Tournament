@@ -806,6 +806,7 @@ const TournamentDetail = () => {
       {selectedMatchForScore && (
         <ScoreUpdateModal
           match={selectedMatchForScore}
+          sport={tournament?.sport}
           onClose={() => setSelectedMatchForScore(null)}
           onUpdated={(updatedMatch) => {
             setSelectedMatchForScore(null);

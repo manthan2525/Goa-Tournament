@@ -187,7 +187,7 @@ export const getMatchById = async (req, res, next) => {
 // @route   PUT /api/matches/:id/score
 export const updateMatchScore = async (req, res, next) => {
   try {
-    const { scoreA, scoreB, status, winner, summary, venueCourt } = req.body;
+    const { scoreA, scoreB, status, winner, summary, venueCourt, liveData } = req.body;
 
     const match = await Match.findById(req.params.id).populate('tournament');
     if (!match) {
@@ -238,6 +238,11 @@ export const updateMatchScore = async (req, res, next) => {
 
     if (venueCourt) {
       match.venueCourt = venueCourt;
+    }
+
+    if (liveData !== undefined && typeof liveData === 'object') {
+      match.liveData = { ...(match.liveData || {}), ...liveData };
+      match.markModified('liveData');
     }
 
     // Handle Winner and Automatic Bracket Advancement

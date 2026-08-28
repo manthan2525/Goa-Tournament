@@ -126,6 +126,10 @@ const matchSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    liveData: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
     isTestData: {
       type: Boolean,
       default: false,

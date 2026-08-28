@@ -76,6 +76,7 @@ const OrganizerDashboard = () => {
   const [activeMatchForScore, setActiveMatchForScore] = useState(null);
   const [tournamentMatchesList, setTournamentMatchesList] = useState([]);
   const [showMatchSelectorModal, setShowMatchSelectorModal] = useState(false);
+  const [selectedTournamentSport, setSelectedTournamentSport] = useState(null);
 
   const fetchOrganizerData = async () => {
     try {
@@ -158,9 +159,10 @@ const OrganizerDashboard = () => {
     }
   };
 
-  const handleOpenScorepad = async (tournamentId, name) => {
+  const handleOpenScorepad = async (tournamentId, name, sport) => {
     try {
       setReviewTournamentName(name);
+      setSelectedTournamentSport(sport);
       const res = await api.get(`/matches/tournament/${tournamentId}`);
       if (res.data.success) {
         setTournamentMatchesList(res.data.matches || []);
@@ -429,7 +431,7 @@ const OrganizerDashboard = () => {
                         {/* Live Scorepad CTA */}
                         {t.status === 'ONGOING' && (
                           <button
-                            onClick={() => handleOpenScorepad(t._id, t.name)}
+                            onClick={() => handleOpenScorepad(t._id, t.name, t.sport)}
                             className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold uppercase tracking-wider bg-rose-500/20 text-rose-400 border border-rose-500/40 hover:bg-rose-500/30 flex items-center gap-1.5 transition-all"
                           >
                             <Zap className="w-3.5 h-3.5" />
@@ -1043,6 +1045,7 @@ const OrganizerDashboard = () => {
       {activeMatchForScore && (
         <ScoreUpdateModal
           match={activeMatchForScore}
+          sport={selectedTournamentSport}
           onClose={() => setActiveMatchForScore(null)}
           onUpdated={() => {
             setActiveMatchForScore(null);
