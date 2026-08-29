@@ -316,6 +316,9 @@ const TournamentDetail = () => {
 
   const organizerAvatar = tournament.organizer?.profilePhoto || tournament.organizer?.profileImage;
 
+  const groupMatches = matches.filter((m) => m.group || m.round?.startsWith('Group'));
+  const knockoutMatches = matches.filter((m) => m.roundIndex >= 10 || m.round?.includes('Semi-Final') || m.round?.includes('Final'));
+
   return (
     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 text-slate-900 dark:text-white">
       {/* Organizer Action Bar (If Owner) */}
