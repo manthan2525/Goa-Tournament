@@ -232,12 +232,47 @@ const TournamentDetail = () => {
   };
 
   const handleStartTournament = () => {
-    executeStartTournament();
+    const hasStarted = isTournamentStarted(tournament);
+    if (matches.length > 0 || hasStarted) {
+      setWarningConfig({
+        title: matches.length > 0 ? "🔴 WARNING — Fixtures Already Exist" : "⚠️ Tournament Already Started",
+        level: matches.length > 0 ? "CRITICAL" : "NORMAL",
+        details: [
+          matches.length > 0
+            ? "Fixtures have already been generated for this tournament."
+            : "This tournament has already started.",
+          "Generating or re-creating automatic fixtures may replace existing matches, live scores, and standings.",
+        ],
+        confirmText: "Yes, Generate Fixtures",
+      });
+      setPendingAction(() => executeStartTournament);
+      setWarningModalOpen(true);
+    } else {
+      executeStartTournament();
+    }
   };
 
   const handleOpenCreateManual = () => {
-    setEditingMatch(null);
-    setShowManualMatchModal(true);
+    const hasStarted = isTournamentStarted(tournament);
+    if (hasStarted) {
+      setWarningConfig({
+        title: "⚠️ Tournament Already Started",
+        level: "NORMAL",
+        details: [
+          "This tournament has already started.",
+          "Adding a new manual fixture may affect ongoing schedules and standings.",
+        ],
+        confirmText: "Continue Creating Fixture",
+      });
+      setPendingAction(() => () => {
+        setEditingMatch(null);
+        setShowManualMatchModal(true);
+      });
+      setWarningModalOpen(true);
+    } else {
+      setEditingMatch(null);
+      setShowManualMatchModal(true);
+    }
   };
 
   const handleOpenEditManual = (match) => {
