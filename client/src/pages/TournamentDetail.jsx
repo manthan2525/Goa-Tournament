@@ -354,65 +354,6 @@ const TournamentDetail = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {/* Stage-Aware Auto Fixture Button */}
-            <button
-              onClick={handleStartTournament}
-              disabled={startingTournament}
-              className={`px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md ${
-                startingTournament
-                  ? 'bg-slate-400 text-white cursor-not-allowed'
-                  : matches.length > 0 && tournament.format === 'GROUP_KNOCKOUT' && groupMatches.length > 0 && groupMatches.every((m) => m.status === 'COMPLETED') && knockoutMatches.length === 0
-                  ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-black animate-pulse'
-                  : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-              }`}
-              title="Generate automatic fixtures for current tournament stage"
-            >
-              <Play className="w-3.5 h-3.5 fill-current" />
-              {startingTournament
-                ? 'Generating...'
-                : matches.length === 0
-                ? 'Auto Fixtures'
-                : tournament.format === 'GROUP_KNOCKOUT'
-                ? knockoutMatches.length > 0
-                  ? 'Fixtures Complete ✓'
-                  : groupMatches.length > 0 && groupMatches.every((m) => m.status === 'COMPLETED')
-                  ? 'Generate Knockout Finals'
-                  : 'Group Stage Generated ✓'
-                : 'Fixtures Complete ✓'}
-            </button>
-
-            <button
-              onClick={handleOpenCreateManual}
-              className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-500 text-white flex items-center gap-1.5 transition-all shadow-md"
-              title="Create a match fixture manually"
-            >
-              <Zap className="w-3.5 h-3.5" />
-              + Manual Fixture
-            </button>
-
-            {/* Manage Groups Button (If Group Stage + Knockout) */}
-            {tournament.format === 'GROUP_KNOCKOUT' && (
-              <button
-                onClick={() => setShowGroupManagementModal(true)}
-                className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-1.5 transition-all shadow-md"
-                title="Manually assign teams to groups and set group structure"
-              >
-                <Users className="w-3.5 h-3.5" />
-                Manage Groups
-              </button>
-            )}
-
-            {/* Reset Fixtures Button */}
-            <button
-              onClick={() => setShowResetModal(true)}
-              disabled={resettingFixtures || matches.length === 0}
-              className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white flex items-center gap-1.5 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Safely reset all generated fixtures and standings for this tournament"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              {resettingFixtures ? 'Resetting...' : 'Reset Fixtures'}
-            </button>
-
             <button
               onClick={() => setShowWinnersModal(true)}
               className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-1.5 transition-all shadow-md"
@@ -423,9 +364,9 @@ const TournamentDetail = () => {
 
             <button
               onClick={() => setShowEditModal(true)}
-              className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-all"
+              className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-all shadow-md"
             >
-              <Edit3 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <Edit3 className="w-3.5 h-3.5" />
               Edit Tournament
             </button>
 
@@ -835,23 +776,64 @@ const TournamentDetail = () => {
 
             {isTournamentOwner && (
               <div className="flex flex-wrap items-center gap-2">
+                {/* Stage-Aware Auto Fixtures Button */}
                 <button
                   onClick={handleStartTournament}
                   disabled={startingTournament}
-                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-emerald-700 dark:text-emerald-400 border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-all"
-                  title="Generate automatic brackets from registered teams"
+                  className={`px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md ${
+                    startingTournament
+                      ? 'bg-slate-400 text-white cursor-not-allowed'
+                      : matches.length > 0 && tournament.format === 'GROUP_KNOCKOUT' && groupMatches.length > 0 && groupMatches.every((m) => m.status === 'COMPLETED') && knockoutMatches.length === 0
+                      ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-black animate-pulse'
+                      : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                  }`}
+                  title="Generate automatic fixtures for current tournament stage"
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
-                  {startingTournament ? 'Generating...' : '○ Auto Fixtures'}
+                  {startingTournament
+                    ? 'Generating...'
+                    : matches.length === 0
+                    ? 'Auto Fixtures'
+                    : tournament.format === 'GROUP_KNOCKOUT'
+                    ? knockoutMatches.length > 0
+                      ? 'Fixtures Complete ✓'
+                      : groupMatches.length > 0 && groupMatches.every((m) => m.status === 'COMPLETED')
+                      ? 'Generate Knockout Finals'
+                      : 'Group Stage Generated ✓'
+                    : 'Fixtures Complete ✓'}
                 </button>
 
+                {/* Manual Fixture Button */}
                 <button
                   onClick={handleOpenCreateManual}
-                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 transition-all shadow-xs"
-                  title="Manually create a custom fixture match"
+                  className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-500 text-white flex items-center gap-1.5 transition-all shadow-md"
+                  title="Create a match fixture manually"
                 >
                   <Zap className="w-3.5 h-3.5" />
                   + Manual Fixture
+                </button>
+
+                {/* Manage Groups Button (If Group Stage + Knockout) */}
+                {tournament.format === 'GROUP_KNOCKOUT' && (
+                  <button
+                    onClick={() => setShowGroupManagementModal(true)}
+                    className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-1.5 transition-all shadow-md"
+                    title="Manually assign teams to groups and set group structure"
+                  >
+                    <Users className="w-3.5 h-3.5" />
+                    Manage Groups
+                  </button>
+                )}
+
+                {/* Reset Fixtures Button */}
+                <button
+                  onClick={() => setShowResetModal(true)}
+                  disabled={resettingFixtures || matches.length === 0}
+                  className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white flex items-center gap-1.5 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Safely reset all generated fixtures and standings for this tournament"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  {resettingFixtures ? 'Resetting...' : 'Reset Fixtures'}
                 </button>
               </div>
             )}
