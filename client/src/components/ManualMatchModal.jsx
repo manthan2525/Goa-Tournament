@@ -280,7 +280,7 @@ const ManualMatchModal = ({
       }
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Failed to create batch fixtures.');
-    } font-mono {
+    } finally {
       setSubmitting(false);
     }
   };
