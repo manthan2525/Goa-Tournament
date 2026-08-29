@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Users, Plus, Trash2, Save, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { X, Users, Plus, Trash2, Save, AlertCircle, CheckCircle2, Sparkles } from 'lucide-react';
 import api from '../services/api';
 
 const DEFAULT_GROUP_NAMES = ['Group A', 'Group B', 'Group C', 'Group D', 'Group E', 'Group F', 'Group G', 'Group H'];
@@ -65,6 +65,32 @@ const GroupManagementModal = ({ tournamentId, onClose, onSaved }) => {
       }
       return nextMap;
     });
+  };
+
+  const handleAutoGenerateGroups = () => {
+    if (!verifiedTeams || verifiedTeams.length === 0) {
+      setError('⚠️ No confirmed registered teams available to generate groups.');
+      return;
+    }
+    setError('');
+
+    const newGroups = {};
+    for (let i = 0; i < numGroups; i++) {
+      newGroups[DEFAULT_GROUP_NAMES[i]] = [];
+    }
+
+    verifiedTeams.forEach((team, idx) => {
+      const gIndex = idx % numGroups;
+      const gName = DEFAULT_GROUP_NAMES[gIndex];
+      newGroups[gName].push({
+        teamRegistrationId: team._id,
+        teamName: team.teamName,
+      });
+    });
+
+    setGroupsData(newGroups);
+    setSuccessMessage(`✓ Automatically generated ${numGroups} groups with ${verifiedTeams.length} teams! Click "Save Groups" to confirm.`);
+    setTimeout(() => setSuccessMessage(''), 4000);
   };
 
   // Get set of all assigned team IDs across all groups
@@ -188,27 +214,39 @@ const GroupManagementModal = ({ tournamentId, onClose, onSaved }) => {
                 </div>
               )}
 
-              {/* Number of Groups Selector */}
-              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Number of Groups:
-                </span>
-                <div className="flex items-center gap-1.5">
-                  {[2, 3, 4, 5, 6, 8].map((cnt) => (
-                    <button
-                      key={cnt}
-                      type="button"
-                      onClick={() => handleNumGroupsChange(cnt)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
-                        numGroups === cnt
-                          ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                          : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                      }`}
-                    >
-                      {cnt} Groups
-                    </button>
-                  ))}
+              {/* Number of Groups & Auto Generate Bar */}
+              <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    Number of Groups:
+                  </span>
+                  <div className="flex items-center gap-1">
+                    {[2, 3, 4, 5, 6, 8].map((cnt) => (
+                      <button
+                        key={cnt}
+                        type="button"
+                        onClick={() => handleNumGroupsChange(cnt)}
+                        className={`px-2.5 py-1 rounded-xl text-xs font-bold border transition-all ${
+                          numGroups === cnt
+                            ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-transparent shadow-xs'
+                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        {cnt}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={handleAutoGenerateGroups}
+                  className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-xs transition-all flex items-center gap-1.5"
+                  title="Automatically distribute all registered teams evenly into groups"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Auto Generate Groups
+                </button>
               </div>
 
               {/* Groups Grid */}

@@ -232,33 +232,12 @@ const TournamentDetail = () => {
   };
 
   const handleStartTournament = () => {
-    const hasStarted = isTournamentStarted(tournament, matches);
-    const warning = getRegenerateWarning(tournament, hasStarted);
-
-    if (warning.shouldWarn) {
-      setWarningConfig(warning);
-      setPendingAction(() => executeStartTournament);
-      setWarningModalOpen(true);
-    } else {
-      executeStartTournament();
-    }
+    executeStartTournament();
   };
 
   const handleOpenCreateManual = () => {
-    const hasStarted = isTournamentStarted(tournament, matches);
-    const warning = getFixtureCreateWarning(tournament, hasStarted);
-
-    if (warning.shouldWarn) {
-      setWarningConfig(warning);
-      setPendingAction(() => () => {
-        setEditingMatch(null);
-        setShowManualMatchModal(true);
-      });
-      setWarningModalOpen(true);
-    } else {
-      setEditingMatch(null);
-      setShowManualMatchModal(true);
-    }
+    setEditingMatch(null);
+    setShowManualMatchModal(true);
   };
 
   const handleOpenEditManual = (match) => {
