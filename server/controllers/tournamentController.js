@@ -644,7 +644,9 @@ export const startTournament = async (req, res, next) => {
             success: false,
             message: `Minimum 4 verified teams required for Group Stage (Current: ${verifiedRegistrations.length}).`,
           });
-            let groupFixtures = [];
+        }
+
+        let groupFixtures = [];
         if (tournament.groupAssignments && tournament.groupAssignments.length > 0) {
           // Check if all verified teams are assigned to a group
           const assignedTeamIds = new Set(tournament.groupAssignments.map((a) => a.teamRegistrationId?.toString()));
