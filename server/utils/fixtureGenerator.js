@@ -48,10 +48,7 @@ export const generateKnockoutFixtures = (tournamentId, verifiedTeams, startDate 
   const matches = [];
   let matchCounter = 1;
 
-  // Build bracket structure backwards or forwards. Let's build round by round.
-  // Calculate matches per round:
-  // E.g., for 8 teams: Round 1 (4 matches), Round 2 (2 matches), Round 3 (1 match) -> Total 7 matches.
-  const roundMatches = []; // array of match arrays per round
+  const roundMatches = [];
 
   // Round 1 pairings
   const r1MatchesCount = bracketSize / 2;
@@ -177,7 +174,6 @@ export const generateRoundRobinFixtures = (tournamentId, verifiedTeams, startDat
   }
 
   const teams = [...verifiedTeams];
-  // If odd number of teams, add a dummy team for BYE
   const isOdd = teams.length % 2 !== 0;
   if (isOdd) {
     teams.push({ _id: null, teamName: 'BYE' });
@@ -196,7 +192,6 @@ export const generateRoundRobinFixtures = (tournamentId, verifiedTeams, startDat
       const teamAIdx = (round + i) % (numTeams - 1);
       let teamBIdx = (numTeams - 1 - i + round) % (numTeams - 1);
 
-      // Last team stays fixed
       if (i === 0) {
         teamBIdx = numTeams - 1;
       }
@@ -204,7 +199,6 @@ export const generateRoundRobinFixtures = (tournamentId, verifiedTeams, startDat
       const teamA = teams[teamAIdx];
       const teamB = teams[teamBIdx];
 
-      // Skip if it's against the BYE placeholder
       if (teamA.teamName === 'BYE' || teamB.teamName === 'BYE') {
         continue;
       }
@@ -231,18 +225,18 @@ export const generateRoundRobinFixtures = (tournamentId, verifiedTeams, startDat
 
       timeOffsetHours += 1.5;
     }
-    timeOffsetHours += 4; // Break between matchdays
+    timeOffsetHours += 4;
   }
 
   return matches;
 };
 
 /**
- * Generates Group Stage + Knockout Bracket (e.g. 2 groups -> Top 2 qualify to Semis -> Finals)
+ * Generates ONLY Group Stage Fixtures (Group A, Group B, etc.) without premature knockout placeholders.
  */
-export const generateGroupKnockoutFixtures = (tournamentId, verifiedTeams, startDate = new Date(), numGroups = 2) => {
+export const generateGroupStageFixtures = (tournamentId, verifiedTeams, startDate = new Date(), numGroups = 2) => {
   if (!verifiedTeams || verifiedTeams.length < 4) {
-    throw new Error('At least 4 verified teams are required for Group + Knockout stage.');
+    throw new Error('At least 4 verified teams are required for Group Stage.');
   }
 
   const seeded = shuffleArray(verifiedTeams);
@@ -253,7 +247,6 @@ export const generateGroupKnockoutFixtures = (tournamentId, verifiedTeams, start
     groups[groupLetters[i]] = [];
   }
 
-  // Distribute teams evenly into groups
   seeded.forEach((team, idx) => {
     const gIndex = idx % numGroups;
     groups[groupLetters[gIndex]].push(team);
@@ -261,10 +254,7 @@ export const generateGroupKnockoutFixtures = (tournamentId, verifiedTeams, start
 
   const matches = [];
   let matchNumber = 1;
-  const baseTime = new Date(startDate).getTime();
-  let timeOffsetHours = 0;
 
-  // 1. Group Stage Fixtures
   for (const [groupName, groupTeams] of Object.entries(groups)) {
     const groupMatches = generateRoundRobinFixtures(tournamentId, groupTeams, startDate);
     groupMatches.forEach((m) => {
@@ -275,54 +265,112 @@ export const generateGroupKnockoutFixtures = (tournamentId, verifiedTeams, start
     });
   }
 
-  // 2. Knockout Finals Placeholders
-  timeOffsetHours += 48; // Knockout matches scheduled after group stages
-  const semiFinal1 = {
-    tournament: tournamentId,
-    matchNumber: matchNumber++,
-    round: 'Semi-Final 1',
-    roundIndex: 10,
-    teamA: { name: 'Winner Group A', registrationId: null },
-    teamB: { name: 'Runner-up Group B', registrationId: null },
-    status: 'SCHEDULED',
-    scoreA: { current: 0, display: '0', detail: {} },
-    scoreB: { current: 0, display: '0', detail: {} },
-    startTime: new Date(baseTime + timeOffsetHours * 3600 * 1000),
-    venueCourt: 'Main Stadium',
-    nextMatchNumber: matchNumber + 1,
-    nextSlot: 'teamA',
-  };
-
-  const semiFinal2 = {
-    tournament: tournamentId,
-    matchNumber: matchNumber++,
-    round: 'Semi-Final 2',
-    roundIndex: 10,
-    teamA: { name: 'Winner Group B', registrationId: null },
-    teamB: { name: 'Runner-up Group A', registrationId: null },
-    status: 'SCHEDULED',
-    scoreA: { current: 0, display: '0', detail: {} },
-    scoreB: { current: 0, display: '0', detail: {} },
-    startTime: new Date(baseTime + (timeOffsetHours + 3) * 3600 * 1000),
-    venueCourt: 'Main Stadium',
-    nextMatchNumber: matchNumber,
-    nextSlot: 'teamB',
-  };
-
-  const finalMatch = {
-    tournament: tournamentId,
-    matchNumber: matchNumber++,
-    round: 'Final',
-    roundIndex: 11,
-    teamA: { name: 'Winner SF1', registrationId: null },
-    teamB: { name: 'Winner SF2', registrationId: null },
-    status: 'SCHEDULED',
-    scoreA: { current: 0, display: '0', detail: {} },
-    scoreB: { current: 0, display: '0', detail: {} },
-    startTime: new Date(baseTime + (timeOffsetHours + 24) * 3600 * 1000),
-    venueCourt: 'Championship Arena',
-  };
-
-  matches.push(semiFinal1, semiFinal2, finalMatch);
   return matches;
+};
+
+/**
+ * Generates Knockout Finals Stage from completed Group Stage Standings.
+ * Picks top teams from each group (e.g. 1st Group A vs 2nd Group B, 1st Group B vs 2nd Group A).
+ */
+export const generateKnockoutFromGroupStandings = (tournamentId, standingsRecords, startDate = new Date(), startMatchNumber = 100) => {
+  const grouped = {};
+  standingsRecords.forEach((s) => {
+    const grp = s.group || 'Group A';
+    if (!grouped[grp]) grouped[grp] = [];
+    grouped[grp].push(s);
+  });
+
+  // Sort each group: points DESC, goalDifference DESC, goalsFor DESC
+  Object.keys(grouped).forEach((grp) => {
+    grouped[grp].sort((a, b) => {
+      if (b.points !== a.points) return b.points - a.points;
+      if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
+      return b.goalsFor - a.goalsFor;
+    });
+  });
+
+  const groupKeys = Object.keys(grouped).sort();
+  const matches = [];
+  let matchNumber = startMatchNumber;
+  const baseTime = new Date(startDate).getTime();
+
+  if (groupKeys.length >= 2) {
+    const winnerA = grouped[groupKeys[0]]?.[0];
+    const runnerA = grouped[groupKeys[0]]?.[1];
+    const winnerB = grouped[groupKeys[1]]?.[0];
+    const runnerB = grouped[groupKeys[1]]?.[1];
+
+    const semi1MatchNum = matchNumber++;
+    const semi2MatchNum = matchNumber++;
+    const finalMatchNum = matchNumber++;
+
+    const semiFinal1 = {
+      tournament: tournamentId,
+      matchNumber: semi1MatchNum,
+      round: 'Semi-Final 1',
+      roundIndex: 10,
+      teamA: {
+        name: winnerA ? winnerA.teamName : `Winner ${groupKeys[0]}`,
+        registrationId: winnerA?.registration || null,
+      },
+      teamB: {
+        name: runnerB ? runnerB.teamName : `Runner-up ${groupKeys[1]}`,
+        registrationId: runnerB?.registration || null,
+      },
+      status: 'SCHEDULED',
+      scoreA: { current: 0, display: '0', detail: {} },
+      scoreB: { current: 0, display: '0', detail: {} },
+      startTime: new Date(baseTime + 24 * 3600 * 1000),
+      venueCourt: 'Main Stadium',
+      nextMatchNumber: finalMatchNum,
+      nextSlot: 'teamA',
+    };
+
+    const semiFinal2 = {
+      tournament: tournamentId,
+      matchNumber: semi2MatchNum,
+      round: 'Semi-Final 2',
+      roundIndex: 10,
+      teamA: {
+        name: winnerB ? winnerB.teamName : `Winner ${groupKeys[1]}`,
+        registrationId: winnerB?.registration || null,
+      },
+      teamB: {
+        name: runnerA ? runnerA.teamName : `Runner-up ${groupKeys[0]}`,
+        registrationId: runnerA?.registration || null,
+      },
+      status: 'SCHEDULED',
+      scoreA: { current: 0, display: '0', detail: {} },
+      scoreB: { current: 0, display: '0', detail: {} },
+      startTime: new Date(baseTime + 27 * 3600 * 1000),
+      venueCourt: 'Main Stadium',
+      nextMatchNumber: finalMatchNum,
+      nextSlot: 'teamB',
+    };
+
+    const finalMatch = {
+      tournament: tournamentId,
+      matchNumber: finalMatchNum,
+      round: 'Final',
+      roundIndex: 11,
+      teamA: { name: 'Winner SF1', registrationId: null },
+      teamB: { name: 'Winner SF2', registrationId: null },
+      status: 'SCHEDULED',
+      scoreA: { current: 0, display: '0', detail: {} },
+      scoreB: { current: 0, display: '0', detail: {} },
+      startTime: new Date(baseTime + 48 * 3600 * 1000),
+      venueCourt: 'Championship Arena',
+    };
+
+    matches.push(semiFinal1, semiFinal2, finalMatch);
+  }
+
+  return matches;
+};
+
+/**
+ * Legacy wrapper for Group + Knockout
+ */
+export const generateGroupKnockoutFixtures = (tournamentId, verifiedTeams, startDate = new Date(), numGroups = 2) => {
+  return generateGroupStageFixtures(tournamentId, verifiedTeams, startDate, numGroups);
 };

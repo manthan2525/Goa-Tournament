@@ -24,6 +24,8 @@ import {
   Layers,
   Maximize2,
   Share2,
+  RotateCcw,
+  AlertTriangle,
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -73,6 +75,8 @@ const TournamentDetail = () => {
   const [editingMatch, setEditingMatch] = useState(null);
   const [showBannerLightbox, setShowBannerLightbox] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resettingFixtures, setResettingFixtures] = useState(false);
   const [activeRegistration, setActiveRegistration] = useState(null);
   const [selectedMatchForScore, setSelectedMatchForScore] = useState(null);
   const [startingTournament, setStartingTournament] = useState(false);
@@ -82,6 +86,24 @@ const TournamentDetail = () => {
   const [warningModalOpen, setWarningModalOpen] = useState(false);
   const [warningConfig, setWarningConfig] = useState(null);
   const [pendingAction, setPendingAction] = useState(null);
+
+  const executeResetFixtures = async () => {
+    try {
+      setResettingFixtures(true);
+      setActionError('');
+      const hasLive = matches.some((m) => m.status === 'LIVE');
+      const forceQuery = hasLive ? '?force=true' : '';
+      const res = await api.delete(`/tournaments/${id}/fixtures${forceQuery}`);
+      if (res.data.success) {
+        setShowResetModal(false);
+        fetchTournamentData();
+      }
+    } catch (err) {
+      setActionError(err.response?.data?.message || err.message || 'Failed to reset fixtures.');
+    } finally {
+      setResettingFixtures(false);
+    }
+  };
 
   const handleShare = async () => {
     const shareUrl = `${window.location.origin}/tournaments/${id}`;
@@ -308,17 +330,32 @@ const TournamentDetail = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {tournament.status !== 'ONGOING' && tournament.status !== 'COMPLETED' && (
-              <button
-                onClick={handleStartTournament}
-                disabled={startingTournament}
-                className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 transition-all shadow-md"
-                title="Auto-generate brackets / fixtures from registered teams"
-              >
-                <Play className="w-3.5 h-3.5 fill-current" />
-                {startingTournament ? 'Generating...' : 'Auto Fixtures'}
-              </button>
-            )}
+            {/* Stage-Aware Auto Fixture Button */}
+            <button
+              onClick={handleStartTournament}
+              disabled={startingTournament}
+              className={`px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md ${
+                startingTournament
+                  ? 'bg-slate-400 text-white cursor-not-allowed'
+                  : matches.length > 0 && tournament.format === 'GROUP_KNOCKOUT' && groupMatches.length > 0 && groupMatches.every((m) => m.status === 'COMPLETED') && knockoutMatches.length === 0
+                  ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-black animate-pulse'
+                  : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+              }`}
+              title="Generate automatic fixtures for current tournament stage"
+            >
+              <Play className="w-3.5 h-3.5 fill-current" />
+              {startingTournament
+                ? 'Generating...'
+                : matches.length === 0
+                ? 'Auto Fixtures'
+                : tournament.format === 'GROUP_KNOCKOUT'
+                ? knockoutMatches.length > 0
+                  ? 'Fixtures Complete ✓'
+                  : groupMatches.length > 0 && groupMatches.every((m) => m.status === 'COMPLETED')
+                  ? 'Generate Knockout Finals'
+                  : 'Group Stage Generated ✓'
+                : 'Fixtures Complete ✓'}
+            </button>
 
             <button
               onClick={handleOpenCreateManual}
@@ -329,12 +366,23 @@ const TournamentDetail = () => {
               + Manual Fixture
             </button>
 
+            {/* Reset Fixtures Button */}
+            <button
+              onClick={() => setShowResetModal(true)}
+              disabled={resettingFixtures || matches.length === 0}
+              className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white flex items-center gap-1.5 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Safely reset all generated fixtures and standings for this tournament"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              {resettingFixtures ? 'Resetting...' : 'Reset Fixtures'}
+            </button>
+
             <button
               onClick={() => setShowWinnersModal(true)}
               className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-1.5 transition-all shadow-md"
             >
               <Trophy className="w-3.5 h-3.5" />
-              Declare / Edit Winners
+              Declare Winners
             </button>
 
             <button
@@ -973,6 +1021,62 @@ const TournamentDetail = () => {
           tournament={tournament}
           onClose={() => setShowShareModal(false)}
         />
+      )}
+
+      {/* Reset Fixtures Confirmation Modal */}
+      {showResetModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
+          <div className="relative w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-4 text-slate-900 dark:text-white animate-in zoom-in-95 duration-150">
+            <div className="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+              <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/50">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-base text-slate-900 dark:text-white">Reset Fixtures?</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs">{tournament.name}</p>
+              </div>
+            </div>
+
+            <div className="space-y-3 text-xs leading-relaxed text-slate-700 dark:text-slate-300">
+              {matches.some((m) => m.status === 'LIVE') ? (
+                <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/50 text-rose-800 dark:text-rose-300 space-y-1">
+                  <p className="font-bold uppercase tracking-wider text-[11px] text-rose-600 dark:text-rose-400">⚠️ LIVE MATCH IN PROGRESS</p>
+                  <p>A match is currently LIVE. Resetting fixtures will interrupt live score reporting and permanently clear current match data.</p>
+                </div>
+              ) : matches.some((m) => m.status === 'COMPLETED') ? (
+                <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 text-amber-800 dark:text-amber-300 space-y-1">
+                  <p className="font-bold uppercase tracking-wider text-[11px] text-amber-600 dark:text-amber-400">⚠️ MATCHES CONTAIN RESULTS</p>
+                  <p>Matches already contain scores and completed results. Resetting fixtures will remove current match standings and scores.</p>
+                </div>
+              ) : (
+                <p>This action will clear all generated match fixtures and standings for this tournament so you can generate them again from a clean state.</p>
+              )}
+
+              <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 text-[11px] text-emerald-800 dark:text-emerald-300 space-y-1">
+                <p className="font-bold">✓ Preserved Data:</p>
+                <p>Team registrations, player profiles, payments, banner, prizes, and tournament details will NOT be deleted.</p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+              <button
+                onClick={() => setShowResetModal(false)}
+                disabled={resettingFixtures}
+                className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold text-xs transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={executeResetFixtures}
+                disabled={resettingFixtures}
+                className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs uppercase tracking-wider shadow-md transition-all flex items-center gap-1.5"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                {resettingFixtures ? 'Resetting...' : 'Yes, Reset Fixtures'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Fixture Warning & Confirmation Modal */}

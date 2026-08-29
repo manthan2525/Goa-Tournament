@@ -9,6 +9,7 @@ import {
   uploadTournamentBanner,
   removeTournamentBanner,
   startTournament,
+  resetTournamentFixtures,
   getOrganizerTournaments,
 } from '../controllers/tournamentController.js';
 import { protect, authorize } from '../middleware/authMiddleware.js';
@@ -86,6 +87,13 @@ router.post(
   protect,
   authorize('ORGANIZER', 'ADMIN'),
   startTournament
+);
+
+router.delete(
+  '/:id/fixtures',
+  protect,
+  authorize('ORGANIZER', 'ADMIN'),
+  resetTournamentFixtures
 );
 
 export default router;

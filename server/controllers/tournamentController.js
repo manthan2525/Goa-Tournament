@@ -7,6 +7,8 @@ import { uploadImageBuffer } from '../config/cloudinary.js';
 import {
   generateKnockoutFixtures,
   generateRoundRobinFixtures,
+  generateGroupStageFixtures,
+  generateKnockoutFromGroupStandings,
   generateGroupKnockoutFixtures,
 } from '../utils/fixtureGenerator.js';
 import { broadcastTournamentUpdate } from '../sockets/matchSocket.js';
@@ -507,7 +509,7 @@ export const removeTournamentBanner = async (req, res, next) => {
   }
 };
 
-// @desc    Start tournament & auto-generate fixtures & standings
+// @desc    Start tournament & auto-generate fixtures & standings (Idempotent & Stage-Aware)
 // @route   POST /api/tournaments/:id/start
 export const startTournament = async (req, res, next) => {
   try {
@@ -527,76 +529,127 @@ export const startTournament = async (req, res, next) => {
       });
     }
 
-    // Fetch verified teams
-    const verifiedRegistrations = await Registration.find({
-      tournament: tournament._id,
-      status: { $in: ['VERIFIED', 'APPROVED'] },
-    });
+    // Check existing matches in database to enforce idempotency
+    const existingMatches = await Match.find({ tournament: tournament._id });
 
-    if (verifiedRegistrations.length < 2) {
-      return res.status(400).json({
-        success: false,
-        message: `Cannot start tournament. Minimum 2 verified teams required (Current: ${verifiedRegistrations.length}).`,
+    // Handle SINGLE ELIMINATION (KNOCKOUT)
+    if (tournament.format === 'KNOCKOUT') {
+      if (existingMatches.length > 0) {
+        return res.status(200).json({
+          success: true,
+          message: '✓ Knockout fixtures already generated. No duplicate fixtures were created.',
+          matchesCount: existingMatches.length,
+          fixtures: existingMatches,
+          isExisting: true,
+        });
+      }
+
+      const verifiedRegistrations = await Registration.find({
+        tournament: tournament._id,
+        status: { $in: ['VERIFIED', 'APPROVED'] },
+      });
+
+      if (verifiedRegistrations.length < 2) {
+        return res.status(400).json({
+          success: false,
+          message: `Cannot start tournament. Minimum 2 verified teams required (Current: ${verifiedRegistrations.length}).`,
+        });
+      }
+
+      const fixtures = generateKnockoutFixtures(tournament._id, verifiedRegistrations, tournament.startDate);
+      const insertedMatches = await Match.insertMany(fixtures);
+
+      tournament.status = 'ONGOING';
+      await tournament.save();
+
+      broadcastTournamentUpdate(tournament._id, { status: 'ONGOING', matchesCount: insertedMatches.length });
+
+      return res.status(200).json({
+        success: true,
+        message: `Tournament started! Generated ${insertedMatches.length} knockout fixtures successfully.`,
+        matchesCount: insertedMatches.length,
+        fixtures: insertedMatches,
       });
     }
 
-    // Clear old matches & standings if any (e.g. if re-generating)
-    await Match.deleteMany({ tournament: tournament._id });
-    await Standings.deleteMany({ tournament: tournament._id });
+    // Handle ROUND ROBIN
+    if (tournament.format === 'ROUND_ROBIN') {
+      if (existingMatches.length > 0) {
+        return res.status(200).json({
+          success: true,
+          message: '✓ Round Robin fixtures already generated. No duplicate fixtures were created.',
+          matchesCount: existingMatches.length,
+          fixtures: existingMatches,
+          isExisting: true,
+        });
+      }
 
-    let fixtures = [];
-    if (tournament.format === 'KNOCKOUT') {
-      fixtures = generateKnockoutFixtures(
-        tournament._id,
-        verifiedRegistrations,
-        tournament.startDate
-      );
-    } else if (tournament.format === 'ROUND_ROBIN') {
-      fixtures = generateRoundRobinFixtures(
-        tournament._id,
-        verifiedRegistrations,
-        tournament.startDate
-      );
-    } else if (tournament.format === 'GROUP_KNOCKOUT') {
-      fixtures = generateGroupKnockoutFixtures(
-        tournament._id,
-        verifiedRegistrations,
-        tournament.startDate,
-        verifiedRegistrations.length >= 8 ? 4 : 2
-      );
-    } else {
-      fixtures = generateKnockoutFixtures(
-        tournament._id,
-        verifiedRegistrations,
-        tournament.startDate
-      );
+      const verifiedRegistrations = await Registration.find({
+        tournament: tournament._id,
+        status: { $in: ['VERIFIED', 'APPROVED'] },
+      });
+
+      if (verifiedRegistrations.length < 2) {
+        return res.status(400).json({
+          success: false,
+          message: `Cannot start tournament. Minimum 2 verified teams required (Current: ${verifiedRegistrations.length}).`,
+        });
+      }
+
+      const fixtures = generateRoundRobinFixtures(tournament._id, verifiedRegistrations, tournament.startDate);
+      const insertedMatches = await Match.insertMany(fixtures);
+
+      // Initialize Standings table
+      const standingsRecords = verifiedRegistrations.map((reg) => ({
+        tournament: tournament._id,
+        group: 'League',
+        teamName: reg.teamName,
+        registration: reg._id,
+        played: 0,
+        won: 0,
+        drawn: 0,
+        lost: 0,
+        points: 0,
+        goalsFor: 0,
+        goalsAgainst: 0,
+        goalDifference: 0,
+      }));
+      await Standings.insertMany(standingsRecords);
+
+      tournament.status = 'ONGOING';
+      await tournament.save();
+
+      broadcastTournamentUpdate(tournament._id, { status: 'ONGOING', matchesCount: insertedMatches.length });
+
+      return res.status(200).json({
+        success: true,
+        message: `Tournament started! Generated ${insertedMatches.length} Round Robin fixtures.`,
+        matchesCount: insertedMatches.length,
+        fixtures: insertedMatches,
+      });
     }
 
-    // Insert generated matches
-    const insertedMatches = await Match.insertMany(fixtures);
-
-    // If league or group tournament, initialize Standings table
-    if (tournament.format === 'ROUND_ROBIN' || tournament.format === 'GROUP_KNOCKOUT') {
-      const standingsRecords = [];
-
-      if (tournament.format === 'ROUND_ROBIN') {
-        verifiedRegistrations.forEach((reg) => {
-          standingsRecords.push({
-            tournament: tournament._id,
-            group: 'League',
-            teamName: reg.teamName,
-            registration: reg._id,
-            played: 0,
-            won: 0,
-            drawn: 0,
-            lost: 0,
-            points: 0,
-            goalsFor: 0,
-            goalsAgainst: 0,
-            goalDifference: 0,
-          });
+    // Handle GROUP STAGE + KNOCKOUT FINALS (GROUP_KNOCKOUT)
+    if (tournament.format === 'GROUP_KNOCKOUT') {
+      // Case 1: No fixtures generated yet -> Generate ONLY Group Stage
+      if (existingMatches.length === 0) {
+        const verifiedRegistrations = await Registration.find({
+          tournament: tournament._id,
+          status: { $in: ['VERIFIED', 'APPROVED'] },
         });
-      } else {
+
+        if (verifiedRegistrations.length < 4) {
+          return res.status(400).json({
+            success: false,
+            message: `Minimum 4 verified teams required for Group Stage (Current: ${verifiedRegistrations.length}).`,
+          });
+        }
+
+        const numGroups = verifiedRegistrations.length >= 8 ? 4 : 2;
+        const groupFixtures = generateGroupStageFixtures(tournament._id, verifiedRegistrations, tournament.startDate, numGroups);
+        const insertedMatches = await Match.insertMany(groupFixtures);
+
+        // Initialize Group Standings
         const teamGroups = {};
         insertedMatches.forEach((m) => {
           if (m.group && m.teamA?.name && m.teamA.name !== 'TBD') {
@@ -607,43 +660,175 @@ export const startTournament = async (req, res, next) => {
           }
         });
 
-        Object.entries(teamGroups).forEach(([teamName, info]) => {
-          standingsRecords.push({
-            tournament: tournament._id,
-            group: info.group,
-            teamName,
-            registration: info.regId,
-            played: 0,
-            won: 0,
-            drawn: 0,
-            lost: 0,
-            points: 0,
-            goalsFor: 0,
-            goalsAgainst: 0,
-            goalDifference: 0,
-          });
+        const standingsRecords = Object.entries(teamGroups).map(([teamName, info]) => ({
+          tournament: tournament._id,
+          group: info.group,
+          teamName,
+          registration: info.regId,
+          played: 0,
+          won: 0,
+          drawn: 0,
+          lost: 0,
+          points: 0,
+          goalsFor: 0,
+          goalsAgainst: 0,
+          goalDifference: 0,
+        }));
+
+        if (standingsRecords.length > 0) {
+          await Standings.insertMany(standingsRecords);
+        }
+
+        tournament.status = 'ONGOING';
+        await tournament.save();
+
+        broadcastTournamentUpdate(tournament._id, { status: 'ONGOING', matchesCount: insertedMatches.length });
+
+        return res.status(200).json({
+          success: true,
+          message: `Group Stage started! Generated ${insertedMatches.length} Group Stage fixtures. Complete all group matches to generate Knockout Finals.`,
+          stage: 'GROUP',
+          matchesCount: insertedMatches.length,
+          fixtures: insertedMatches,
         });
       }
 
-      if (standingsRecords.length > 0) {
-        await Standings.insertMany(standingsRecords);
+      // Case 2: Group stage exists. Check if Knockout stage ALREADY generated.
+      const knockoutMatches = existingMatches.filter(
+        (m) => m.roundIndex >= 10 || m.round?.includes('Semi-Final') || m.round?.includes('Final')
+      );
+
+      if (knockoutMatches.length > 0) {
+        return res.status(200).json({
+          success: true,
+          message: '✓ Knockout fixtures already generated for this tournament. No duplicate fixtures created.',
+          stage: 'KNOCKOUT_COMPLETE',
+          matchesCount: existingMatches.length,
+          fixtures: existingMatches,
+          isExisting: true,
+        });
       }
+
+      // Case 3: Group stage exists, but Knockout NOT generated. Check if Group Stage is complete.
+      const groupMatches = existingMatches.filter((m) => m.group || m.round?.startsWith('Group'));
+      const incompleteGroupMatches = groupMatches.filter((m) => m.status !== 'COMPLETED');
+
+      if (incompleteGroupMatches.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: `⚠️ Knockout fixtures cannot be generated yet. Complete all Group Stage matches and standings first (${incompleteGroupMatches.length} group match(es) remaining).`,
+          stage: 'GROUP_INCOMPLETE',
+          matchesCount: existingMatches.length,
+          fixtures: existingMatches,
+        });
+      }
+
+      // Group stage is 100% complete! Generate Knockout Finals from Standings
+      const standingsRecords = await Standings.find({ tournament: tournament._id });
+      const maxMatchNumber = Math.max(...existingMatches.map((m) => m.matchNumber || 0), 0);
+
+      const knockoutFixtures = generateKnockoutFromGroupStandings(
+        tournament._id,
+        standingsRecords,
+        tournament.startDate,
+        maxMatchNumber + 1
+      );
+
+      const insertedKnockout = await Match.insertMany(knockoutFixtures);
+      const allMatches = [...existingMatches, ...insertedKnockout];
+
+      broadcastTournamentUpdate(tournament._id, { status: 'ONGOING', matchesCount: allMatches.length });
+
+      return res.status(200).json({
+        success: true,
+        message: `Generated ${insertedKnockout.length} Knockout Stage fixtures from qualified group teams successfully!`,
+        stage: 'KNOCKOUT',
+        matchesCount: allMatches.length,
+        fixtures: allMatches,
+      });
     }
 
-    // Update tournament status to ONGOING
+    // Default fallback (Knockout)
+    if (existingMatches.length > 0) {
+      return res.status(200).json({
+        success: true,
+        message: '✓ Fixtures already exist for this tournament.',
+        matchesCount: existingMatches.length,
+        fixtures: existingMatches,
+        isExisting: true,
+      });
+    }
+
+    const verifiedRegistrations = await Registration.find({
+      tournament: tournament._id,
+      status: { $in: ['VERIFIED', 'APPROVED'] },
+    });
+
+    const fixtures = generateKnockoutFixtures(tournament._id, verifiedRegistrations, tournament.startDate);
+    const insertedMatches = await Match.insertMany(fixtures);
+
     tournament.status = 'ONGOING';
     await tournament.save();
 
-    broadcastTournamentUpdate(tournament._id, {
-      status: 'ONGOING',
+    return res.status(200).json({
+      success: true,
+      message: `Generated ${insertedMatches.length} fixtures successfully.`,
       matchesCount: insertedMatches.length,
+      fixtures: insertedMatches,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Reset tournament fixtures (Organizer & Admin only)
+// @route   DELETE /api/tournaments/:id/fixtures
+export const resetTournamentFixtures = async (req, res, next) => {
+  try {
+    const tournament = await Tournament.findById(req.params.id);
+
+    if (!tournament) {
+      return res.status(404).json({
+        success: false,
+        message: 'Tournament not found.',
+      });
+    }
+
+    if (tournament.organizer.toString() !== req.user._id.toString() && req.user.role !== 'ADMIN') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only the tournament organizer or admin can reset fixtures.',
+      });
+    }
+
+    // Check if any match is currently LIVE
+    const liveMatches = await Match.find({ tournament: tournament._id, status: 'LIVE' });
+    if (liveMatches.length > 0 && req.query.force !== 'true') {
+      return res.status(400).json({
+        success: false,
+        isLive: true,
+        message: '⚠️ A match is currently LIVE. Resetting fixtures will interrupt live score reporting.',
+      });
+    }
+
+    // Remove ONLY matches & standings
+    await Match.deleteMany({ tournament: tournament._id });
+    await Standings.deleteMany({ tournament: tournament._id });
+
+    // Reset tournament status back to REGISTRATION_OPEN
+    tournament.status = 'REGISTRATION_OPEN';
+    tournament.winner = null;
+    await tournament.save();
+
+    broadcastTournamentUpdate(tournament._id, {
+      status: 'REGISTRATION_OPEN',
+      matchesCount: 0,
+      reset: true,
     });
 
     res.status(200).json({
       success: true,
-      message: `Tournament started! Generated ${insertedMatches.length} fixtures successfully.`,
-      matchesCount: insertedMatches.length,
-      fixtures: insertedMatches,
+      message: 'Fixtures and standings have been reset successfully. Registrations and teams remain intact.',
     });
   } catch (error) {
     next(error);
