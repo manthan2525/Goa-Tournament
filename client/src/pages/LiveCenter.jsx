@@ -72,27 +72,27 @@ const LiveCenter = () => {
   const visibleMatches = liveMatches.filter((m) => matchesSportFilter(m, activeTab));
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 text-slate-900 dark:text-white">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
         <div>
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-            <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold uppercase tracking-wider font-mono">
+            <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800/50 text-xs font-bold uppercase tracking-wider font-mono">
               <span className="w-2 h-2 rounded-full bg-rose-500 live-indicator" />
               Live Spectator Hub
             </span>
-            <span className="text-xs text-emerald-700 font-mono font-bold">• WebSocket Sync</span>
+            <span className="text-xs text-emerald-700 dark:text-emerald-400 font-mono font-bold">• WebSocket Sync</span>
           </div>
-          <h1 className="font-display font-black text-3xl text-slate-900">Goa Sports Live Center</h1>
-          <p className="text-xs text-slate-600 mt-1">
+          <h1 className="font-display font-black text-3xl text-slate-900 dark:text-white">Goa Sports Live Center</h1>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
             Real-time scorepad updates streamed from tournament pitches across Goa.
           </p>
         </div>
         <button
           onClick={fetchLiveMatches}
-          className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors self-start sm:self-auto shadow-xs"
+          className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors self-start sm:self-auto shadow-xs"
         >
-          <Radio className="w-3.5 h-3.5 text-rose-600 animate-pulse" />
+          <Radio className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 animate-pulse" />
           Refresh Stream
         </button>
       </div>
@@ -109,7 +109,7 @@ const LiveCenter = () => {
               className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 border ${
                 activeTab === tab
                   ? "bg-emerald-600 text-white border-emerald-600 shadow-xs font-bold"
-                  : "bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                  : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
               }`}
             >
               {displayLabel}
@@ -122,7 +122,7 @@ const LiveCenter = () => {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="h-64 rounded-3xl bg-white border border-slate-200 animate-pulse" />
+            <div key={n} className="h-64 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 animate-pulse" />
           ))}
         </div>
       ) : visibleMatches.length > 0 ? (
@@ -132,14 +132,14 @@ const LiveCenter = () => {
           ))}
         </div>
       ) : (
-        <div className="p-16 bg-white border border-slate-200 rounded-3xl text-center space-y-4 max-w-lg mx-auto shadow-xs">
+        <div className="p-16 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl text-center space-y-4 max-w-lg mx-auto shadow-xs text-slate-900 dark:text-white">
           <Activity className="w-14 h-14 text-slate-400 mx-auto" />
-          <h3 className="font-bold text-xl text-slate-900">
+          <h3 className="font-bold text-xl text-slate-900 dark:text-white">
             {activeTab === "All"
               ? "No Matches Currently Live"
               : `No live ${activeTab} matches right now`}
           </h3>
-          <p className="text-xs text-slate-600 leading-relaxed">
+          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
             {activeTab === "All"
               ? "No ongoing fixtures streaming right now. Check scheduled upcoming tournaments."
               : `There are no live ${activeTab} matches at the moment. Try a different sport or check back soon.`}

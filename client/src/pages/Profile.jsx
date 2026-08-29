@@ -89,13 +89,13 @@ const Profile = () => {
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 text-slate-900 dark:text-white">
       {/* Header Banner */}
-      <div className="relative rounded-3xl bg-white border border-slate-200 p-6 sm:p-8 overflow-hidden shadow-sm">
+      <div className="relative rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 overflow-hidden shadow-sm text-slate-900 dark:text-white">
         <div className="flex flex-col sm:flex-row items-center gap-6">
           {/* Avatar Section */}
           <div className="relative group flex-shrink-0">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-slate-100 border-2 border-slate-200 overflow-hidden shadow-xs flex items-center justify-center text-3xl font-bold text-emerald-700">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-xs flex items-center justify-center text-3xl font-bold text-emerald-700 dark:text-emerald-400">
               {avatarUrl ? (
                 <img src={avatarUrl} alt={user?.name} className="w-full h-full object-cover" />
               ) : (
@@ -120,32 +120,32 @@ const Profile = () => {
           {/* User Info Header */}
           <div className="text-center sm:text-left space-y-1.5 flex-1 min-w-0">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-              <h1 className="font-display font-black text-2xl text-slate-900 truncate">{user?.name}</h1>
+              <h1 className="font-display font-black text-2xl text-slate-900 dark:text-white truncate">{user?.name}</h1>
               <span
                 className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
                   user?.role === 'ORGANIZER'
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                    : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50'
+                    : 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/50'
                 }`}
               >
                 {user?.role}
               </span>
             </div>
-            <p className="text-xs text-slate-600 flex items-center justify-center sm:justify-start gap-1.5">
+            <p className="text-xs text-slate-600 dark:text-slate-400 flex items-center justify-center sm:justify-start gap-1.5">
               <Mail className="w-3.5 h-3.5 text-slate-400" />
               <span>{user?.email}</span>
             </p>
             {user?.organizationName && (
-              <p className="text-xs text-slate-700 flex items-center justify-center sm:justify-start gap-1.5">
-                <Building className="w-3.5 h-3.5 text-emerald-600" />
+              <p className="text-xs text-slate-700 dark:text-slate-300 flex items-center justify-center sm:justify-start gap-1.5">
+                <Building className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>{user.organizationName}</span>
               </p>
             )}
 
             {/* Photo Action Buttons */}
             <div className="flex items-center justify-center sm:justify-start gap-2 pt-2">
-              <label className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold cursor-pointer transition-colors inline-flex items-center gap-1.5 border border-slate-300">
-                <Camera className="w-3.5 h-3.5 text-emerald-600" />
+              <label className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold cursor-pointer transition-colors inline-flex items-center gap-1.5 border border-slate-300 dark:border-slate-700">
+                <Camera className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>{uploadingPhoto ? 'Uploading...' : 'Upload Photo'}</span>
                 <input
                   type="file"
@@ -160,7 +160,7 @@ const Profile = () => {
                 <button
                   onClick={handlePhotoRemove}
                   disabled={uploadingPhoto}
-                  className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold transition-colors inline-flex items-center gap-1.5 border border-rose-200"
+                  className="px-3 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-700 dark:text-rose-400 text-xs font-semibold transition-colors inline-flex items-center gap-1.5 border border-rose-200 dark:border-rose-800/50"
                   title="Restore default avatar"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -174,24 +174,24 @@ const Profile = () => {
 
       {/* Status Alerts */}
       {successMsg && (
-        <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2 animate-in fade-in">
-          <Check className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+        <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-xs text-emerald-800 dark:text-emerald-400 flex items-center gap-2 animate-in fade-in">
+          <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
           <span>{successMsg}</span>
         </div>
       )}
 
       {errorMsg && (
-        <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2 animate-in fade-in">
-          <ShieldAlert className="w-4 h-4 text-rose-600 flex-shrink-0" />
+        <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/50 text-xs text-rose-800 dark:text-rose-400 flex items-center gap-2 animate-in fade-in">
+          <ShieldAlert className="w-4 h-4 text-rose-600 dark:text-rose-400 flex-shrink-0" />
           <span>{errorMsg}</span>
         </div>
       )}
 
       {/* Edit Profile Form */}
-      <div className="rounded-3xl bg-white border border-slate-200 p-6 sm:p-8 space-y-6 shadow-sm">
-        <div className="border-b border-slate-200 pb-4">
-          <h2 className="font-display font-bold text-lg text-slate-900">Edit Profile Details</h2>
-          <p className="text-xs text-slate-600 mt-0.5">
+      <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-6 shadow-sm text-slate-900 dark:text-white">
+        <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+          <h2 className="font-display font-bold text-lg text-slate-900 dark:text-white">Edit Profile Details</h2>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
             Manage your personal profile, contact information, and organizer affiliation in Goa.
           </p>
         </div>
@@ -199,7 +199,7 @@ const Profile = () => {
         <form onSubmit={handleProfileSave} className="space-y-4 text-xs">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-slate-700 font-semibold mb-1.5">Full Name *</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1.5">Full Name *</label>
               <div className="relative">
                 <UserIcon className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
                 <input
@@ -207,20 +207,20 @@ const Profile = () => {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full min-h-[44px] pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-900 text-xs focus:border-emerald-500"
+                  className="w-full min-h-[44px] pl-9 pr-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-slate-700 font-semibold mb-1.5">Email Address</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1.5">Email Address</label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
                 <input
                   type="email"
                   disabled
                   value={user?.email || ''}
-                  className="w-full min-h-[44px] pl-9 pr-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 text-xs cursor-not-allowed"
+                  className="w-full min-h-[44px] pl-9 pr-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-500 dark:text-slate-400 text-xs cursor-not-allowed"
                 />
               </div>
             </div>
@@ -228,7 +228,7 @@ const Profile = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-slate-700 font-semibold mb-1.5">Contact Phone / WhatsApp</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1.5">Contact Phone / WhatsApp</label>
               <div className="relative">
                 <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
                 <input
@@ -236,13 +236,13 @@ const Profile = () => {
                   placeholder="e.g. +91 98221 XXXXX"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full min-h-[44px] pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-900 text-xs focus:border-emerald-500"
+                  className="w-full min-h-[44px] pl-9 pr-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-slate-700 font-semibold mb-1.5">Location in Goa</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1.5">Location in Goa</label>
               <div className="relative">
                 <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
                 <input
@@ -250,7 +250,7 @@ const Profile = () => {
                   placeholder="e.g. Panaji, Goa"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full min-h-[44px] pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-900 text-xs focus:border-emerald-500"
+                  className="w-full min-h-[44px] pl-9 pr-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500"
                 />
               </div>
             </div>
@@ -258,7 +258,7 @@ const Profile = () => {
 
           {user?.role === 'ORGANIZER' && (
             <div>
-              <label className="block text-slate-700 font-semibold mb-1.5">Club / Organization Name</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1.5">Club / Organization Name</label>
               <div className="relative">
                 <Building className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
                 <input
@@ -266,27 +266,27 @@ const Profile = () => {
                   placeholder="e.g. Goa Football Association, Salcete Sports Trust"
                   value={organizationName}
                   onChange={(e) => setOrganizationName(e.target.value)}
-                  className="w-full min-h-[44px] pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-900 text-xs focus:border-emerald-500"
+                  className="w-full min-h-[44px] pl-9 pr-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500"
                 />
               </div>
             </div>
           )}
 
           <div>
-            <label className="block text-slate-700 font-semibold mb-1.5">Bio / Profile Summary</label>
+            <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1.5">Bio / Profile Summary</label>
             <div className="relative">
               <textarea
                 rows="3"
                 placeholder="Tell participants about yourself, your club, or your sports interests..."
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                className="w-full p-3 bg-white border border-slate-300 rounded-xl text-slate-900 text-xs focus:border-emerald-500 leading-relaxed placeholder-slate-400"
+                className="w-full p-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500 leading-relaxed placeholder-slate-400 dark:placeholder-slate-500"
               ></textarea>
             </div>
           </div>
 
           {/* Submit */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
             <button
               type="submit"
               disabled={savingProfile}

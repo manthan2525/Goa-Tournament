@@ -46,32 +46,32 @@ const AdminSettings = () => {
   const avatarUrl = user?.profilePhoto || user?.profileImage;
 
   return (
-    <div className="space-y-6 max-w-[1200px]">
+    <div className="space-y-6 max-w-[1200px] text-slate-900 dark:text-white">
       <div>
-        <h1 className="font-display font-black text-2xl text-white flex items-center gap-2">
-          <Settings className="w-6 h-6 text-slate-400" /> Admin Settings & Profile
+        <h1 className="font-display font-black text-2xl text-slate-900 dark:text-white flex items-center gap-2">
+          <Settings className="w-6 h-6 text-slate-500 dark:text-slate-400" /> Admin Settings & Profile
         </h1>
-        <p className="text-xs text-slate-400 mt-1">Manage your administrator identity</p>
+        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Manage your administrator identity</p>
       </div>
 
-      {msg && <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-300">{msg}</div>}
-      {err && <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300">{err}</div>}
+      {msg && <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-xs text-emerald-700 dark:text-emerald-300">{msg}</div>}
+      {err && <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/50 text-xs text-rose-700 dark:text-rose-300">{err}</div>}
 
       {/* Avatar Card */}
-      <div className="rounded-2xl glass-card border border-slate-800 p-6 flex items-center gap-5">
-        <div className="relative w-16 h-16 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center font-bold text-xl text-rose-400 overflow-hidden flex-shrink-0">
+      <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 flex items-center gap-5 shadow-sm text-slate-900 dark:text-white">
+        <div className="relative w-16 h-16 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/50 flex items-center justify-center font-bold text-xl text-rose-600 dark:text-rose-400 overflow-hidden flex-shrink-0">
           {avatarUrl ? <img src={avatarUrl} alt={user?.name} className="w-full h-full object-cover" /> : user?.name?.charAt(0)}
         </div>
         <div>
-          <h3 className="font-bold text-white text-sm">{user?.name}</h3>
-          <p className="text-xs text-slate-400">{user?.email}</p>
+          <h3 className="font-bold text-slate-900 dark:text-white text-sm">{user?.name}</h3>
+          <p className="text-xs text-slate-600 dark:text-slate-400">{user?.email}</p>
           <div className="flex gap-2 mt-2">
-            <label className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white cursor-pointer transition">
+            <label className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold text-slate-900 dark:text-white cursor-pointer transition">
               {uploadingPhoto ? 'Uploading…' : 'Change Photo'}
               <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
             </label>
             {avatarUrl && (
-              <button onClick={removeProfilePhoto} className="px-3 py-1.5 rounded-lg text-xs font-semibold text-rose-400 hover:bg-rose-500/10 transition">
+              <button onClick={removeProfilePhoto} className="px-3 py-1.5 rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition">
                 Remove
               </button>
             )}
@@ -80,34 +80,34 @@ const AdminSettings = () => {
       </div>
 
       {/* Form */}
-      <form onSubmit={handleUpdateProfile} className="rounded-2xl glass-panel border border-slate-800 p-6 space-y-4">
-        <h3 className="font-bold text-white text-sm border-b border-slate-800 pb-2">Profile Information</h3>
+      <form onSubmit={handleUpdateProfile} className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 space-y-4 shadow-sm text-slate-900 dark:text-white">
+        <h3 className="font-bold text-slate-900 dark:text-white text-sm border-b border-slate-200 dark:border-slate-800 pb-2">Profile Information</h3>
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1">Full Name</label>
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:border-rose-500 focus:outline-none"
+            className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white focus:border-rose-500 focus:outline-none"
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1">Email Address</label>
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
           <input
             type="email"
             disabled
             value={user?.email || ''}
-            className="w-full px-3.5 py-2.5 bg-slate-900/50 border border-slate-800 rounded-xl text-xs text-slate-500 cursor-not-allowed"
+            className="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-500 cursor-not-allowed"
           />
           <span className="text-[10px] text-slate-500 mt-1 block">Email address cannot be modified</span>
         </div>
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1">Phone Number</label>
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Phone Number</label>
           <input
             type="text"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:border-rose-500 focus:outline-none"
+            className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white focus:border-rose-500 focus:outline-none"
           />
         </div>
         <div className="pt-2">

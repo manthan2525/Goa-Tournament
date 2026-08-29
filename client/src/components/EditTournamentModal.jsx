@@ -110,25 +110,25 @@ const EditTournamentModal = ({ tournament, onClose, onUpdated }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col my-auto rounded-2xl glass-panel border border-slate-700 shadow-2xl p-4 sm:p-7 space-y-4 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-md overflow-y-auto">
+      <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col my-auto rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-4 sm:p-7 space-y-4 overflow-hidden text-slate-900 dark:text-white">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3 flex-shrink-0">
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 flex-shrink-0">
           <div className="flex items-center gap-2">
-            <Edit3 className="w-5 h-5 text-emerald-400" />
-            <h3 className="font-display font-bold text-lg sm:text-xl text-white">Edit Tournament</h3>
+            <Edit3 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <h3 className="font-display font-bold text-lg sm:text-xl text-slate-900 dark:text-white">Edit Tournament</h3>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300 flex items-start gap-2 flex-shrink-0">
-            <ShieldAlert className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
+          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/50 text-xs text-rose-700 dark:text-rose-400 flex items-start gap-2 flex-shrink-0">
+            <ShieldAlert className="w-4 h-4 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
         )}
@@ -136,18 +136,18 @@ const EditTournamentModal = ({ tournament, onClose, onUpdated }) => {
         <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto pr-1 flex-1 text-xs">
           {/* Banner Upload / Preview */}
           <div>
-            <label className="block text-slate-300 font-semibold mb-1">
+            <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">
               Tournament Banner Image
             </label>
             <div className="flex items-center gap-3">
               {bannerPreview ? (
-                <div className="w-32 h-18 rounded-xl overflow-hidden border border-slate-700 relative group flex-shrink-0 bg-slate-900">
+                <div className="w-32 h-18 rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700 relative group flex-shrink-0 bg-slate-100 dark:bg-slate-800">
                   <img src={bannerPreview} alt="Banner Preview" className="w-full h-full object-cover" />
                 </div>
               ) : null}
-              <label className="flex-1 border-2 border-dashed border-slate-700 hover:border-emerald-500 rounded-xl p-3 text-center cursor-pointer bg-slate-900/50 hover:bg-slate-900 transition-colors">
+              <label className="flex-1 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-500 rounded-xl p-3 text-center cursor-pointer bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                 <ImageIcon className="w-5 h-5 text-slate-400 mx-auto mb-1" />
-                <span className="text-slate-300 font-medium">Click to upload new banner (JPG, PNG, WEBP)</span>
+                <span className="text-slate-700 dark:text-slate-300 font-medium">Click to upload new banner (JPG, PNG, WEBP)</span>
                 <input type="file" accept="image/*" onChange={handleBannerChange} className="hidden" />
               </label>
             </div>
@@ -156,21 +156,21 @@ const EditTournamentModal = ({ tournament, onClose, onUpdated }) => {
           {/* Tournament Name & Sport */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">Tournament Name *</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Tournament Name *</label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full min-h-[42px] px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-emerald-500"
+                className="w-full min-h-[42px] px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">Sport *</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Sport *</label>
               <select
                 value={sport}
                 onChange={(e) => setSport(e.target.value)}
-                className="w-full min-h-[42px] px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-emerald-500"
+                className="w-full min-h-[42px] px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500"
               >
                 {SPORTS_LIST.map((s) => (
                   <option key={s} value={s}>{s}</option>
@@ -182,17 +182,17 @@ const EditTournamentModal = ({ tournament, onClose, onUpdated }) => {
           {/* Venue & Goa District */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">Stadium / Venue *</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Stadium / Venue *</label>
               <input
                 type="text"
                 required
                 value={venue}
                 onChange={(e) => setVenue(e.target.value)}
-                className="w-full min-h-[42px] px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-emerald-500"
+                className="w-full min-h-[42px] px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500"
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-slate-300 font-semibold mb-1">Exact Map Location *</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Exact Map Location *</label>
               <LocationPicker
                 location={location}
                 setLocation={setLocation}
@@ -203,33 +203,33 @@ const EditTournamentModal = ({ tournament, onClose, onUpdated }) => {
           {/* Dates & Start Time */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">Start Date *</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Start Date *</label>
               <input
                 type="date"
                 required
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full min-h-[42px] px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-emerald-500"
+                className="w-full min-h-[42px] px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">End Date *</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">End Date *</label>
               <input
                 type="date"
                 required
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full min-h-[42px] px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-emerald-500"
+                className="w-full min-h-[42px] px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">Daily Match Start Time</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Daily Match Start Time</label>
               <input
                 type="text"
                 placeholder="e.g. 09:00 AM"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="w-full min-h-[42px] px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-emerald-500"
+                className="w-full min-h-[42px] px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500"
               />
             </div>
           </div>
@@ -237,32 +237,32 @@ const EditTournamentModal = ({ tournament, onClose, onUpdated }) => {
           {/* Registration Deadline & Fee */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">Registration Deadline</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Registration Deadline</label>
               <input
                 type="date"
                 value={registrationDeadline}
                 onChange={(e) => setRegistrationDeadline(e.target.value)}
-                className="w-full min-h-[42px] px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-emerald-500"
+                className="w-full min-h-[42px] px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">Registration Fee (₹)</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Registration Fee (₹)</label>
               <input
                 type="number"
                 min="0"
                 value={registrationFee}
                 onChange={(e) => setRegistrationFee(Number(e.target.value))}
-                className="w-full min-h-[42px] px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-emerald-500"
+                className="w-full min-h-[42px] px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">UPI ID for Payments</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">UPI ID for Payments</label>
               <input
                 type="text"
                 placeholder="e.g. yourname@okaxis"
                 value={upiId}
                 onChange={(e) => setUpiId(e.target.value)}
-                className="w-full min-h-[42px] px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-emerald-500 font-mono"
+                className="w-full min-h-[42px] px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500 font-mono"
               />
             </div>
           </div>
@@ -270,11 +270,11 @@ const EditTournamentModal = ({ tournament, onClose, onUpdated }) => {
           {/* Format, Max Teams, Team Size */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">Format</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Format</label>
               <select
                 value={format}
                 onChange={(e) => setFormat(e.target.value)}
-                className="w-full min-h-[42px] px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-emerald-500"
+                className="w-full min-h-[42px] px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500"
               >
                 {TOURNAMENT_FORMATS.map((f) => (
                   <option key={f.value} value={f.value}>{f.label}</option>
@@ -282,22 +282,22 @@ const EditTournamentModal = ({ tournament, onClose, onUpdated }) => {
               </select>
             </div>
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">Max Teams</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Max Teams</label>
               <input
                 type="number"
                 min="2"
                 max="64"
                 value={maxTeams}
                 onChange={(e) => setMaxTeams(Number(e.target.value))}
-                className="w-full min-h-[42px] px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-emerald-500"
+                className="w-full min-h-[42px] px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">Tournament Status</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Tournament Status</label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full min-h-[42px] px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-emerald-500"
+                className="w-full min-h-[42px] px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500"
               >
                 <option value="UPCOMING">UPCOMING</option>
                 <option value="REGISTRATION_OPEN">REGISTRATION_OPEN</option>
@@ -310,13 +310,13 @@ const EditTournamentModal = ({ tournament, onClose, onUpdated }) => {
           </div>
 
           {/* Aadhaar Verification Toggle */}
-          <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
             <div>
-              <p className="text-white font-bold flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <p className="text-slate-900 dark:text-white font-bold flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 Require Aadhaar Card Verification
               </p>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-600 dark:text-slate-400">
                 Participants must upload government ID / Aadhaar card document during registration.
               </p>
             </div>
@@ -324,11 +324,11 @@ const EditTournamentModal = ({ tournament, onClose, onUpdated }) => {
               type="button"
               onClick={() => setRequireAadhaarVerification(!requireAadhaarVerification)}
               className={`w-12 h-6 rounded-full transition-colors relative flex items-center px-0.5 ${
-                requireAadhaarVerification ? 'bg-emerald-500' : 'bg-slate-700'
+                requireAadhaarVerification ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-slate-700'
               }`}
             >
               <span
-                className={`w-5 h-5 rounded-full bg-slate-950 transition-transform ${
+                className={`w-5 h-5 rounded-full bg-white dark:bg-slate-200 shadow-xs transition-transform ${
                   requireAadhaarVerification ? 'translate-x-6' : 'translate-x-0'
                 }`}
               ></span>
@@ -343,50 +343,50 @@ const EditTournamentModal = ({ tournament, onClose, onUpdated }) => {
           {/* Prize Pool & Rules */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">Prize Pool Summary</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Prize Pool Summary</label>
               <input
                 type="text"
                 placeholder="e.g. ₹50,000 + Trophy"
                 value={prizePool}
                 onChange={(e) => setPrizePool(e.target.value)}
-                className="w-full min-h-[42px] px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-emerald-500"
+                className="w-full min-h-[42px] px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500"
               />
             </div>
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">Description / Overview</label>
+              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Description / Overview</label>
               <input
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full min-h-[42px] px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-emerald-500"
+                className="w-full min-h-[42px] px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-slate-300 font-semibold mb-1">Tournament Rules & Guidelines</label>
+            <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Tournament Rules & Guidelines</label>
             <textarea
               rows="3"
               value={rules}
               onChange={(e) => setRules(e.target.value)}
               placeholder="1. Standard official federation rules apply..."
-              className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:border-emerald-500 leading-relaxed"
+              className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:border-emerald-500 leading-relaxed placeholder-slate-400 dark:placeholder-slate-500"
             ></textarea>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800 flex-shrink-0">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800 flex-shrink-0">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 min-h-[44px] text-xs font-semibold text-slate-400 hover:text-white rounded-xl transition-colors"
+              className="px-4 py-2.5 min-h-[44px] text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-2.5 min-h-[44px] rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md shadow-emerald-500/20 disabled:opacity-50 transition-all flex items-center justify-center gap-1.5"
+              className="px-6 py-2.5 min-h-[44px] rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-600 hover:bg-emerald-500 text-white shadow-md disabled:opacity-50 transition-all flex items-center justify-center gap-1.5"
             >
               <Check className="w-4 h-4 stroke-[3]" />
               {submitting ? 'Saving Changes...' : 'Save Tournament Updates'}
