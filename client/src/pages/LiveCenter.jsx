@@ -68,35 +68,31 @@ const LiveCenter = () => {
     };
   }, []);
 
-  // Deduplicate tabs based on SPORTS_LIST (which is the single source of truth)
-  // The user requested to see ALL SPORTS in the filter, not just those with live matches.
-  // Converting it to a Set just in case there were any accidental duplicates in constants.js
   const availableTabs = [...new Set(SPORTS_LIST)];
-
   const visibleMatches = liveMatches.filter((m) => matchesSportFilter(m, activeTab));
 
   return (
     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-6">
         <div>
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-            <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40 text-xs font-bold uppercase tracking-wider font-mono">
+            <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold uppercase tracking-wider font-mono">
               <span className="w-2 h-2 rounded-full bg-rose-500 live-indicator" />
               Live Spectator Hub
             </span>
-            <span className="text-xs text-emerald-400 font-mono font-semibold">• WebSocket Sync</span>
+            <span className="text-xs text-emerald-700 font-mono font-bold">• WebSocket Sync</span>
           </div>
-          <h1 className="font-display font-black text-3xl text-white">Goa Sports Live Center</h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <h1 className="font-display font-black text-3xl text-slate-900">Goa Sports Live Center</h1>
+          <p className="text-xs text-slate-600 mt-1">
             Real-time scorepad updates streamed from tournament pitches across Goa.
           </p>
         </div>
         <button
           onClick={fetchLiveMatches}
-          className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-300 hover:text-white bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 transition-colors self-start sm:self-auto"
+          className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors self-start sm:self-auto shadow-xs"
         >
-          <Radio className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
+          <Radio className="w-3.5 h-3.5 text-rose-600 animate-pulse" />
           Refresh Stream
         </button>
       </div>
@@ -105,8 +101,6 @@ const LiveCenter = () => {
       <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
         {availableTabs.map((tab) => {
           const meta = SPORT_META[tab] || { emoji: "🏆", label: tab };
-          // If tab is "All", don't show emoji or show a generic one. But SPORT_META doesn't have "All", so it falls back to 🏆 All.
-          // Let's omit emoji for "All".
           const displayLabel = tab === "All" ? "All" : `${meta.emoji} ${meta.label}`;
           return (
             <button
@@ -114,8 +108,8 @@ const LiveCenter = () => {
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 border ${
                 activeTab === tab
-                  ? "bg-emerald-500 text-slate-950 border-emerald-500 shadow-md shadow-emerald-500/20"
-                  : "bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-300"
+                  ? "bg-emerald-600 text-white border-emerald-600 shadow-xs font-bold"
+                  : "bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
               }`}
             >
               {displayLabel}
@@ -128,7 +122,7 @@ const LiveCenter = () => {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="h-64 rounded-3xl glass-card border border-slate-800 animate-pulse" />
+            <div key={n} className="h-64 rounded-3xl bg-white border border-slate-200 animate-pulse" />
           ))}
         </div>
       ) : visibleMatches.length > 0 ? (
@@ -138,21 +132,21 @@ const LiveCenter = () => {
           ))}
         </div>
       ) : (
-        <div className="p-16 glass-panel rounded-3xl text-center space-y-4 max-w-lg mx-auto">
-          <Activity className="w-14 h-14 text-slate-600 mx-auto" />
-          <h3 className="font-bold text-xl text-white">
+        <div className="p-16 bg-white border border-slate-200 rounded-3xl text-center space-y-4 max-w-lg mx-auto shadow-xs">
+          <Activity className="w-14 h-14 text-slate-400 mx-auto" />
+          <h3 className="font-bold text-xl text-slate-900">
             {activeTab === "All"
               ? "No Matches Currently Live"
               : `No live ${activeTab} matches right now`}
           </h3>
-          <p className="text-xs text-slate-400 leading-relaxed">
+          <p className="text-xs text-slate-600 leading-relaxed">
             {activeTab === "All"
               ? "No ongoing fixtures streaming right now. Check scheduled upcoming tournaments."
               : `There are no live ${activeTab} matches at the moment. Try a different sport or check back soon.`}
           </p>
           <Link
             to="/tournaments"
-            className="inline-block px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all"
+            className="inline-block px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider shadow-xs transition-all"
           >
             Explore Upcoming Fixtures
           </Link>

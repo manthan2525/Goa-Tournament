@@ -19,27 +19,27 @@ import api from '../../services/api';
 
 const StatCard = ({ icon: Icon, label, value, sub, color = 'emerald', loading }) => {
   const colorMap = {
-    emerald: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
-    rose: 'text-rose-400 bg-rose-500/10 border-rose-500/20',
-    blue: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
-    amber: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
-    violet: 'text-violet-400 bg-violet-500/10 border-violet-500/20',
-    teal: 'text-teal-400 bg-teal-500/10 border-teal-500/20',
+    emerald: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+    rose: 'text-rose-700 bg-rose-50 border-rose-200',
+    blue: 'text-blue-700 bg-blue-50 border-blue-200',
+    amber: 'text-amber-800 bg-amber-50 border-amber-200',
+    violet: 'text-violet-700 bg-violet-50 border-violet-200',
+    teal: 'text-teal-700 bg-teal-50 border-teal-200',
   };
 
   return (
-    <div className="rounded-2xl glass-card border border-slate-800 p-5 hover:border-slate-700 transition-all">
+    <div className="rounded-2xl bg-white border border-slate-200 p-5 hover:border-slate-300 transition-all shadow-xs">
       <div className="flex items-start justify-between gap-3">
         <div className={`p-2.5 rounded-xl border ${colorMap[color]}`}>
           <Icon className="w-5 h-5" />
         </div>
         {loading ? (
-          <div className="h-8 w-16 rounded-lg bg-slate-800 animate-pulse" />
+          <div className="h-8 w-16 rounded-lg bg-slate-100 animate-pulse" />
         ) : (
-          <p className="font-display font-black text-3xl text-white">{value ?? 0}</p>
+          <p className="font-display font-black text-3xl text-slate-900">{value ?? 0}</p>
         )}
       </div>
-      <p className="mt-3 text-xs font-bold text-slate-300">{label}</p>
+      <p className="mt-3 text-xs font-bold text-slate-700">{label}</p>
       {sub && <p className="text-[10px] text-slate-500 mt-0.5">{sub}</p>}
     </div>
   );
@@ -74,16 +74,16 @@ const AdminDashboard = () => {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="font-display font-black text-2xl sm:text-3xl text-white">
+        <h1 className="font-display font-black text-2xl sm:text-3xl text-slate-900">
           Admin Dashboard
         </h1>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-xs text-slate-600 mt-1">
           Full platform overview — real-time data from MongoDB Atlas.
         </p>
       </div>
 
       {error && (
-        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300">
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-700">
           {error}
         </div>
       )}
@@ -141,14 +141,14 @@ const AdminDashboard = () => {
           ].map(({ label, key, color }) => (
             <div
               key={key}
-              className="rounded-2xl glass-card border border-slate-800 p-4 text-center"
+              className="rounded-2xl bg-white border border-slate-200 p-4 text-center shadow-xs"
             >
               {loading ? (
-                <div className="h-7 w-12 mx-auto rounded-lg bg-slate-800 animate-pulse mb-2" />
+                <div className="h-7 w-12 mx-auto rounded-lg bg-slate-100 animate-pulse mb-2" />
               ) : (
-                <p className="font-display font-black text-2xl text-white">{t[key] ?? 0}</p>
+                <p className="font-display font-black text-2xl text-slate-900">{t[key] ?? 0}</p>
               )}
-              <p className="text-[10px] text-slate-400 font-semibold mt-1">{label}</p>
+              <p className="text-[10px] text-slate-600 font-semibold mt-1">{label}</p>
             </div>
           ))}
         </div>
@@ -160,37 +160,37 @@ const AdminDashboard = () => {
           Registration Status
         </p>
         <div className="grid grid-cols-3 gap-4">
-          <div className="rounded-2xl glass-card border border-slate-800 p-5 flex items-center gap-4">
-            <Clock className="w-8 h-8 text-yellow-400 flex-shrink-0" />
+          <div className="rounded-2xl bg-white border border-slate-200 p-5 flex items-center gap-4 shadow-xs">
+            <Clock className="w-8 h-8 text-amber-600 flex-shrink-0" />
             <div>
               {loading ? (
-                <div className="h-7 w-14 rounded bg-slate-800 animate-pulse" />
+                <div className="h-7 w-14 rounded bg-slate-100 animate-pulse" />
               ) : (
-                <p className="font-display font-black text-2xl text-white">{r.PENDING ?? 0}</p>
+                <p className="font-display font-black text-2xl text-slate-900">{r.PENDING ?? 0}</p>
               )}
-              <p className="text-[10px] text-slate-400">Pending Review</p>
+              <p className="text-[10px] text-slate-500 font-medium">Pending Review</p>
             </div>
           </div>
-          <div className="rounded-2xl glass-card border border-slate-800 p-5 flex items-center gap-4">
-            <CheckCircle2 className="w-8 h-8 text-emerald-400 flex-shrink-0" />
+          <div className="rounded-2xl bg-white border border-slate-200 p-5 flex items-center gap-4 shadow-xs">
+            <CheckCircle2 className="w-8 h-8 text-emerald-600 flex-shrink-0" />
             <div>
               {loading ? (
-                <div className="h-7 w-14 rounded bg-slate-800 animate-pulse" />
+                <div className="h-7 w-14 rounded bg-slate-100 animate-pulse" />
               ) : (
-                <p className="font-display font-black text-2xl text-white">{r.APPROVED ?? 0}</p>
+                <p className="font-display font-black text-2xl text-slate-900">{r.APPROVED ?? 0}</p>
               )}
-              <p className="text-[10px] text-slate-400">Approved</p>
+              <p className="text-[10px] text-slate-500 font-medium">Approved</p>
             </div>
           </div>
-          <div className="rounded-2xl glass-card border border-slate-800 p-5 flex items-center gap-4">
-            <XCircle className="w-8 h-8 text-rose-400 flex-shrink-0" />
+          <div className="rounded-2xl bg-white border border-slate-200 p-5 flex items-center gap-4 shadow-xs">
+            <XCircle className="w-8 h-8 text-rose-600 flex-shrink-0" />
             <div>
               {loading ? (
-                <div className="h-7 w-14 rounded bg-slate-800 animate-pulse" />
+                <div className="h-7 w-14 rounded bg-slate-100 animate-pulse" />
               ) : (
-                <p className="font-display font-black text-2xl text-white">{r.REJECTED ?? 0}</p>
+                <p className="font-display font-black text-2xl text-slate-900">{r.REJECTED ?? 0}</p>
               )}
-              <p className="text-[10px] text-slate-400">Rejected</p>
+              <p className="text-[10px] text-slate-500 font-medium">Rejected</p>
             </div>
           </div>
         </div>
@@ -199,34 +199,34 @@ const AdminDashboard = () => {
       {/* Recent Data Tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Users */}
-        <div className="rounded-2xl glass-card border border-slate-800 overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
+        <div className="rounded-2xl bg-white border border-slate-200 overflow-hidden shadow-xs">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-slate-50">
             <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-blue-400" />
-              <p className="text-xs font-bold text-white">Recent Players</p>
+              <Users className="w-4 h-4 text-blue-600" />
+              <p className="text-xs font-bold text-slate-900">Recent Players</p>
             </div>
             <Link
               to="/admin/users"
-              className="text-[10px] text-slate-400 hover:text-emerald-400 flex items-center gap-1"
+              className="text-[10px] text-slate-600 hover:text-emerald-700 flex items-center gap-1 font-semibold"
             >
               View All <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
-          <div className="divide-y divide-slate-800/60">
+          <div className="divide-y divide-slate-100">
             {loading ? (
               Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3 px-5 py-3">
-                  <div className="w-8 h-8 rounded-full bg-slate-800 animate-pulse" />
+                  <div className="w-8 h-8 rounded-full bg-slate-100 animate-pulse" />
                   <div className="space-y-1 flex-1">
-                    <div className="h-2.5 w-28 bg-slate-800 rounded animate-pulse" />
-                    <div className="h-2 w-40 bg-slate-800/60 rounded animate-pulse" />
+                    <div className="h-2.5 w-28 bg-slate-100 rounded animate-pulse" />
+                    <div className="h-2 w-40 bg-slate-100 rounded animate-pulse" />
                   </div>
                 </div>
               ))
             ) : stats?.recentUsers?.length > 0 ? (
               stats.recentUsers.map((u) => (
-                <div key={u._id} className="flex items-center gap-3 px-5 py-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-xs font-bold text-blue-400 overflow-hidden flex-shrink-0">
+                <div key={u._id} className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50 transition-colors">
+                  <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-xs font-bold text-blue-700 overflow-hidden flex-shrink-0">
                     {u.profilePhoto ? (
                       <img src={u.profilePhoto} alt={u.name} className="w-full h-full object-cover" />
                     ) : (
@@ -234,86 +234,86 @@ const AdminDashboard = () => {
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-white truncate">{u.name}</p>
+                    <p className="text-xs font-semibold text-slate-900 truncate">{u.name}</p>
                     <p className="text-[10px] text-slate-500 truncate">{u.email}</p>
                   </div>
-                  <p className="text-[10px] text-slate-500 flex-shrink-0">
+                  <p className="text-[10px] text-slate-400 flex-shrink-0">
                     {new Date(u.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                   </p>
                 </div>
               ))
             ) : (
-              <div className="px-5 py-8 text-center text-xs text-slate-500">No players yet</div>
+              <div className="px-5 py-8 text-center text-xs text-slate-400">No players yet</div>
             )}
           </div>
         </div>
 
         {/* Recent Tournaments */}
-        <div className="rounded-2xl glass-card border border-slate-800 overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
+        <div className="rounded-2xl bg-white border border-slate-200 overflow-hidden shadow-xs">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-slate-50">
             <div className="flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-amber-400" />
-              <p className="text-xs font-bold text-white">Recent Tournaments</p>
+              <Trophy className="w-4 h-4 text-amber-600" />
+              <p className="text-xs font-bold text-slate-900">Recent Tournaments</p>
             </div>
             <Link
               to="/admin/tournaments"
-              className="text-[10px] text-slate-400 hover:text-emerald-400 flex items-center gap-1"
+              className="text-[10px] text-slate-600 hover:text-emerald-700 flex items-center gap-1 font-semibold"
             >
               View All <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
-          <div className="divide-y divide-slate-800/60">
+          <div className="divide-y divide-slate-100">
             {loading ? (
               Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3 px-5 py-3">
-                  <div className="w-10 h-10 rounded-xl bg-slate-800 animate-pulse" />
+                  <div className="w-10 h-10 rounded-xl bg-slate-100 animate-pulse" />
                   <div className="space-y-1 flex-1">
-                    <div className="h-2.5 w-32 bg-slate-800 rounded animate-pulse" />
-                    <div className="h-2 w-24 bg-slate-800/60 rounded animate-pulse" />
+                    <div className="h-2.5 w-32 bg-slate-100 rounded animate-pulse" />
+                    <div className="h-2 w-24 bg-slate-100 rounded animate-pulse" />
                   </div>
                 </div>
               ))
             ) : stats?.recentTournaments?.length > 0 ? (
               stats.recentTournaments.map((t) => (
-                <div key={t._id} className="flex items-center gap-3 px-5 py-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                <div key={t._id} className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50 transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center flex-shrink-0 overflow-hidden">
                     {t.bannerImage ? (
                       <img src={t.bannerImage} alt={t.name} className="w-full h-full object-cover" />
                     ) : (
-                      <Trophy className="w-4 h-4 text-amber-400" />
+                      <Trophy className="w-4 h-4 text-amber-600" />
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-white truncate">{t.name}</p>
+                    <p className="text-xs font-semibold text-slate-900 truncate">{t.name}</p>
                     <p className="text-[10px] text-slate-500 truncate">{t.sport} • {t.organizer?.name || 'Unknown'}</p>
                   </div>
                   <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase font-mono flex-shrink-0 ${
-                    t.status === 'REGISTRATION_OPEN' ? 'bg-emerald-500/15 text-emerald-400' :
-                    t.status === 'ONGOING' ? 'bg-rose-500/15 text-rose-400' :
-                    t.status === 'COMPLETED' ? 'bg-slate-500/15 text-slate-400' :
-                    'bg-amber-500/15 text-amber-400'
+                    t.status === 'REGISTRATION_OPEN' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                    t.status === 'ONGOING' ? 'bg-rose-50 text-rose-700 border border-rose-200' :
+                    t.status === 'COMPLETED' ? 'bg-slate-100 text-slate-600 border border-slate-200' :
+                    'bg-amber-50 text-amber-800 border border-amber-200'
                   }`}>
                     {t.status?.replace('_', ' ')}
                   </span>
                 </div>
               ))
             ) : (
-              <div className="px-5 py-8 text-center text-xs text-slate-500">No tournaments yet</div>
+              <div className="px-5 py-8 text-center text-xs text-slate-400">No tournaments yet</div>
             )}
           </div>
         </div>
       </div>
 
       {/* Recent Organizers */}
-      <div className="rounded-2xl glass-card border border-slate-800 overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
+      <div className="rounded-2xl bg-white border border-slate-200 overflow-hidden shadow-xs">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-slate-50">
           <div className="flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-violet-400" />
-            <p className="text-xs font-bold text-white">Recent Organizers</p>
+            <Building2 className="w-4 h-4 text-violet-600" />
+            <p className="text-xs font-bold text-slate-900">Recent Organizers</p>
           </div>
           <Link
             to="/admin/organizers"
-            className="text-[10px] text-slate-400 hover:text-emerald-400 flex items-center gap-1"
+            className="text-[10px] text-slate-600 hover:text-emerald-700 flex items-center gap-1 font-semibold"
           >
             View All <ArrowRight className="w-3 h-3" />
           </Link>
@@ -321,41 +321,41 @@ const AdminDashboard = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-slate-800 bg-slate-900/50">
-                <th className="text-left px-5 py-2.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Organizer</th>
-                <th className="text-left px-5 py-2.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Email</th>
-                <th className="text-center px-5 py-2.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tournaments</th>
-                <th className="text-left px-5 py-2.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider hidden md:table-cell">Joined</th>
+              <tr className="border-b border-slate-200 bg-slate-100 text-slate-600">
+                <th className="text-left px-5 py-2.5 text-[10px] font-bold uppercase tracking-wider">Organizer</th>
+                <th className="text-left px-5 py-2.5 text-[10px] font-bold uppercase tracking-wider hidden sm:table-cell">Email</th>
+                <th className="text-center px-5 py-2.5 text-[10px] font-bold uppercase tracking-wider">Tournaments</th>
+                <th className="text-left px-5 py-2.5 text-[10px] font-bold uppercase tracking-wider hidden md:table-cell">Joined</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100 text-slate-800">
               {loading ? (
                 Array.from({ length: 4 }).map((_, i) => (
                   <tr key={i}>
-                    <td className="px-5 py-3"><div className="h-2.5 w-28 bg-slate-800 rounded animate-pulse" /></td>
-                    <td className="px-5 py-3 hidden sm:table-cell"><div className="h-2 w-36 bg-slate-800 rounded animate-pulse" /></td>
-                    <td className="px-5 py-3 text-center"><div className="h-2.5 w-8 mx-auto bg-slate-800 rounded animate-pulse" /></td>
-                    <td className="px-5 py-3 hidden md:table-cell"><div className="h-2 w-20 bg-slate-800 rounded animate-pulse" /></td>
+                    <td className="px-5 py-3"><div className="h-2.5 w-28 bg-slate-100 rounded animate-pulse" /></td>
+                    <td className="px-5 py-3 hidden sm:table-cell"><div className="h-2 w-36 bg-slate-100 rounded animate-pulse" /></td>
+                    <td className="px-5 py-3 text-center"><div className="h-2.5 w-8 mx-auto bg-slate-100 rounded animate-pulse" /></td>
+                    <td className="px-5 py-3 hidden md:table-cell"><div className="h-2 w-20 bg-slate-100 rounded animate-pulse" /></td>
                   </tr>
                 ))
               ) : stats?.recentOrganizers?.length > 0 ? (
                 stats.recentOrganizers.map((org) => (
-                  <tr key={org._id} className="hover:bg-slate-800/40 transition">
+                  <tr key={org._id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-lg bg-violet-500/20 border border-violet-500/30 flex items-center justify-center text-[10px] font-bold text-violet-400 overflow-hidden flex-shrink-0">
+                        <div className="w-7 h-7 rounded-lg bg-violet-50 border border-violet-200 flex items-center justify-center text-[10px] font-bold text-violet-700 overflow-hidden flex-shrink-0">
                           {org.profilePhoto ? (
                             <img src={org.profilePhoto} alt={org.name} className="w-full h-full object-cover" />
                           ) : (
                             org.name?.charAt(0)
                           )}
                         </div>
-                        <span className="text-white font-semibold">{org.name}</span>
+                        <span className="text-slate-900 font-bold">{org.name}</span>
                       </div>
                     </td>
-                    <td className="px-5 py-3 text-slate-400 hidden sm:table-cell">{org.email}</td>
+                    <td className="px-5 py-3 text-slate-600 hidden sm:table-cell">{org.email}</td>
                     <td className="px-5 py-3 text-center">
-                      <span className="px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-400 text-[10px] font-bold font-mono">
+                      <span className="px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200 text-[10px] font-bold font-mono">
                         {org.tournamentCount ?? 0}
                       </span>
                     </td>
@@ -366,7 +366,7 @@ const AdminDashboard = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="px-5 py-8 text-center text-slate-500">No organizers yet</td>
+                  <td colSpan="4" className="px-5 py-8 text-center text-slate-400">No organizers yet</td>
                 </tr>
               )}
             </tbody>

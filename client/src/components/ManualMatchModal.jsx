@@ -337,21 +337,21 @@ const ManualMatchModal = ({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
-        <div className={`relative w-full ${mode === 'quick' ? 'max-w-3xl' : 'max-w-lg'} flex flex-col my-auto rounded-2xl glass-panel border border-slate-700/80 shadow-2xl p-4 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto transition-all`}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-md overflow-y-auto">
+        <div className={`relative w-full ${mode === 'quick' ? 'max-w-3xl' : 'max-w-lg'} flex flex-col my-auto rounded-2xl bg-white border border-slate-200 shadow-2xl p-4 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto transition-all`}>
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3 flex-shrink-0">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-3 flex-shrink-0">
             <div>
-              <h3 className="font-display font-bold text-lg text-white flex items-center gap-2">
+              <h3 className="font-display font-bold text-lg text-slate-900 flex items-center gap-2">
                 {editingMatch ? 'Edit Fixture Match' : 'Add Manual Tournament Fixtures'}
               </h3>
-              <p className="text-xs text-emerald-400 font-medium truncate max-w-[240px] sm:max-w-md">
+              <p className="text-xs text-emerald-700 font-bold truncate max-w-[240px] sm:max-w-md">
                 {tournament.name}
               </p>
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -359,14 +359,14 @@ const ManualMatchModal = ({
 
           {/* Mode Switcher Tabs (Only when creating new matches) */}
           {!editingMatch && (
-            <div className="grid grid-cols-2 gap-2 p-1.5 bg-slate-900/90 rounded-xl border border-slate-800 flex-shrink-0">
+            <div className="grid grid-cols-2 gap-2 p-1.5 bg-slate-100 rounded-xl border border-slate-200 flex-shrink-0">
               <button
                 type="button"
                 onClick={() => setMode('quick')}
                 className={`py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                   mode === 'quick'
-                    ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <Zap className="w-4 h-4 fill-current" />
@@ -378,8 +378,8 @@ const ManualMatchModal = ({
                 onClick={() => setMode('single')}
                 className={`py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                   mode === 'single'
-                    ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <Users className="w-4 h-4" />

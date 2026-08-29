@@ -247,27 +247,27 @@ const OrganizerDashboard = () => {
   return (
     <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header Banner */}
-      <div className="rounded-3xl glass-panel border border-slate-800 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+      <div className="rounded-3xl bg-white border border-slate-200 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-sm">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
               Organizer Suite
             </span>
-            <span className="text-xs text-slate-400 font-mono">
+            <span className="text-xs text-slate-500 font-mono">
               {user?.organizationName || 'Goa Sports Trust'}
             </span>
           </div>
-          <h1 className="font-display font-black text-3xl text-white">
+          <h1 className="font-display font-black text-3xl text-slate-900">
             Tournament Management Center
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-600 mt-1">
             Review UPI payments, verify Aadhaar records, generate bracket fixtures, and broadcast live scores.
           </p>
         </div>
 
         <Link
           to="/create-tournament"
-          className="px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-display font-bold text-xs uppercase tracking-wider shadow-xl shadow-emerald-500/25 flex items-center gap-2 transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+          className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-display font-bold text-xs uppercase tracking-wider shadow-xs flex items-center gap-2 transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
         >
           <PlusCircle className="w-4 h-4" />
           <span>Host New Tournament</span>
@@ -275,14 +275,14 @@ const OrganizerDashboard = () => {
       </div>
 
       {apiError && (
-        <div className="p-4 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-xs text-rose-300 flex items-center justify-between gap-4">
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-rose-400 flex-shrink-0" />
+            <AlertTriangle className="w-5 h-5 text-rose-600 flex-shrink-0" />
             <span className="font-bold">{apiError}</span>
           </div>
           <button
             onClick={fetchOrganizerData}
-            className="px-4 py-1.5 rounded-xl bg-rose-500 text-white font-bold text-xs hover:bg-rose-400 transition-colors flex-shrink-0"
+            className="px-4 py-1.5 rounded-xl bg-rose-600 text-white font-bold text-xs hover:bg-rose-500 transition-colors flex-shrink-0"
           >
             Try Again
           </button>
@@ -290,63 +290,63 @@ const OrganizerDashboard = () => {
       )}
 
       {actionMessage && (
-        <div className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-xs font-bold text-emerald-300 flex items-center gap-2">
-          <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 flex items-center gap-2">
+          <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
           <span>{actionMessage}</span>
         </div>
       )}
 
       {/* Analytics KPI Ribbon */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
-        <div className="p-5 rounded-2xl glass-card border border-slate-800 space-y-1.5">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">Total Hosted</span>
-            <Trophy className="w-4 h-4 text-emerald-400" />
+            <span className="text-xs font-semibold text-slate-500">Total Hosted</span>
+            <Trophy className="w-4 h-4 text-emerald-600" />
           </div>
-          <p className="font-display font-black text-2xl sm:text-3xl text-white font-mono">
+          <p className="font-display font-black text-2xl sm:text-3xl text-slate-900 font-mono">
             {totalTournaments}
           </p>
         </div>
 
-        <div className="p-5 rounded-2xl glass-card border border-slate-800 space-y-1.5">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">Pending Payments</span>
-            <CreditCard className="w-4 h-4 text-amber-400" />
+            <span className="text-xs font-semibold text-slate-500">Pending Payments</span>
+            <CreditCard className="w-4 h-4 text-amber-600" />
           </div>
-          <p className="font-display font-black text-2xl sm:text-3xl text-amber-400 font-mono">
+          <p className="font-display font-black text-2xl sm:text-3xl text-amber-600 font-mono">
             {totalPendingPayments}
           </p>
         </div>
 
-        <div className="p-5 rounded-2xl glass-card border border-slate-800 space-y-1.5">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">Pending Aadhaar</span>
-            <FileText className="w-4 h-4 text-teal-400" />
+            <span className="text-xs font-semibold text-slate-500">Pending Aadhaar</span>
+            <FileText className="w-4 h-4 text-teal-600" />
           </div>
-          <p className="font-display font-black text-2xl sm:text-3xl text-teal-400 font-mono">
+          <p className="font-display font-black text-2xl sm:text-3xl text-teal-600 font-mono">
             {totalPendingAadhaar}
           </p>
         </div>
 
-        <div className="p-5 rounded-2xl glass-card border border-slate-800 space-y-1.5">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">Confirmed Teams</span>
-            <Users className="w-4 h-4 text-indigo-400" />
+            <span className="text-xs font-semibold text-slate-500">Confirmed Teams</span>
+            <Users className="w-4 h-4 text-indigo-600" />
           </div>
-          <p className="font-display font-black text-2xl sm:text-3xl text-indigo-400 font-mono">
+          <p className="font-display font-black text-2xl sm:text-3xl text-indigo-600 font-mono">
             {totalVerifiedTeams}
           </p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
         <button
           onClick={() => setActiveTab('tournaments')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'tournaments'
-              ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-              : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
           Hosted Tournaments ({tournaments.length})
@@ -356,8 +356,8 @@ const OrganizerDashboard = () => {
           onClick={() => setActiveTab('participants')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'participants'
-              ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-              : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
           Participant Verification Center

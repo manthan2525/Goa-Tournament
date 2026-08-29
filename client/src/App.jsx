@@ -47,7 +47,7 @@ function App() {
           <Router>
             <CustomCursor />
             <DynamicBackground />
-            <div className="relative z-10 flex flex-col min-h-screen bg-slate-950/80 text-slate-100 font-sans selection:bg-emerald-500 selection:text-slate-950">
+            <div className="relative z-10 flex flex-col min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-emerald-600 selection:text-white">
               {/* Top Navbar */}
               <Navbar />
 

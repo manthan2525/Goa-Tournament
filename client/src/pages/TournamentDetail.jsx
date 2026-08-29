@@ -374,18 +374,18 @@ const TournamentDetail = () => {
         {/* ─── End of Banner click zone ─── */}
 
         {/* ─── Tournament Info & Register — SEPARATE from banner, no banner click ─── */}
-        <div className="p-6 sm:p-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4 bg-gradient-to-t from-slate-950 to-slate-900/60">
+        <div className="p-6 sm:p-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4 bg-white border-b border-slate-200">
           <div className="space-y-1.5 max-w-2xl">
-            <h1 className="font-display font-black text-2xl sm:text-4xl text-white">
+            <h1 className="font-display font-black text-2xl sm:text-4xl text-slate-900">
               {tournament.name}
             </h1>
-            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300 font-medium">
+            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600 font-medium">
               <div className="flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-emerald-400" />
+                <MapPin className="w-4 h-4 text-emerald-600" />
                 <span>{tournament.venue}, {typeof tournament.location === 'object' && tournament.location !== null ? tournament.location.address : `${tournament.location}, Goa`}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Calendar className="w-4 h-4 text-slate-400" />
+                <Calendar className="w-4 h-4 text-slate-500" />
                 <span>
                   {new Date(tournament.startDate).toLocaleDateString('en-IN', {
                     day: 'numeric',
@@ -396,7 +396,7 @@ const TournamentDetail = () => {
               </div>
               {tournament.startTime && (
                 <div className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-slate-400" />
+                  <Clock className="w-4 h-4 text-slate-500" />
                   <span>{tournament.startTime}</span>
                 </div>
               )}
@@ -415,7 +415,7 @@ const TournamentDetail = () => {
                     setShowRegisterModal(true);
                   }
                 }}
-                className="px-6 py-3 rounded-xl font-display font-bold text-xs uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-xl shadow-emerald-500/25 transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+                className="px-6 py-3 rounded-xl font-display font-bold text-xs uppercase tracking-wider bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
               >
                 Register Team ({tournament.registrationFee === 0 ? 'FREE' : `₹${tournament.registrationFee}`})
               </button>
@@ -425,39 +425,39 @@ const TournamentDetail = () => {
         {/* ─── End of Tournament Info section ─── */}
 
         {/* Quick Details Ribbon */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-800 bg-slate-900/60 text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-200 bg-slate-50 text-xs">
           <div className="p-4 flex items-center gap-3">
-            <IndianRupee className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+            <IndianRupee className="w-5 h-5 text-emerald-600 flex-shrink-0" />
             <div>
-              <p className="text-[10px] text-slate-400 uppercase font-semibold">Entry Fee</p>
-              <p className="font-bold text-white text-sm font-mono">
+              <p className="text-[10px] text-slate-500 uppercase font-semibold">Entry Fee</p>
+              <p className="font-bold text-slate-900 text-sm font-mono">
                 {tournament.registrationFee === 0 ? 'FREE' : `₹${tournament.registrationFee.toLocaleString('en-IN')}`}
               </p>
             </div>
           </div>
 
           <div className="p-4 flex items-center gap-3">
-            <Users className="w-5 h-5 text-teal-400 flex-shrink-0" />
+            <Users className="w-5 h-5 text-teal-600 flex-shrink-0" />
             <div>
-              <p className="text-[10px] text-slate-400 uppercase font-semibold">Squad Capacity</p>
-              <p className="font-bold text-white text-sm font-mono">
+              <p className="text-[10px] text-slate-500 uppercase font-semibold">Squad Capacity</p>
+              <p className="font-bold text-slate-900 text-sm font-mono">
                 {verifiedTeams.length} / {tournament.maxTeams} Teams
               </p>
             </div>
           </div>
 
           <div className="p-4 flex items-center gap-3">
-            <Trophy className="w-5 h-5 text-amber-400 flex-shrink-0" />
+            <Trophy className="w-5 h-5 text-amber-600 flex-shrink-0" />
             <div>
-              <p className="text-[10px] text-slate-400 uppercase font-semibold">Prize Pool</p>
-              <p className="font-bold text-white text-sm truncate max-w-[150px]">
+              <p className="text-[10px] text-slate-500 uppercase font-semibold">Prize Pool</p>
+              <p className="font-bold text-slate-900 text-sm truncate max-w-[150px]">
                 {tournament.prizePool || 'Medals & Trophies'}
               </p>
             </div>
           </div>
 
           <div className="p-4 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-emerald-400 overflow-hidden flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center text-xs font-bold text-emerald-700 overflow-hidden flex-shrink-0">
               {organizerAvatar ? (
                 <img src={organizerAvatar} alt={tournament.organizer?.name} className="w-full h-full object-cover" />
               ) : (
@@ -465,8 +465,8 @@ const TournamentDetail = () => {
               )}
             </div>
             <div>
-              <p className="text-[10px] text-slate-400 uppercase font-semibold">Organizer</p>
-              <p className="font-bold text-white text-sm truncate max-w-[140px]">
+              <p className="text-[10px] text-slate-500 uppercase font-semibold">Organizer</p>
+              <p className="font-bold text-slate-900 text-sm truncate max-w-[140px]">
                 {tournament.organizer?.name || 'Goa Sports Authority'}
               </p>
             </div>
@@ -476,16 +476,16 @@ const TournamentDetail = () => {
 
       {/* Prominent Winners Showcase Section (If Completed or Winner declared) */}
       {(tournament.status === 'COMPLETED' || tournament.winner) && (
-        <div className="rounded-3xl glass-panel border border-amber-500/40 p-6 sm:p-8 bg-gradient-to-b from-amber-950/30 via-slate-900/60 to-slate-950/80 shadow-2xl relative overflow-hidden">
+        <div className="rounded-3xl bg-white border border-amber-300 p-6 sm:p-8 shadow-sm relative overflow-hidden">
           <div className="flex items-center gap-2 mb-6">
-            <div className="p-2.5 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400">
+            <div className="p-2.5 rounded-2xl bg-amber-100 border border-amber-300 text-amber-800">
               <Trophy className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="font-display font-black text-xl sm:text-2xl text-white">
+              <h2 className="font-display font-black text-xl sm:text-2xl text-slate-900">
                 Tournament Champions & Winners
               </h2>
-              <p className="text-xs text-amber-300/80">
+              <p className="text-xs text-amber-800 font-semibold">
                 Official results declared for {tournament.name}
               </p>
             </div>
@@ -493,31 +493,31 @@ const TournamentDetail = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             {/* 1st Place Champion */}
-            <div className="p-5 rounded-2xl bg-slate-900/90 border-2 border-amber-500/60 shadow-xl shadow-amber-500/10 text-center space-y-2 relative overflow-hidden order-first md:order-2 md:-mt-3">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-600 to-yellow-400 flex items-center justify-center mx-auto shadow-lg shadow-amber-500/30 text-slate-950 font-black">
-                <Trophy className="w-7 h-7" />
+            <div className="p-5 rounded-2xl bg-amber-50/60 border-2 border-amber-400 shadow-sm text-center space-y-2 relative overflow-hidden order-first md:order-2 md:-mt-3">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 flex items-center justify-center mx-auto shadow-sm text-slate-950 font-black">
+                <Trophy className="w-7 h-7 text-white" />
               </div>
               <span className="inline-block px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500 text-slate-950">
                 1st Place Champion
               </span>
-              <h3 className="font-display font-black text-xl text-white pt-1">
+              <h3 className="font-display font-black text-xl text-slate-900 pt-1">
                 {tournament.winner || 'Champion Declared'}
               </h3>
-              <p className="text-[11px] text-amber-300 font-semibold">
+              <p className="text-[11px] text-amber-800 font-semibold">
                 Winner Category: {tournament.winnerType || 'Team'}
               </p>
             </div>
 
             {/* 2nd Place Runner-Up */}
             {tournament.runnerUp && (
-              <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-700 text-center space-y-2 order-2 md:order-1">
-                <div className="w-12 h-12 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center mx-auto text-slate-200">
+              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-2 order-2 md:order-1">
+                <div className="w-12 h-12 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center mx-auto text-slate-700">
                   <Award className="w-6 h-6" />
                 </div>
-                <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-300 border border-slate-700">
+                <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-700 border border-slate-300">
                   2nd Place Runner-Up
                 </span>
-                <h4 className="font-display font-bold text-base text-white pt-1">
+                <h4 className="font-display font-bold text-base text-slate-900 pt-1">
                   {tournament.runnerUp}
                 </h4>
               </div>
@@ -525,14 +525,14 @@ const TournamentDetail = () => {
 
             {/* 3rd Place */}
             {tournament.thirdPlace && (
-              <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-700 text-center space-y-2 order-3">
-                <div className="w-12 h-12 rounded-full bg-amber-950/50 border border-amber-800/60 flex items-center justify-center mx-auto text-amber-500">
+              <div className="p-5 rounded-2xl bg-amber-50/40 border border-amber-200 text-center space-y-2 order-3">
+                <div className="w-12 h-12 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center mx-auto text-amber-800">
                   <Medal className="w-6 h-6" />
                 </div>
-                <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-950/60 text-amber-400 border border-amber-800/50">
+                <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200">
                   3rd Place / Bronze
                 </span>
-                <h4 className="font-display font-bold text-base text-white pt-1">
+                <h4 className="font-display font-bold text-base text-slate-900 pt-1">
                   {tournament.thirdPlace}
                 </h4>
               </div>
@@ -543,14 +543,14 @@ const TournamentDetail = () => {
 
       {/* 🏆 TOURNAMENT PRIZES BREAKDOWN SECTION */}
       {((tournament.prizes && tournament.prizes.length > 0) || tournament.prizePool) && (
-        <div className="p-6 sm:p-8 rounded-3xl glass-panel border border-amber-500/30 bg-slate-950/60 space-y-4">
+        <div className="p-6 sm:p-8 rounded-3xl bg-white border border-amber-200 space-y-4 shadow-xs">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
+            <div className="p-2 rounded-xl bg-amber-100 border border-amber-300 text-amber-800">
               <Trophy className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-display font-bold text-lg text-white">🏆 Tournament Prizes</h3>
-              <p className="text-xs text-slate-400">Official reward structure for top finishing teams</p>
+              <h3 className="font-display font-bold text-lg text-slate-900">🏆 Tournament Prizes</h3>
+              <p className="text-xs text-slate-600">Official reward structure for top finishing teams</p>
             </div>
           </div>
 
@@ -558,16 +558,16 @@ const TournamentDetail = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-2">
               {tournament.prizes.map((p, idx) => {
                 let badgeEmoji = '🏆';
-                let badgeClass = 'bg-slate-800 text-slate-300 border-slate-700';
+                let badgeClass = 'bg-slate-100 text-slate-800 border-slate-300';
                 if (p.position === 1 || idx === 0) {
                   badgeEmoji = '🥇';
-                  badgeClass = 'bg-amber-500/20 text-amber-400 border-amber-500/40 font-black';
+                  badgeClass = 'bg-amber-100 text-amber-800 border-amber-300 font-black';
                 } else if (p.position === 2 || idx === 1) {
                   badgeEmoji = '🥈';
-                  badgeClass = 'bg-slate-700/50 text-slate-200 border-slate-600 font-bold';
+                  badgeClass = 'bg-slate-100 text-slate-800 border-slate-300 font-bold';
                 } else if (p.position === 3 || idx === 2) {
                   badgeEmoji = '🥉';
-                  badgeClass = 'bg-amber-950/60 text-amber-400 border-amber-800/50 font-bold';
+                  badgeClass = 'bg-amber-50 text-amber-800 border-amber-200 font-bold';
                 } else if (p.position === 4 || idx === 3) {
                   badgeEmoji = '4️⃣';
                 } else if (p.position === 5 || idx === 4) {
@@ -577,20 +577,20 @@ const TournamentDetail = () => {
                 return (
                   <div
                     key={p._id || idx}
-                    className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-start justify-between gap-3 shadow-md hover:border-amber-500/40 transition-colors"
+                    className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-start justify-between gap-3 shadow-xs hover:border-amber-400 transition-colors"
                   >
                     <div className="space-y-1">
                       <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs border ${badgeClass}`}>
                         <span>{badgeEmoji}</span> {p.title || `${p.position}th Prize`}
                       </span>
                       {p.description && (
-                        <p className="text-[11px] text-slate-400 pt-1 leading-normal">{p.description}</p>
+                        <p className="text-[11px] text-slate-600 pt-1 leading-normal">{p.description}</p>
                       )}
                     </div>
 
                     <div className="text-right flex-shrink-0">
                       <span className="text-[10px] text-slate-500 uppercase font-semibold block">Prize</span>
-                      <span className="font-mono font-black text-emerald-400 text-base">
+                      <span className="font-mono font-black text-emerald-700 text-base">
                         ₹{Number(p.amount || 0).toLocaleString('en-IN')}
                       </span>
                     </div>
@@ -599,22 +599,22 @@ const TournamentDetail = () => {
               })}
             </div>
           ) : (
-            <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-between text-xs">
-              <span className="text-slate-300">Total Prize Pool:</span>
-              <span className="font-mono font-bold text-amber-400 text-sm">{tournament.prizePool}</span>
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
+              <span className="text-slate-700 font-medium">Total Prize Pool:</span>
+              <span className="font-mono font-bold text-amber-700 text-sm">{tournament.prizePool}</span>
             </div>
           )}
         </div>
       )}
 
       {/* Tabs Navigation */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto no-scrollbar">
         <button
           onClick={() => setActiveTab('fixtures')}
           className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all whitespace-nowrap ${
             activeTab === 'fixtures'
-              ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-              : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
           Fixtures & Brackets ({matches.length})
@@ -625,8 +625,8 @@ const TournamentDetail = () => {
             onClick={() => setActiveTab('standings')}
             className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all whitespace-nowrap ${
               activeTab === 'standings'
-                ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             Points Table / Standings
@@ -637,8 +637,8 @@ const TournamentDetail = () => {
           onClick={() => setActiveTab('teams')}
           className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all whitespace-nowrap ${
             activeTab === 'teams'
-              ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-              : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
           Confirmed Squads ({verifiedTeams.length})
@@ -648,8 +648,8 @@ const TournamentDetail = () => {
           onClick={() => setActiveTab('rules')}
           className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all whitespace-nowrap ${
             activeTab === 'rules'
-              ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-              : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
           Rules & Venue Details
@@ -659,12 +659,12 @@ const TournamentDetail = () => {
       {/* Tab 1: Fixtures & Brackets */}
       {activeTab === 'fixtures' && (
         <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-950/80 border border-slate-800">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
               <div>
-                <h3 className="font-display font-bold text-lg text-white">Live Match Schedule & Brackets</h3>
-                <p className="text-xs text-slate-400">Real-time match tree and scheduled fixtures</p>
+                <h3 className="font-display font-bold text-lg text-slate-900">Live Match Schedule & Brackets</h3>
+                <p className="text-xs text-slate-600">Real-time match tree and scheduled fixtures</p>
               </div>
             </div>
 
@@ -673,7 +673,7 @@ const TournamentDetail = () => {
                 <button
                   onClick={handleStartTournament}
                   disabled={startingTournament}
-                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 flex items-center gap-1.5 transition-all"
+                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-emerald-700 border border-slate-300 flex items-center gap-1.5 transition-all"
                   title="Generate automatic brackets from registered teams"
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
@@ -682,7 +682,7 @@ const TournamentDetail = () => {
 
                 <button
                   onClick={handleOpenCreateManual}
-                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-1.5 transition-all shadow-sm"
+                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 transition-all shadow-xs"
                   title="Manually create a custom fixture match"
                 >
                   <Zap className="w-3.5 h-3.5" />
@@ -703,7 +703,6 @@ const TournamentDetail = () => {
       {/* Tab 2: Standings Table */}
       {activeTab === 'standings' && (
         <div className="space-y-4">
-          <h3 className="font-display font-bold text-lg text-white">League Standings</h3>
           <StandingsTable standings={standings} />
         </div>
       )}
@@ -711,24 +710,23 @@ const TournamentDetail = () => {
       {/* Tab 3: Confirmed Squads */}
       {activeTab === 'teams' && (
         <div className="space-y-4">
-          <h3 className="font-display font-bold text-lg text-white">Verified Participating Teams</h3>
           {verifiedTeams.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {verifiedTeams.map((team, idx) => (
                 <div
                   key={team._id || idx}
-                  className="p-4 rounded-2xl glass-card border border-slate-800 space-y-2"
+                  className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-bold text-slate-500">#{idx + 1}</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                    <span className="text-xs font-mono font-bold text-slate-400">#{idx + 1}</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                       VERIFIED
                     </span>
                   </div>
-                  <h4 className="font-bold text-white text-base">{team.teamName}</h4>
-                  <p className="text-xs text-slate-400">Captain: {team.captainName}</p>
+                  <h4 className="font-bold text-slate-900 text-base">{team.teamName}</h4>
+                  <p className="text-xs text-slate-600">Captain: {team.captainName}</p>
                   {team.playersList && team.playersList.length > 0 && (
-                    <div className="pt-2 border-t border-slate-800/80 text-[11px] text-slate-500">
+                    <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-500">
                       Roster: {team.playersList.map((p) => p.name).join(', ')}
                     </div>
                   )}
@@ -736,9 +734,9 @@ const TournamentDetail = () => {
               ))}
             </div>
           ) : (
-            <div className="p-8 glass-card rounded-2xl text-center">
-              <Users className="w-8 h-8 text-slate-500 mx-auto mb-2" />
-              <p className="text-xs text-slate-400">No teams confirmed yet. Be the first to register!</p>
+            <div className="p-8 bg-white border border-slate-200 rounded-2xl text-center shadow-xs">
+              <Users className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+              <p className="text-xs text-slate-500">No teams confirmed yet. Be the first to register!</p>
             </div>
           )}
         </div>
@@ -747,27 +745,27 @@ const TournamentDetail = () => {
       {/* Tab 4: Rules & Venue */}
       {activeTab === 'rules' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="p-6 rounded-2xl glass-card border border-slate-800 space-y-4">
-            <div className="flex items-center gap-2 text-emerald-400">
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-emerald-700">
               <FileText className="w-5 h-5" />
-              <h3 className="font-bold text-base text-white">Tournament Rules & Guidelines</h3>
+              <h3 className="font-bold text-base text-slate-900">Tournament Rules & Guidelines</h3>
             </div>
-            <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-line">
+            <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-line">
               {tournament.rules ||
                 '1. Standard official sports federation rules apply.\n2. Teams must report 30 minutes prior to scheduled fixture.\n3. Referee decisions are final and binding.\n4. Sports attire and appropriate safety gear mandatory.'}
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl glass-card border border-slate-800 space-y-4">
-            <div className="flex items-center gap-2 text-teal-400">
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 text-teal-700">
               <MapPin className="w-5 h-5" />
-              <h3 className="font-bold text-base text-white">Goa Venue & Contact</h3>
+              <h3 className="font-bold text-base text-slate-900">Goa Venue & Contact</h3>
             </div>
-            <div className="space-y-3 text-xs text-slate-300">
+            <div className="space-y-3 text-xs text-slate-600">
               <div>
                 <p className="text-slate-500 font-medium">Stadium / Ground</p>
-                <p className="font-semibold text-white">{tournament.venue}</p>
-                <p className="text-slate-400">
+                <p className="font-semibold text-slate-900">{tournament.venue}</p>
+                <p className="text-slate-600">
                   {typeof tournament.location === 'object' && tournament.location !== null 
                     ? tournament.location.address 
                     : `${tournament.location}, Goa`}
@@ -778,16 +776,16 @@ const TournamentDetail = () => {
                 <MapPreview location={tournament.location} venueName={tournament.venue} />
               )}
 
-              <div className="pt-4 border-t border-slate-800">
+              <div className="pt-4 border-t border-slate-100">
                 <p className="text-slate-500 font-medium">Organizer Details</p>
-                <p className="font-semibold text-white">{tournament.organizer?.name}</p>
+                <p className="font-semibold text-slate-900">{tournament.organizer?.name}</p>
                 {tournament.organizer?.organizationName && (
-                  <p className="text-emerald-400 text-xs font-semibold">{tournament.organizer.organizationName}</p>
+                  <p className="text-emerald-700 text-xs font-semibold">{tournament.organizer.organizationName}</p>
                 )}
-                <p className="text-slate-400 font-mono">{tournament.organizer?.phone || '+91 98221 45678'}</p>
-                <p className="text-slate-400">{tournament.organizer?.email}</p>
+                <p className="text-slate-600 font-mono">{tournament.organizer?.phone || '+91 98221 45678'}</p>
+                <p className="text-slate-600">{tournament.organizer?.email}</p>
                 {tournament.organizer?.bio && (
-                  <p className="text-slate-400 italic mt-1 pt-1 border-t border-slate-800/80 text-[11px]">
+                  <p className="text-slate-500 italic mt-1 pt-1 border-t border-slate-100 text-[11px]">
                     "{tournament.organizer.bio}"
                   </p>
                 )}

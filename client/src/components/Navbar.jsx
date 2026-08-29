@@ -22,7 +22,6 @@ import { useTheme } from '../context/ThemeContext';
 const Navbar = () => {
   const { user, isAuthenticated, isOrganizer, logout } = useAuth();
   const { isConnected } = useSocket();
-  useTheme(); // kept so ThemeProvider still mounts dark class on first render
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,19 +38,19 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 glass-panel border-b border-slate-800/80">
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2.5 sm:space-x-3 group">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform flex-shrink-0">
-                <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-slate-950 stroke-[2.5]" />
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform flex-shrink-0">
+                <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-white stroke-[2.5]" />
               </div>
               <div>
-                <span className="font-display font-black text-lg sm:text-xl tracking-tight text-white flex items-center gap-1">
-                  GOA<span className="text-emerald-400">TOURNAMENT</span>
+                <span className="font-display font-black text-lg sm:text-xl tracking-tight text-slate-900 flex items-center gap-1">
+                  GOA<span className="text-emerald-600">TOURNAMENT</span>
                 </span>
-                <span className="text-[9px] sm:text-[10px] uppercase font-semibold tracking-widest text-slate-400 block -mt-1">
+                <span className="text-[9px] sm:text-[10px] uppercase font-semibold tracking-widest text-slate-500 block -mt-1">
                   Multi-Sport Arena
                 </span>
               </div>
@@ -63,8 +62,8 @@ const Navbar = () => {
                 to="/tournaments"
                 className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isActive('/tournaments')
-                    ? 'bg-slate-800 text-emerald-400 font-bold'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                    ? 'bg-emerald-50 text-emerald-700 font-bold'
+                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
                 }`}
               >
                 Tournaments
@@ -74,8 +73,8 @@ const Navbar = () => {
                 to="/live"
                 className={`px-3.5 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${
                   isActive('/live')
-                    ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30 font-bold'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                    ? 'bg-rose-50 text-rose-600 border border-rose-200 font-bold'
+                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
                 }`}
               >
                 <span className="w-2 h-2 rounded-full bg-rose-500 live-indicator"></span>
@@ -87,8 +86,8 @@ const Navbar = () => {
                   to="/player-dashboard"
                   className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive('/player-dashboard')
-                      ? 'bg-slate-800 text-emerald-400 font-bold'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                      ? 'bg-emerald-50 text-emerald-700 font-bold'
+                      : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
                   }`}
                 >
                   My Registrations
@@ -100,11 +99,11 @@ const Navbar = () => {
                   to="/organizer-dashboard"
                   className={`px-3.5 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
                     isActive('/organizer-dashboard')
-                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold'
+                      : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
                   }`}
                 >
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
                   Organizer Suite
                 </Link>
               )}
@@ -114,11 +113,11 @@ const Navbar = () => {
                   to="/admin/dashboard"
                   className={`px-3.5 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
                     location.pathname.startsWith('/admin')
-                      ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30 font-bold'
-                      : 'text-rose-400 hover:text-rose-300 hover:bg-rose-500/10'
+                      ? 'bg-rose-50 text-rose-600 border border-rose-200 font-bold'
+                      : 'text-rose-600 hover:text-rose-700 hover:bg-rose-50'
                   }`}
                 >
-                  <ShieldAlert className="w-4 h-4 text-rose-400" />
+                  <ShieldAlert className="w-4 h-4 text-rose-600" />
                   Admin Panel
                 </Link>
               )}
@@ -130,19 +129,18 @@ const Navbar = () => {
               <div
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-medium border ${
                   isConnected
-                    ? 'bg-emerald-950/40 text-emerald-400 border-emerald-500/30'
-                    : 'bg-amber-950/40 text-amber-400 border-amber-500/30'
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                    : 'bg-amber-50 text-amber-700 border-amber-200'
                 }`}
                 title={isConnected ? 'Real-time WebSocket Live' : 'Connecting WebSocket...'}
               >
                 <span
                   className={`w-1.5 h-1.5 rounded-full ${
-                    isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
+                    isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
                   }`}
                 ></span>
                 {isConnected ? 'LIVE SYNC' : 'OFFLINE'}
               </div>
-
 
               {/* In-App Notifications Dropdown */}
               {isAuthenticated && <NotificationDropdown />}
@@ -150,7 +148,7 @@ const Navbar = () => {
               {isOrganizer && (
                 <Link
                   to="/create-tournament"
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md shadow-emerald-500/20 transition-all hover:scale-105 active:scale-95"
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all hover:scale-105 active:scale-95"
                 >
                   <PlusCircle className="w-4 h-4" />
                   Host
@@ -158,13 +156,13 @@ const Navbar = () => {
               )}
 
               {isAuthenticated ? (
-                <div className="flex items-center space-x-2 border-l border-slate-800 pl-3">
+                <div className="flex items-center space-x-2 border-l border-slate-200 pl-3">
                   <Link
                     to="/profile"
-                    className="flex items-center space-x-2 p-1 rounded-xl hover:bg-slate-800/70 transition-colors group"
+                    className="flex items-center space-x-2 p-1 rounded-xl hover:bg-slate-100 transition-colors group"
                     title="View & Edit Profile"
                   >
-                    <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-emerald-400 overflow-hidden group-hover:border-emerald-500 transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-xs font-bold text-emerald-600 overflow-hidden group-hover:border-emerald-500 transition-colors">
                       {avatarUrl ? (
                         <img
                           src={avatarUrl}
@@ -176,10 +174,10 @@ const Navbar = () => {
                       )}
                     </div>
                     <div className="text-left leading-tight hidden lg:block">
-                      <p className="text-xs font-semibold text-white truncate max-w-[110px] group-hover:text-emerald-400 transition-colors">
+                      <p className="text-xs font-semibold text-slate-800 truncate max-w-[110px] group-hover:text-emerald-600 transition-colors">
                         {user?.name}
                       </p>
-                      <span className="text-[10px] text-emerald-400 font-mono font-bold">
+                      <span className="text-[10px] text-emerald-600 font-mono font-bold">
                         {user?.role}
                       </span>
                     </div>
@@ -188,7 +186,7 @@ const Navbar = () => {
                   <button
                     onClick={handleLogout}
                     title="Log out"
-                    className="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
+                    className="p-2 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-slate-100 transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
                   </button>
@@ -197,13 +195,13 @@ const Navbar = () => {
                 <div className="flex items-center space-x-2">
                   <Link
                     to="/login"
-                    className="px-3.5 py-2 text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+                    className="px-3.5 py-2 text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
                   >
                     Sign In
                   </Link>
                   <Link
                     to="/register"
-                    className="px-3.5 py-2 text-sm font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-colors"
+                    className="px-3.5 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-colors shadow-sm"
                   >
                     Join
                   </Link>
@@ -217,7 +215,7 @@ const Navbar = () => {
 
               <div
                 className={`w-2.5 h-2.5 rounded-full ${
-                  isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
+                  isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
                 }`}
                 title={isConnected ? 'Connected' : 'Offline'}
               ></div>
@@ -225,7 +223,7 @@ const Navbar = () => {
               {isOrganizer && (
                 <Link
                   to="/create-tournament"
-                  className="p-2 rounded-lg bg-emerald-500 text-slate-950 font-bold"
+                  className="p-2 rounded-lg bg-emerald-600 text-white font-bold"
                   title="Create Tournament"
                 >
                   <PlusCircle className="w-4 h-4" />
@@ -234,7 +232,7 @@ const Navbar = () => {
 
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 rounded-lg text-slate-300 hover:text-white bg-slate-900 border border-slate-800 focus:outline-none"
+                className="p-2 rounded-lg text-slate-700 hover:text-slate-900 bg-slate-100 border border-slate-200 focus:outline-none"
                 aria-label="Toggle Navigation Menu"
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -245,12 +243,12 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden glass-panel border-t border-slate-800 px-4 pt-3 pb-6 space-y-3">
+          <div className="md:hidden bg-white/98 border-t border-slate-200 px-4 pt-3 pb-6 space-y-3 shadow-lg">
             <Link
               to="/tournaments"
               onClick={() => setMobileMenuOpen(false)}
               className={`block px-3 py-2.5 rounded-xl text-sm font-medium ${
-                isActive('/tournaments') ? 'bg-emerald-500/15 text-emerald-400 font-bold' : 'text-slate-200 hover:bg-slate-800'
+                isActive('/tournaments') ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-700 hover:bg-slate-100'
               }`}
             >
               Browse Tournaments
@@ -260,7 +258,7 @@ const Navbar = () => {
               to="/live"
               onClick={() => setMobileMenuOpen(false)}
               className={`block px-3 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 ${
-                isActive('/live') ? 'bg-rose-500/20 text-rose-400 font-bold' : 'text-rose-400 hover:bg-slate-800'
+                isActive('/live') ? 'bg-rose-50 text-rose-600 font-bold' : 'text-rose-600 hover:bg-slate-100'
               }`}
             >
               <span className="w-2 h-2 rounded-full bg-rose-500 live-indicator"></span>
@@ -273,20 +271,20 @@ const Navbar = () => {
                   to="/player-dashboard"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`block px-3 py-2.5 rounded-xl text-sm font-medium ${
-                    isActive('/player-dashboard') ? 'bg-emerald-500/15 text-emerald-400 font-bold' : 'text-slate-200 hover:bg-slate-800'
+                    isActive('/player-dashboard') ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-700 hover:bg-slate-100'
                   }`}
                 >
-                  My Registrations & Verification
+                  My Registrations &amp; Verification
                 </Link>
 
                 <Link
                   to="/profile"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`block px-3 py-2.5 rounded-xl text-sm font-medium ${
-                    isActive('/profile') ? 'bg-emerald-500/15 text-emerald-400 font-bold' : 'text-slate-200 hover:bg-slate-800'
+                    isActive('/profile') ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-700 hover:bg-slate-100'
                   }`}
                 >
-                  My Profile & Settings
+                  My Profile &amp; Settings
                 </Link>
               </>
             )}
@@ -297,7 +295,7 @@ const Navbar = () => {
                   to="/organizer-dashboard"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`block px-3 py-2.5 rounded-xl text-sm font-medium ${
-                    isActive('/organizer-dashboard') ? 'bg-emerald-500/20 text-emerald-400 font-bold' : 'text-emerald-400 hover:bg-slate-800'
+                    isActive('/organizer-dashboard') ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-emerald-700 hover:bg-slate-100'
                   }`}
                 >
                   Organizer Management Suite
@@ -305,7 +303,7 @@ const Navbar = () => {
                 <Link
                   to="/create-tournament"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block px-3 py-2.5 rounded-xl text-sm font-bold bg-emerald-500 text-slate-950"
+                  className="block px-3 py-2.5 rounded-xl text-sm font-bold bg-emerald-600 text-white text-center"
                 >
                   + Host a Tournament
                 </Link>
@@ -316,22 +314,21 @@ const Navbar = () => {
               <Link
                 to="/admin/dashboard"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2.5 rounded-xl text-sm font-bold bg-rose-600 text-white"
+                className="block px-3 py-2.5 rounded-xl text-sm font-bold bg-rose-600 text-white text-center"
               >
                 🛡️ Admin Dashboard
               </Link>
             )}
 
-
-            <div className="pt-3 border-t border-slate-800">
+            <div className="pt-3 border-t border-slate-200">
               {isAuthenticated ? (
-                <div className="flex items-center justify-between bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                <div className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
                   <Link
                     to="/profile"
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center gap-2.5"
                   >
-                    <div className="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-emerald-400 overflow-hidden">
+                    <div className="w-9 h-9 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center text-xs font-bold text-emerald-700 overflow-hidden">
                       {avatarUrl ? (
                         <img src={avatarUrl} alt={user?.name} className="w-full h-full object-cover" />
                       ) : (
@@ -339,13 +336,13 @@ const Navbar = () => {
                       )}
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-white truncate max-w-[140px]">{user?.name}</p>
-                      <p className="text-[10px] text-emerald-400 font-mono">{user?.role}</p>
+                      <p className="text-xs font-bold text-slate-900 truncate max-w-[140px]">{user?.name}</p>
+                      <p className="text-[10px] text-emerald-600 font-mono font-bold">{user?.role}</p>
                     </div>
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="px-3 py-1.5 text-xs font-bold text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 rounded-lg border border-rose-500/30"
+                    className="px-3 py-1.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg border border-rose-200"
                   >
                     Log Out
                   </button>
@@ -355,14 +352,14 @@ const Navbar = () => {
                   <Link
                     to="/login"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="w-full text-center py-2.5 text-xs font-bold bg-slate-900 border border-slate-700 text-white rounded-xl"
+                    className="w-full text-center py-2.5 text-xs font-bold bg-slate-100 border border-slate-300 text-slate-800 rounded-xl"
                   >
                     Sign In
                   </Link>
                   <Link
                     to="/register"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="w-full text-center py-2.5 text-xs font-bold bg-emerald-500 text-slate-950 rounded-xl"
+                    className="w-full text-center py-2.5 text-xs font-bold bg-emerald-600 text-white rounded-xl shadow-xs"
                   >
                     Join Goa Sports
                   </Link>
@@ -374,11 +371,11 @@ const Navbar = () => {
       </header>
 
       {/* Mobile Bottom Navigation Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/90 px-2 py-1.5 flex items-center justify-around text-[10px] font-medium text-slate-400">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200 px-2 py-1.5 flex items-center justify-around text-[10px] font-medium text-slate-600 shadow-lg">
         <Link
           to="/"
           className={`flex flex-col items-center py-1 px-2 rounded-lg transition-colors ${
-            isActive('/') ? 'text-emerald-400 font-bold' : 'hover:text-white'
+            isActive('/') ? 'text-emerald-600 font-bold' : 'hover:text-slate-900'
           }`}
         >
           <HomeIcon className="w-5 h-5 mb-0.5" />
@@ -388,7 +385,7 @@ const Navbar = () => {
         <Link
           to="/tournaments"
           className={`flex flex-col items-center py-1 px-2 rounded-lg transition-colors ${
-            isActive('/tournaments') ? 'text-emerald-400 font-bold' : 'hover:text-white'
+            isActive('/tournaments') ? 'text-emerald-600 font-bold' : 'hover:text-slate-900'
           }`}
         >
           <Trophy className="w-5 h-5 mb-0.5" />
@@ -398,7 +395,7 @@ const Navbar = () => {
         <Link
           to="/live"
           className={`flex flex-col items-center py-1 px-2 rounded-lg transition-colors relative ${
-            isActive('/live') ? 'text-rose-400 font-bold' : 'hover:text-white text-rose-400/80'
+            isActive('/live') ? 'text-rose-600 font-bold' : 'hover:text-slate-900 text-rose-600/80'
           }`}
         >
           <div className="relative">
@@ -413,14 +410,14 @@ const Navbar = () => {
             to={isAdmin ? '/admin/dashboard' : isOrganizer ? '/organizer-dashboard' : '/player-dashboard'}
             className={`flex flex-col items-center py-1 px-2 rounded-lg transition-colors ${
               location.pathname.startsWith('/admin') || isActive('/organizer-dashboard') || isActive('/player-dashboard')
-                ? 'text-emerald-400 font-bold'
-                : 'hover:text-white'
+                ? 'text-emerald-600 font-bold'
+                : 'hover:text-slate-900'
             }`}
           >
             {isAdmin ? (
-              <ShieldAlert className="w-5 h-5 mb-0.5 text-rose-400" />
+              <ShieldAlert className="w-5 h-5 mb-0.5 text-rose-600" />
             ) : isOrganizer ? (
-              <ShieldCheck className="w-5 h-5 mb-0.5 text-emerald-400" />
+              <ShieldCheck className="w-5 h-5 mb-0.5 text-emerald-600" />
             ) : (
               <UserIcon className="w-5 h-5 mb-0.5" />
             )}
@@ -429,7 +426,7 @@ const Navbar = () => {
         ) : (
           <Link
             to="/login"
-            className="flex flex-col items-center py-1 px-2 rounded-lg hover:text-white"
+            className="flex flex-col items-center py-1 px-2 rounded-lg hover:text-slate-900"
           >
             <UserIcon className="w-5 h-5 mb-0.5" />
             <span>Sign In</span>

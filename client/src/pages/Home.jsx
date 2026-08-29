@@ -277,8 +277,8 @@ const Home = () => {
               onClick={() => setSelectedSport(sport)}
               className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 selectedSport === sport
-                  ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                  : 'bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800'
+                  ? 'bg-emerald-600 text-white font-bold shadow-xs'
+                  : 'bg-white text-slate-700 hover:text-slate-900 hover:bg-slate-100 border border-slate-200'
               }`}
             >
               {sport}
@@ -290,7 +290,7 @@ const Home = () => {
       {/* ── Sport-Reactive Hero ── */}
       {/* NOTE: uses ONLY CSS gradients + emoji + text — NO organizer banners */}
       <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative rounded-3xl overflow-hidden glass-panel border border-slate-800 p-8 sm:p-14 transition-all duration-500">
+        <div className="relative rounded-3xl overflow-hidden bg-white border border-slate-200 p-8 sm:p-14 shadow-sm transition-all duration-500">
           {/* Sport-coloured ambient glows */}
           <div className={`absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full ${theme.glow1} blur-3xl pointer-events-none transition-colors duration-700`} />
           <div className={`absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 rounded-full ${theme.glow2} blur-3xl pointer-events-none transition-colors duration-700`} />
@@ -311,12 +311,12 @@ const Home = () => {
             </div>
 
             {/* Heading */}
-            <h1 className="font-display font-black text-4xl sm:text-6xl tracking-tight text-white leading-tight transition-all duration-300">
+            <h1 className="font-display font-black text-4xl sm:text-6xl tracking-tight text-slate-900 leading-tight transition-all duration-300">
               {theme.heading}
             </h1>
 
             {/* Subtitle */}
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-3xl">
+            <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-3xl">
               {theme.sub}
             </p>
 
@@ -324,7 +324,7 @@ const Home = () => {
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <Link
                 to={theme.cta.to}
-                className={`px-7 py-3.5 rounded-2xl text-slate-950 font-display font-bold text-sm tracking-wide shadow-xl flex items-center gap-2 transition-all hover:scale-105 active:scale-95 ${theme.ctaColor}`}
+                className="px-7 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-display font-bold text-sm tracking-wide shadow-sm flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
               >
                 <span>{theme.cta.label}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -332,26 +332,26 @@ const Home = () => {
 
               <Link
                 to="/live"
-                className="px-7 py-3.5 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-white font-display font-semibold text-sm flex items-center gap-2 transition-all"
+                className="px-7 py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 font-display font-semibold text-sm flex items-center gap-2 transition-all"
               >
-                <Activity className="w-4 h-4 text-rose-400" />
+                <Activity className="w-4 h-4 text-rose-600" />
                 <span>Live Match Hub</span>
               </Link>
             </div>
 
             {/* Quick stats */}
-            <div className="grid grid-cols-3 gap-4 pt-8 border-t border-slate-800/80 max-w-lg">
+            <div className="grid grid-cols-3 gap-4 pt-8 border-t border-slate-200 max-w-lg">
               <div>
-                <p className="font-mono font-black text-2xl text-emerald-400">{tournaments.length || '10'}+</p>
-                <p className="text-xs text-slate-400">Active Tournaments</p>
+                <p className="font-mono font-black text-2xl text-emerald-700">{tournaments.length || '10'}+</p>
+                <p className="text-xs text-slate-500 font-medium">Active Tournaments</p>
               </div>
               <div>
-                <p className="font-mono font-black text-2xl text-white">Live</p>
-                <p className="text-xs text-slate-400">Real-Time Scores</p>
+                <p className="font-mono font-black text-2xl text-slate-900">Live</p>
+                <p className="text-xs text-slate-500 font-medium">Real-Time Scores</p>
               </div>
               <div>
-                <p className="font-mono font-black text-2xl text-teal-400">UPI</p>
-                <p className="text-xs text-slate-400">QR Payments</p>
+                <p className="font-mono font-black text-2xl text-teal-700">UPI</p>
+                <p className="text-xs text-slate-500 font-medium">QR Payments</p>
               </div>
             </div>
           </div>
@@ -362,10 +362,10 @@ const Home = () => {
       <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="font-display font-bold text-2xl text-white">
+            <h2 className="font-display font-bold text-2xl text-slate-900">
               {selectedSport === 'All' ? 'Active Tournaments in Goa' : `${selectedSport} Tournaments in Goa`}
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               {selectedSport === 'All'
                 ? 'Browse all active tournaments across Goa'
                 : `Showing all ${selectedSport} tournaments`}
@@ -373,7 +373,7 @@ const Home = () => {
           </div>
           <Link
             to="/tournaments"
-            className="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
+            className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1"
           >
             <span>View All</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -383,7 +383,7 @@ const Home = () => {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((n) => (
-              <div key={n} className="h-96 rounded-2xl glass-card border border-slate-800 animate-pulse" />
+              <div key={n} className="h-96 rounded-2xl bg-white border border-slate-200 animate-pulse" />
             ))}
           </div>
         ) : filteredTournaments.length > 0 ? (
@@ -393,10 +393,10 @@ const Home = () => {
             ))}
           </div>
         ) : (
-          <div className="p-12 glass-card rounded-2xl text-center">
-            <Trophy className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-            <h3 className="font-semibold text-white">No {selectedSport} tournaments listed yet</h3>
-            <p className="text-xs text-slate-400 mt-1">
+          <div className="p-12 bg-white border border-slate-200 rounded-2xl text-center shadow-xs">
+            <Trophy className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+            <h3 className="font-semibold text-slate-900">No {selectedSport} tournaments listed yet</h3>
+            <p className="text-xs text-slate-500 mt-1">
               Be the first organizer to host a {selectedSport} tournament in Goa!
             </p>
           </div>
@@ -406,32 +406,32 @@ const Home = () => {
       {/* ── Feature Highlights ── */}
       <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-6 rounded-2xl glass-panel border border-slate-800 space-y-3">
-            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3">
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
               <Zap className="w-6 h-6" />
             </div>
-            <h3 className="font-display font-bold text-lg text-white">Smart Fixture Engine</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <h3 className="font-display font-bold text-lg text-slate-900">Smart Fixture Engine</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
               Auto-generate knockout brackets, round-robin leagues, and group stages with byes and seeded pairings.
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl glass-panel border border-slate-800 space-y-3">
-            <div className="w-12 h-12 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400">
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3">
+            <div className="w-12 h-12 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-700">
               <ShieldCheck className="w-6 h-6" />
             </div>
-            <h3 className="font-display font-bold text-lg text-white">UPI QR Verification</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <h3 className="font-display font-bold text-lg text-slate-900">UPI QR Verification</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
               Scan UPI QR codes, upload payment screenshots, and let organizers verify entries via cloud dashboard.
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl glass-panel border border-slate-800 space-y-3">
-            <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3">
+            <div className="w-12 h-12 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-700">
               <Activity className="w-6 h-6" />
             </div>
-            <h3 className="font-display font-bold text-lg text-white">Real-Time WebSockets</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <h3 className="font-display font-bold text-lg text-slate-900">Real-Time WebSockets</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
               Live score changes broadcasted instantly to spectators and players — no browser refresh needed.
             </p>
           </div>

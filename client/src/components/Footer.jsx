@@ -24,7 +24,7 @@ const Footer = () => {
   const hasSocial = Object.values(SOCIAL).some(Boolean);
 
   return (
-    <footer className="bg-slate-950 border-t border-slate-800/80 text-slate-400 text-sm mt-20">
+    <footer className="bg-slate-100 border-t border-slate-200 text-slate-600 text-sm mt-20">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
         {/* Main grid */}
@@ -33,60 +33,60 @@ const Footer = () => {
           {/* ── Brand ── */}
           <div className="sm:col-span-2 lg:col-span-1 space-y-4">
             <div className="flex items-center space-x-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 flex-shrink-0">
-                <Trophy className="w-5 h-5 text-slate-950 stroke-[2.5]" />
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center shadow-md shadow-emerald-500/20 flex-shrink-0">
+                <Trophy className="w-5 h-5 text-white stroke-[2.5]" />
               </div>
-              <span className="font-display font-black text-lg text-white tracking-tight">
-                GOA<span className="text-emerald-400">TOURNAMENT</span>
+              <span className="font-display font-black text-lg text-slate-900 tracking-tight">
+                GOA<span className="text-emerald-600">TOURNAMENT</span>
               </span>
             </div>
-            <p className="text-xs text-slate-400 leading-relaxed max-w-xs">
+            <p className="text-xs text-slate-600 leading-relaxed max-w-xs">
               Discover, register, and manage sports tournaments across Goa.
               Real-time fixtures, live scores, and UPI payments — all in one platform.
             </p>
-            <p className="text-[11px] text-emerald-500/80 font-mono">
+            <p className="text-[11px] text-emerald-700 font-mono font-bold">
               Multi-Sport Arena Platform
             </p>
           </div>
 
           {/* ── Quick Links ── */}
           <div>
-            <h4 className="font-semibold text-white text-xs uppercase tracking-widest mb-4">
+            <h4 className="font-semibold text-slate-900 text-xs uppercase tracking-widest mb-4">
               Quick Links
             </h4>
             <ul className="space-y-2.5 text-xs">
               <li>
-                <Link to="/" className="hover:text-emerald-400 transition-colors flex items-center gap-1.5">
+                <Link to="/" className="hover:text-emerald-600 transition-colors flex items-center gap-1.5">
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/tournaments" className="hover:text-emerald-400 transition-colors">
+                <Link to="/tournaments" className="hover:text-emerald-600 transition-colors">
                   All Tournaments
                 </Link>
               </li>
               <li>
-                <Link to="/tournaments?sport=Football" className="hover:text-emerald-400 transition-colors">
+                <Link to="/tournaments?sport=Football" className="hover:text-emerald-600 transition-colors">
                   Football
                 </Link>
               </li>
               <li>
-                <Link to="/tournaments?sport=Cricket" className="hover:text-emerald-400 transition-colors">
+                <Link to="/tournaments?sport=Cricket" className="hover:text-emerald-600 transition-colors">
                   Cricket
                 </Link>
               </li>
               <li>
-                <Link to="/tournaments?sport=Badminton" className="hover:text-emerald-400 transition-colors">
+                <Link to="/tournaments?sport=Badminton" className="hover:text-emerald-600 transition-colors">
                   Badminton
                 </Link>
               </li>
               <li>
-                <Link to="/tournaments?sport=Kabaddi" className="hover:text-emerald-400 transition-colors">
+                <Link to="/tournaments?sport=Kabaddi" className="hover:text-emerald-600 transition-colors">
                   Kabaddi
                 </Link>
               </li>
               <li>
-                <Link to="/live" className="hover:text-emerald-400 transition-colors flex items-center gap-1">
+                <Link to="/live" className="hover:text-emerald-600 transition-colors flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-rose-500 inline-block" />
                   Live Matches
                 </Link>
@@ -96,25 +96,25 @@ const Footer = () => {
 
           {/* ── Contact ── */}
           <div>
-            <h4 className="font-semibold text-white text-xs uppercase tracking-widest mb-4">
+            <h4 className="font-semibold text-slate-900 text-xs uppercase tracking-widest mb-4">
               Contact Us
             </h4>
             <ul className="space-y-3 text-xs">
               <li>
                 <a
                   href={`mailto:${CONTACT.email}`}
-                  className="flex items-start gap-2.5 hover:text-emerald-400 transition-colors group"
+                  className="flex items-start gap-2.5 hover:text-emerald-600 transition-colors group"
                 >
-                  <Mail className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5 group-hover:text-emerald-400" />
+                  <Mail className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5 group-hover:text-emerald-700" />
                   <span className="break-all">{CONTACT.email}</span>
                 </a>
               </li>
               <li>
                 <a
                   href={`tel:${CONTACT.phone.replace(/\s/g, '')}`}
-                  className="flex items-center gap-2.5 hover:text-emerald-400 transition-colors group"
+                  className="flex items-center gap-2.5 hover:text-emerald-600 transition-colors group"
                 >
-                  <Phone className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 group-hover:text-emerald-400" />
+                  <Phone className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 group-hover:text-emerald-700" />
                   <span>{CONTACT.phone}</span>
                 </a>
               </li>
@@ -123,9 +123,9 @@ const Footer = () => {
                   href={`https://wa.me/${CONTACT.whatsapp.replace(/\D/g, '')}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2.5 hover:text-emerald-400 transition-colors group"
+                  className="flex items-center gap-2.5 hover:text-emerald-600 transition-colors group"
                 >
-                  <MessageCircle className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 group-hover:text-emerald-400" />
+                  <MessageCircle className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 group-hover:text-emerald-700" />
                   <span>WhatsApp Us</span>
                 </a>
               </li>
@@ -134,7 +134,7 @@ const Footer = () => {
 
           {/* ── Social / Account ── */}
           <div>
-            <h4 className="font-semibold text-white text-xs uppercase tracking-widest mb-4">
+            <h4 className="font-semibold text-slate-900 text-xs uppercase tracking-widest mb-4">
               {hasSocial ? 'Follow Us' : 'Your Account'}
             </h4>
 
@@ -143,8 +143,8 @@ const Footer = () => {
                 {SOCIAL.instagram && (
                   <li>
                     <a href={SOCIAL.instagram} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-2.5 hover:text-emerald-400 transition-colors group">
-                      <Instagram className="w-3.5 h-3.5 text-pink-400 group-hover:text-emerald-400" />
+                      className="flex items-center gap-2.5 hover:text-emerald-600 transition-colors group">
+                      <Instagram className="w-3.5 h-3.5 text-pink-600 group-hover:text-emerald-600" />
                       Instagram
                       <ExternalLink className="w-3 h-3 opacity-50" />
                     </a>
@@ -153,8 +153,8 @@ const Footer = () => {
                 {SOCIAL.facebook && (
                   <li>
                     <a href={SOCIAL.facebook} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-2.5 hover:text-emerald-400 transition-colors group">
-                      <Facebook className="w-3.5 h-3.5 text-blue-400 group-hover:text-emerald-400" />
+                      className="flex items-center gap-2.5 hover:text-emerald-600 transition-colors group">
+                      <Facebook className="w-3.5 h-3.5 text-blue-600 group-hover:text-emerald-600" />
                       Facebook
                       <ExternalLink className="w-3 h-3 opacity-50" />
                     </a>
@@ -163,8 +163,8 @@ const Footer = () => {
                 {SOCIAL.youtube && (
                   <li>
                     <a href={SOCIAL.youtube} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-2.5 hover:text-emerald-400 transition-colors group">
-                      <Youtube className="w-3.5 h-3.5 text-rose-400 group-hover:text-emerald-400" />
+                      className="flex items-center gap-2.5 hover:text-emerald-600 transition-colors group">
+                      <Youtube className="w-3.5 h-3.5 text-rose-600 group-hover:text-emerald-600" />
                       YouTube
                       <ExternalLink className="w-3 h-3 opacity-50" />
                     </a>
@@ -172,19 +172,18 @@ const Footer = () => {
                 )}
               </ul>
             ) : (
-              /* Show account links when no social media is configured */
               <ul className="space-y-2.5 text-xs">
                 <li>
-                  <Link to="/login" className="hover:text-emerald-400 transition-colors">Sign In</Link>
+                  <Link to="/login" className="hover:text-emerald-600 transition-colors">Sign In</Link>
                 </li>
                 <li>
-                  <Link to="/register" className="hover:text-emerald-400 transition-colors">Create Account</Link>
+                  <Link to="/register" className="hover:text-emerald-600 transition-colors">Create Account</Link>
                 </li>
                 <li>
-                  <Link to="/player-dashboard" className="hover:text-emerald-400 transition-colors">My Registrations</Link>
+                  <Link to="/player-dashboard" className="hover:text-emerald-600 transition-colors">My Registrations</Link>
                 </li>
                 <li>
-                  <Link to="/profile" className="hover:text-emerald-400 transition-colors">My Profile</Link>
+                  <Link to="/profile" className="hover:text-emerald-600 transition-colors">My Profile</Link>
                 </li>
               </ul>
             )}
@@ -193,9 +192,9 @@ const Footer = () => {
         </div>
 
         {/* ── Bottom bar ── */}
-        <div className="mt-10 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-3">
+        <div className="mt-10 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-3">
           <p>© {new Date().getFullYear()} Goa Tournament. All rights reserved.</p>
-          <p className="text-slate-600 text-center">
+          <p className="text-slate-500 text-center">
             Made for Goa's athletes, teams &amp; organizers.
           </p>
         </div>

@@ -112,37 +112,37 @@ const CreateTournament = () => {
       <div className="flex items-center gap-4">
         <button
           onClick={() => navigate(-1)}
-          className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition-colors"
+          className="p-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="font-display font-black text-3xl text-white">
+          <h1 className="font-display font-black text-3xl text-slate-900">
             Host a New Tournament in Goa
           </h1>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-600">
             Set up registration fees, UPI QR code payment, Aadhaar verification, and tournament format.
           </p>
         </div>
       </div>
 
       {error && (
-        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300 flex items-start gap-2.5">
-          <ShieldAlert className="w-5 h-5 text-rose-400 flex-shrink-0" />
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-start gap-2.5">
+          <ShieldAlert className="w-5 h-5 text-rose-600 flex-shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="p-6 sm:p-8 rounded-3xl glass-panel border border-slate-800 space-y-8">
+      <form onSubmit={handleSubmit} className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-8">
         {/* Section 1: Basic Information */}
         <div className="space-y-4">
-          <h3 className="font-display font-bold text-lg text-emerald-400 border-b border-slate-800 pb-2 flex items-center gap-2">
+          <h3 className="font-display font-bold text-lg text-emerald-700 border-b border-slate-200 pb-2 flex items-center gap-2">
             <Trophy className="w-5 h-5" /> 1. Tournament Overview
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Tournament Title *
               </label>
               <input
@@ -152,19 +152,19 @@ const CreateTournament = () => {
                 placeholder="e.g. Goa Super Cup Football 2026"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:border-emerald-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Sport Discipline *
               </label>
               <select
                 name="sport"
                 value={formData.sport}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:border-emerald-500"
               >
                 {SPORTS_LIST.filter((s) => s !== 'All').map((s) => (
                   <option key={s} value={s}>
@@ -175,14 +175,14 @@ const CreateTournament = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Tournament Format *
               </label>
               <select
                 name="format"
                 value={formData.format}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:border-emerald-500"
               >
                 {TOURNAMENT_FORMATS.map((f) => (
                   <option key={f.value} value={f.value}>
@@ -193,7 +193,7 @@ const CreateTournament = () => {
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Tournament Description
               </label>
               <textarea
@@ -202,7 +202,7 @@ const CreateTournament = () => {
                 placeholder="Describe your tournament, eligible teams, age categories, trophies..."
                 value={formData.description}
                 onChange={handleChange}
-                className="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500"
+                className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:border-emerald-500"
               ></textarea>
             </div>
           </div>
@@ -210,13 +210,13 @@ const CreateTournament = () => {
 
         {/* Section 2: Goa Venue & Timing */}
         <div className="space-y-4">
-          <h3 className="font-display font-bold text-lg text-emerald-400 border-b border-slate-800 pb-2 flex items-center gap-2">
-            <MapPin className="w-5 h-5" /> 2. Venue & Scheduling
+          <h3 className="font-display font-bold text-lg text-emerald-700 border-b border-slate-200 pb-2 flex items-center gap-2">
+            <MapPin className="w-5 h-5" /> 2. Venue &amp; Scheduling
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="sm:col-span-3">
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Exact Map Location *
               </label>
               <LocationPicker 
@@ -226,7 +226,7 @@ const CreateTournament = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Stadium / Arena Name *
               </label>
               <input
@@ -236,12 +236,12 @@ const CreateTournament = () => {
                 placeholder="e.g. Tilak Maidan Stadium / Campal Complex"
                 value={formData.venue}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:border-emerald-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Daily Match Start Time
               </label>
               <input
@@ -250,12 +250,12 @@ const CreateTournament = () => {
                 placeholder="e.g. 09:00 AM"
                 value={formData.startTime}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:border-emerald-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Tournament Start Date *
               </label>
               <input
@@ -264,12 +264,12 @@ const CreateTournament = () => {
                 name="startDate"
                 value={formData.startDate}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:border-emerald-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Tournament End Date *
               </label>
               <input
@@ -278,12 +278,12 @@ const CreateTournament = () => {
                 name="endDate"
                 value={formData.endDate}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:border-emerald-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Registration Deadline
               </label>
               <input
@@ -291,7 +291,7 @@ const CreateTournament = () => {
                 name="registrationDeadline"
                 value={formData.registrationDeadline}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:border-emerald-500"
               />
             </div>
           </div>
@@ -299,13 +299,13 @@ const CreateTournament = () => {
 
         {/* Section 3: Capacity, Rules & Prize */}
         <div className="space-y-4">
-          <h3 className="font-display font-bold text-lg text-emerald-400 border-b border-slate-800 pb-2 flex items-center gap-2">
-            <Users className="w-5 h-5" /> 3. Capacity, Identity & Rules
+          <h3 className="font-display font-bold text-lg text-emerald-700 border-b border-slate-200 pb-2 flex items-center gap-2">
+            <Users className="w-5 h-5" /> 3. Capacity, Identity &amp; Rules
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Max Participating Teams *
               </label>
               <input
@@ -316,12 +316,12 @@ const CreateTournament = () => {
                 name="maxTeams"
                 value={formData.maxTeams}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:border-emerald-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Team Squad Size
               </label>
               <input
@@ -331,7 +331,7 @@ const CreateTournament = () => {
                 name="teamSize"
                 value={formData.teamSize}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:border-emerald-500"
               />
             </div>
 
@@ -340,7 +340,7 @@ const CreateTournament = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Prize Pool Summary Info
               </label>
               <input
@@ -349,18 +349,18 @@ const CreateTournament = () => {
                 placeholder="e.g. 1st: ₹50,000 | 2nd: ₹25,000"
                 value={formData.prizePool}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:border-emerald-500"
               />
             </div>
 
             {/* Aadhaar Verification Toggle */}
-            <div className="sm:col-span-3 p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+            <div className="sm:col-span-3 p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
               <div>
-                <p className="text-white font-bold text-xs flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                <p className="text-slate-900 font-bold text-xs flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-700" />
                   Enable Mandatory Aadhaar / ID Card Verification
                 </p>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-slate-600">
                   Participants must upload an Aadhaar card or government ID document when registering.
                 </p>
               </div>
@@ -373,11 +373,11 @@ const CreateTournament = () => {
                   }))
                 }
                 className={`w-12 h-6 rounded-full transition-colors relative flex items-center px-0.5 ${
-                  formData.requireAadhaarVerification ? 'bg-emerald-500' : 'bg-slate-700'
+                  formData.requireAadhaarVerification ? 'bg-emerald-600' : 'bg-slate-300'
                 }`}
               >
                 <span
-                  className={`w-5 h-5 rounded-full bg-slate-950 transition-transform ${
+                  className={`w-5 h-5 rounded-full bg-white shadow-xs transition-transform ${
                     formData.requireAadhaarVerification ? 'translate-x-6' : 'translate-x-0'
                   }`}
                 ></span>
@@ -385,8 +385,8 @@ const CreateTournament = () => {
             </div>
 
             <div className="sm:col-span-3">
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                Official Rules & Regulations
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                Official Rules &amp; Regulations
               </label>
               <textarea
                 rows="3"
@@ -394,7 +394,7 @@ const CreateTournament = () => {
                 placeholder="List game timing, penalty shootout rules, referee instructions..."
                 value={formData.rules}
                 onChange={handleChange}
-                className="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-emerald-500"
+                className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:border-emerald-500"
               ></textarea>
             </div>
           </div>
@@ -402,13 +402,13 @@ const CreateTournament = () => {
 
         {/* Section 4: UPI Payment & QR Setup */}
         <div className="space-y-4">
-          <h3 className="font-display font-bold text-lg text-emerald-400 border-b border-slate-800 pb-2 flex items-center gap-2">
-            <IndianRupee className="w-5 h-5" /> 4. UPI Payment & Visuals
+          <h3 className="font-display font-bold text-lg text-emerald-700 border-b border-slate-200 pb-2 flex items-center gap-2">
+            <IndianRupee className="w-5 h-5" /> 4. UPI Payment &amp; Visuals
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Registration Fee (₹) * (0 for Free Entry)
               </label>
               <input
@@ -418,12 +418,12 @@ const CreateTournament = () => {
                 name="registrationFee"
                 value={formData.registrationFee}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-mono text-white focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-mono text-slate-900 focus:border-emerald-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Organizer UPI ID (for receiving player fees)
               </label>
               <input
@@ -432,49 +432,49 @@ const CreateTournament = () => {
                 placeholder="e.g. goasports@okaxis"
                 value={formData.upiId}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-mono text-white focus:border-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-mono text-slate-900 placeholder-slate-400 focus:border-emerald-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Upload Custom UPI QR Code Image (Optional)
               </label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => setQrCodeFile(e.target.files[0])}
-                className="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700"
+                className="w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-800 hover:file:bg-slate-200"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 Upload Tournament Banner Image (Optional)
               </label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => setBannerFile(e.target.files[0])}
-                className="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700"
+                className="w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-800 hover:file:bg-slate-200"
               />
             </div>
           </div>
         </div>
 
         {/* Submit Actions */}
-        <div className="flex items-center justify-end gap-4 pt-4 border-t border-slate-800">
+        <div className="flex items-center justify-end gap-4 pt-4 border-t border-slate-200">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="px-5 py-2.5 text-xs font-semibold text-slate-400 hover:text-white rounded-xl"
+            className="px-5 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-xl"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={submitting}
-            className="px-8 py-3.5 rounded-2xl font-display font-bold text-xs uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-xl shadow-emerald-500/25 disabled:opacity-50 transition-all hover:scale-105 active:scale-95"
+            className="px-8 py-3.5 rounded-2xl font-display font-bold text-xs uppercase tracking-wider bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs disabled:opacity-50 transition-all hover:scale-105 active:scale-95"
           >
             {submitting ? 'Creating Tournament...' : 'Publish Tournament & Open Registrations'}
           </button>

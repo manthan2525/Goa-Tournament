@@ -2,20 +2,19 @@ import React, { createContext, useContext, useEffect } from 'react';
 
 const ThemeContext = createContext();
 
-// Dark-mode only — no toggle, no localStorage theme key needed.
+// Permanent Light Mode provider — removes any dark mode remnants and locks theme to light.
 export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.add('dark');
-    root.classList.remove('light');
-    root.setAttribute('data-theme', 'dark');
-    // Remove any stale light-mode theme key left over from a previous session.
-    // We deliberately do NOT touch 'token' or any other auth keys.
+    root.classList.remove('dark');
+    root.classList.add('light');
+    root.setAttribute('data-theme', 'light');
+    // Remove old saved theme preferences from localStorage
     localStorage.removeItem('theme');
   }, []);
 
   return (
-    <ThemeContext.Provider value={{ theme: 'dark', isDark: true }}>
+    <ThemeContext.Provider value={{ theme: 'light', isDark: false }}>
       {children}
     </ThemeContext.Provider>
   );

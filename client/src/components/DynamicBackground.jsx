@@ -70,21 +70,21 @@ const DynamicBackground = () => {
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // 1. Deep base gradient
+      // 1. Light base gradient
       const base = ctx.createLinearGradient(0, 0, width, height);
-      base.addColorStop(0,   '#06090f');
-      base.addColorStop(0.4, '#080d17');
-      base.addColorStop(1,   '#040810');
+      base.addColorStop(0,   '#f8fafc');
+      base.addColorStop(0.4, '#f1f5f9');
+      base.addColorStop(1,   '#f8fafc');
       ctx.fillStyle = base;
       ctx.fillRect(0, 0, width, height);
 
       if (!isReducedMotion) orbT += 0.0025;
 
-      // 2. Three glow orbs
+      // 2. Three subtle light glow orbs
       const orbDefs = [
-        { cx: 0.18, cy: 0.25, r: 0.55, dt: 1.0,  color0: 'rgba(16,185,129,0.22)',  color1: 'rgba(6,9,15,0)' },
-        { cx: 0.82, cy: 0.70, r: 0.60, dt: 0.75, color0: 'rgba(20,184,166,0.18)',  color1: 'rgba(6,9,15,0)' },
-        { cx: 0.50, cy: 0.85, r: 0.50, dt: 1.30, color0: 'rgba(99,102,241,0.13)',  color1: 'rgba(6,9,15,0)' },
+        { cx: 0.18, cy: 0.25, r: 0.55, dt: 1.0,  color0: 'rgba(16,185,129,0.08)',  color1: 'rgba(248,250,252,0)' },
+        { cx: 0.82, cy: 0.70, r: 0.60, dt: 0.75, color0: 'rgba(20,184,166,0.07)',  color1: 'rgba(248,250,252,0)' },
+        { cx: 0.50, cy: 0.85, r: 0.50, dt: 1.30, color0: 'rgba(14,165,233,0.05)',  color1: 'rgba(248,250,252,0)' },
       ];
 
       orbDefs.forEach(({ cx, cy, r, dt, color0, color1 }) => {
@@ -93,14 +93,14 @@ const DynamicBackground = () => {
         const rad = Math.max(width, height) * r;
         const g = ctx.createRadialGradient(ox, oy, 0, ox, oy, rad);
         g.addColorStop(0, color0);
-        g.addColorStop(0.55, color0.replace(/[\d.]+\)$/, '0.04)'));
+        g.addColorStop(0.55, color0.replace(/[\d.]+\)$/, '0.02)'));
         g.addColorStop(1, color1);
         ctx.fillStyle = g;
         ctx.fillRect(0, 0, width, height);
       });
 
       // 3. Grid
-      ctx.strokeStyle = 'rgba(255,255,255,0.032)';
+      ctx.strokeStyle = 'rgba(0,0,0,0.025)';
       ctx.lineWidth = 1;
       const gridSize = isMobile ? 48 : 60;
       for (let x = 0; x < width; x += gridSize) {

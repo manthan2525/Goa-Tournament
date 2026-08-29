@@ -42,33 +42,33 @@ const AdminSidebar = ({ mobileOpen, onClose }) => {
       {/* Mobile Overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-40 lg:hidden"
           onClick={onClose}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-slate-900 border-r border-slate-800 flex flex-col z-50 transition-transform duration-300
+        className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-slate-200 flex flex-col z-50 transition-transform duration-300
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
         {/* Header */}
-        <div className="px-5 py-6 border-b border-slate-800">
+        <div className="px-5 py-6 border-b border-slate-200">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-rose-500/20 border border-rose-500/40 flex items-center justify-center">
-              <ShieldCheck className="w-4.5 h-4.5 text-rose-400" />
+            <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center">
+              <ShieldCheck className="w-4.5 h-4.5 text-emerald-700" />
             </div>
             <div>
-              <p className="font-display font-black text-sm text-white">Admin Panel</p>
+              <p className="font-display font-black text-sm text-slate-900">Admin Panel</p>
               <p className="text-[10px] text-slate-500 font-mono">Goa Tournament</p>
             </div>
           </div>
         </div>
 
         {/* Admin Profile */}
-        <div className="px-4 py-4 border-b border-slate-800/60">
+        <div className="px-4 py-4 border-b border-slate-200">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-rose-500/20 border border-rose-500/40 overflow-hidden flex items-center justify-center text-rose-400 font-bold text-sm">
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 overflow-hidden flex items-center justify-center text-emerald-700 font-bold text-sm">
               {avatarUrl ? (
                 <img src={avatarUrl} alt={user?.name} className="w-full h-full object-cover" />
               ) : (
@@ -76,8 +76,8 @@ const AdminSidebar = ({ mobileOpen, onClose }) => {
               )}
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-bold text-white truncate">{user?.name}</p>
-              <p className="text-[10px] text-rose-400 font-mono font-bold uppercase">ADMIN</p>
+              <p className="text-xs font-bold text-slate-900 truncate">{user?.name}</p>
+              <p className="text-[10px] text-emerald-700 font-mono font-bold uppercase">ADMIN</p>
             </div>
           </div>
         </div>
@@ -92,16 +92,16 @@ const AdminSidebar = ({ mobileOpen, onClose }) => {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group ${
                   isActive
-                    ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`
               }
             >
               {({ isActive }) => (
                 <>
-                  <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-rose-400' : 'text-slate-500 group-hover:text-slate-300'}`} />
+                  <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-emerald-700' : 'text-slate-400 group-hover:text-slate-600'}`} />
                   <span className="flex-1">{label}</span>
-                  {isActive && <ChevronRight className="w-3 h-3 text-rose-400/60" />}
+                  {isActive && <ChevronRight className="w-3 h-3 text-emerald-600" />}
                 </>
               )}
             </NavLink>
@@ -109,12 +109,12 @@ const AdminSidebar = ({ mobileOpen, onClose }) => {
         </nav>
 
         {/* Logout */}
-        <div className="px-3 py-4 border-t border-slate-800">
+        <div className="px-3 py-4 border-t border-slate-200">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all group"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-rose-700 hover:bg-rose-50 transition-all group"
           >
-            <LogOut className="w-4 h-4 text-slate-500 group-hover:text-rose-400" />
+            <LogOut className="w-4 h-4 text-slate-400 group-hover:text-rose-600" />
             Sign out of Admin
           </button>
         </div>
