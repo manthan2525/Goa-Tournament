@@ -285,6 +285,7 @@ const TournamentDetail = () => {
   const isTournamentOwner =
     user && tournament.organizer && (user._id === tournament.organizer._id || user._id === tournament.organizer);
 
+  const statusInfo = STATUS_COLORS[tournament.status] || STATUS_COLORS.REGISTRATION_OPEN;
   const organizerBanner = tournament.bannerImage || tournament.banner;
   const hasOrganizerBanner = Boolean(organizerBanner);
   const sportTheme = getSportTheme(tournament.sport);
