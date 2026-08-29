@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Calendar, Users, Trophy, IndianRupee, ArrowRight, ShieldCheck } from 'lucide-react';
 import { STATUS_COLORS, formatLocation } from '../utils/constants';
+import { getSportImage } from '../utils/sportImages';
 
 const TournamentCard = ({ tournament }) => {
   const statusInfo = STATUS_COLORS[tournament.status] || STATUS_COLORS.REGISTRATION_OPEN;
@@ -10,19 +11,17 @@ const TournamentCard = ({ tournament }) => {
     Math.round(((tournament.registeredTeamsCount || 0) / (tournament.maxTeams || 16)) * 100)
   );
 
-  const fallbackBanner =
-    tournament.bannerImage ||
-    tournament.banner ||
-    'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80';
+  // Home & Listing cards ALWAYS show the sport-specific image, NEVER the organizer's uploaded banner
+  const sportCardImage = getSportImage(tournament.sport);
 
   return (
     <div className="group relative rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 shadow-sm hover:shadow-md card-hover flex flex-col overflow-hidden transition-all text-slate-900 dark:text-white">
-      {/* Banner */}
+      {/* Banner/Header Image: Sport specific image */}
       <div className="relative h-44 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
         <img
-          src={fallbackBanner}
-          alt={`${tournament.name} banner`}
-          className="w-full h-full object-contain"
+          src={sportCardImage}
+          alt={`${tournament.sport} - ${tournament.name}`}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
 
         {/* Top Badges */}

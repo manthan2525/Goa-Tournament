@@ -46,6 +46,7 @@ import {
 import MapPreview from '../components/map/MapPreview';
 import BannerLightbox from '../components/BannerLightbox';
 import { STATUS_COLORS } from '../utils/constants';
+import { getSportImage } from '../utils/sportImages';
 
 const TournamentDetail = () => {
   const { id } = useParams();
@@ -262,9 +263,10 @@ const TournamentDetail = () => {
 
   const statusInfo = STATUS_COLORS[tournament.status] || STATUS_COLORS.REGISTRATION_OPEN;
 
-  const defaultBanner =
-    'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=1600';
-  const bannerImg = tournament.bannerImage || defaultBanner;
+  const bannerImg =
+    tournament.bannerImage ||
+    tournament.banner ||
+    getSportImage(tournament.sport);
 
   const organizerAvatar = tournament.organizer?.profilePhoto || tournament.organizer?.profileImage;
 
