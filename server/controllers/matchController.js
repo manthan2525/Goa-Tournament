@@ -365,6 +365,35 @@ export const createManualMatch = async (req, res, next) => {
       return res.status(400).json({ success: false, message: '⚠️ This fixture already exists for this tournament.' });
     }
 
+    // Validate team group assignment for Group Stage fixtures
+    if (tournament.format === 'GROUP_KNOCKOUT' || req.body.group) {
+      const matchGroup = req.body.group || 'Group A';
+      const groupAssignments = tournament.groupAssignments || [];
+
+      if (groupAssignments.length > 0) {
+        const assignA = groupAssignments.find(
+          (a) => a.teamName.trim().toLowerCase() === nameA.trim().toLowerCase()
+        );
+        const assignB = groupAssignments.find(
+          (a) => a.teamName.trim().toLowerCase() === nameB.trim().toLowerCase()
+        );
+
+        if (assignA && assignA.groupName !== matchGroup) {
+          return res.status(400).json({
+            success: false,
+            message: `⚠️ Invalid fixture. "${nameA}" belongs to ${assignA.groupName} and cannot play a ${matchGroup} fixture.`,
+          });
+        }
+
+        if (assignB && assignB.groupName !== matchGroup) {
+          return res.status(400).json({
+            success: false,
+            message: `⚠️ Invalid fixture. "${nameB}" belongs to ${assignB.groupName} and cannot play a ${matchGroup} fixture.`,
+          });
+        }
+      }
+    }
+
     let mNum = matchNumber;
     if (!mNum) {
       const highestMatch = await Match.findOne({ tournament: tournamentId }).sort({
@@ -376,6 +405,7 @@ export const createManualMatch = async (req, res, next) => {
     const match = await Match.create({
       tournament: tournamentId,
       round: round || 'Quarter Final',
+      group: req.body.group || '',
       matchNumber: mNum,
       teamA: typeof teamA === 'object' ? teamA : { name: teamA || 'TBD' },
       teamB: typeof teamB === 'object' ? teamB : { name: teamB || 'TBD' },

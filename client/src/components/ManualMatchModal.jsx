@@ -41,6 +41,25 @@ const ManualMatchModal = ({
   const [mode, setMode] = useState(editingMatch ? 'single' : 'quick');
 
   // Single match state
+  const isGroupKnockout = tournament?.format === 'GROUP_KNOCKOUT';
+  const groupAssignments = tournament?.groupAssignments || [];
+  const groupNamesList = Array.from(new Set(groupAssignments.map((g) => g.groupName)));
+
+  const [selectedGroup, setSelectedGroup] = useState(
+    editingMatch?.group || (groupNamesList.length > 0 ? groupNamesList[0] : 'Group A')
+  );
+
+  const assignedTeamIdsForSelectedGroup = new Set(
+    groupAssignments
+      .filter((g) => g.groupName === selectedGroup)
+      .map((g) => (g.teamRegistrationId?._id || g.teamRegistrationId)?.toString())
+  );
+
+  const availableTeamsForSingleMatch =
+    isGroupKnockout && groupAssignments.length > 0
+      ? verifiedTeams.filter((t) => assignedTeamIdsForSelectedGroup.has(t._id.toString()))
+      : verifiedTeams;
+
   const [round, setRound] = useState(editingMatch?.round || 'Quarter Final');
   const [matchNumber, setMatchNumber] = useState(editingMatch?.matchNumber || 1);
   const [teamAName, setTeamAName] = useState(editingMatch?.teamA?.name || '');
@@ -181,6 +200,7 @@ const ManualMatchModal = ({
     const payload = {
       tournamentId: tournament._id,
       round,
+      group: isGroupKnockout ? selectedGroup : editingMatch?.group || '',
       matchNumber: Number(matchNumber) || 1,
       teamA: { name: teamAName.trim(), registrationId: teamARegId || null },
       teamB: { name: teamBName.trim(), registrationId: teamBRegId || null },
@@ -630,17 +650,44 @@ const ManualMatchModal = ({
                 </div>
               </div>
 
+              {/* Group Stage Selector (if Group + Knockout) */}
+              {isGroupKnockout && groupNamesList.length > 0 && (
+                <div className="p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/50 space-y-1.5">
+                  <label className="block font-bold text-indigo-700 dark:text-indigo-400">
+                    Group Stage Group *
+                  </label>
+                  <select
+                    value={selectedGroup}
+                    onChange={(e) => {
+                      setSelectedGroup(e.target.value);
+                      setTeamAName('');
+                      setTeamBName('');
+                    }}
+                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-bold"
+                  >
+                    {groupNamesList.map((gName) => (
+                      <option key={gName} value={gName}>
+                        {gName}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">
+                    Team options below are filtered to show only teams assigned to {selectedGroup}.
+                  </p>
+                </div>
+              )}
+
               {/* Team A Selection / Input */}
               <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2">
                 <label className="block font-bold text-emerald-700 dark:text-emerald-400">Team A *</label>
-                {verifiedTeams.length > 0 && (
+                {availableTeamsForSingleMatch.length > 0 && (
                   <select
                     onChange={(e) => handleSelectTeamA(e.target.value)}
                     value={teamAName}
                     className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white mb-1"
                   >
-                    <option value="">-- Select from Confirmed Squads --</option>
-                    {verifiedTeams.map((t) => (
+                    <option value="">-- Select from {isGroupKnockout ? selectedGroup : 'Confirmed Squads'} --</option>
+                    {availableTeamsForSingleMatch.map((t) => (
                       <option key={t._id} value={t.teamName}>
                         {t.teamName} (Capt: {t.captainName})
                       </option>
@@ -660,14 +707,14 @@ const ManualMatchModal = ({
               {/* Team B Selection / Input */}
               <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2">
                 <label className="block font-bold text-teal-700 dark:text-teal-400">Team B *</label>
-                {verifiedTeams.length > 0 && (
+                {availableTeamsForSingleMatch.length > 0 && (
                   <select
                     onChange={(e) => handleSelectTeamB(e.target.value)}
                     value={teamBName}
                     className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white mb-1"
                   >
-                    <option value="">-- Select from Confirmed Squads --</option>
-                    {verifiedTeams
+                    <option value="">-- Select from {isGroupKnockout ? selectedGroup : 'Confirmed Squads'} --</option>
+                    {availableTeamsForSingleMatch
                       .filter((t) => t.teamName.trim().toLowerCase() !== teamAName.trim().toLowerCase())
                       .map((t) => (
                         <option key={t._id} value={t.teamName}>

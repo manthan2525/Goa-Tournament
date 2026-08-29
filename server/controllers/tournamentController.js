@@ -644,18 +644,19 @@ export const startTournament = async (req, res, next) => {
             success: false,
             message: `Minimum 4 verified teams required for Group Stage (Current: ${verifiedRegistrations.length}).`,
           });
-        }
-
-        let groupFixtures = [];
-        if (tournament.groupAssignmentMode === 'MANUAL' && tournament.groupAssignments && tournament.groupAssignments.length > 0) {
-          // Check manual group assignments
+            let groupFixtures = [];
+        if (tournament.groupAssignments && tournament.groupAssignments.length > 0) {
+          // Check if all verified teams are assigned to a group
           const assignedTeamIds = new Set(tournament.groupAssignments.map((a) => a.teamRegistrationId?.toString()));
-          if (assignedTeamIds.size < 2) {
+          const unassignedTeams = verifiedRegistrations.filter((r) => !assignedTeamIds.has(r._id.toString()));
+
+          if (unassignedTeams.length > 0) {
             return res.status(400).json({
               success: false,
-              message: '⚠️ Please assign teams to groups before generating fixtures, or switch to Automatic mode.',
+              message: `⚠️ Some teams have not been assigned to a group (${unassignedTeams.length} team(s) unassigned: ${unassignedTeams.map((t) => t.teamName).join(', ')}). Please assign all teams in Manage Groups before generating Group Stage fixtures.`,
             });
           }
+
           groupFixtures = generateGroupStageFromManualAssignments(
             tournament._id,
             tournament.groupAssignments,
@@ -663,7 +664,7 @@ export const startTournament = async (req, res, next) => {
             tournament.startDate
           );
         } else {
-          // Automatic mode
+          // Automatic mode if no saved group assignments exist yet
           const numGroups = tournament.numberOfGroups || (verifiedRegistrations.length >= 8 ? 4 : 2);
           groupFixtures = generateGroupStageFixtures(tournament._id, verifiedRegistrations, tournament.startDate, numGroups);
 
@@ -685,6 +686,7 @@ export const startTournament = async (req, res, next) => {
           }));
 
           tournament.groupAssignments = autoAssignments;
+          await tournament.save();
         }
 
         if (groupFixtures.length === 0) {

@@ -16,10 +16,10 @@ const FixtureBracket = ({ matches = [], onMatchClick, isOrganizer = false }) => 
     );
   }
 
-  // Group matches by roundIndex or round name
+  // Group matches by group name (for Group Stage) or round name (for Knockout)
   const roundMap = {};
   matches.forEach((m) => {
-    const roundKey = m.round || `Round ${m.roundIndex || 1}`;
+    const roundKey = m.group ? m.group : (m.round || `Round ${m.roundIndex || 1}`);
     if (!roundMap[roundKey]) {
       roundMap[roundKey] = [];
     }
