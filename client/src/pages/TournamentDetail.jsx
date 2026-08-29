@@ -508,7 +508,7 @@ const TournamentDetail = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            {tournament.status === 'REGISTRATION_OPEN' && (
+            {(tournament.status === 'REGISTRATION_OPEN' || tournament.status === 'UPCOMING') && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
