@@ -41,7 +41,11 @@
   --shadow-color: rgba(0, 0, 0, 0.4);
 }
 
-/* ─── Global box-sizing & Responsive Images ─── */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -49,6 +53,11 @@
 img {
   max-width: 100%;
   height: auto;
+}
+
+.notification-content {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* ─── Standard Responsive Application Container ─── */

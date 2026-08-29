@@ -224,123 +224,141 @@ const NotificationDropdown = () => {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-96 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-          {/* Header */}
-          <div className="p-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900/90">
-            <div className="flex items-center gap-2">
-              <span className="font-display font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-white">
-                Notifications
-              </span>
-              {unreadCount > 0 && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30">
-                  {unreadCount} New
-                </span>
-              )}
-            </div>
-            {unreadCount > 0 && (
-              <button
-                onClick={handleMarkAllAsRead}
-                className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 transition-colors"
-              >
-                <CheckCheck className="w-3.5 h-3.5" /> Mark All Read
-              </button>
-            )}
-          </div>
+        <>
+          {/* Mobile Backdrop Overlay */}
+          <div
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-[9998] sm:hidden"
+            onClick={() => setIsOpen(false)}
+          />
 
-          {/* Body List */}
-          <div className="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60">
-            {loading ? (
-              <div className="py-8 text-center text-xs text-slate-500 dark:text-slate-400 space-y-2">
-                <div className="w-5 h-5 border-2 border-emerald-600 dark:border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto" />
-                <p>Loading notifications...</p>
+          {/* Notification Panel */}
+          <div className="fixed top-[70px] left-3 right-3 sm:absolute sm:top-auto sm:left-auto sm:right-0 sm:mt-2 w-auto sm:w-96 sm:max-w-[calc(100vw-24px)] rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden z-[9999] animate-in fade-in slide-in-from-top-2 duration-150 max-h-[calc(100dvh-90px)] sm:max-h-[520px] flex flex-col">
+            {/* Header */}
+            <div className="p-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900/90 flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="font-display font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-white">
+                  Notifications
+                </span>
+                {unreadCount > 0 && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30">
+                    {unreadCount} New
+                  </span>
+                )}
               </div>
-            ) : error ? (
-              <div className="py-6 px-4 text-center text-xs text-rose-600 dark:text-rose-400 space-y-2">
-                <AlertCircle className="w-5 h-5 mx-auto" />
-                <p>{error}</p>
+              <div className="flex items-center gap-2">
+                {unreadCount > 0 && (
+                  <button
+                    onClick={handleMarkAllAsRead}
+                    className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 transition-colors"
+                  >
+                    <CheckCheck className="w-3.5 h-3.5" /> Mark All Read
+                  </button>
+                )}
                 <button
-                  onClick={fetchNotifications}
-                  className="px-3 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-900 dark:text-white rounded-lg font-semibold text-[10px]"
+                  onClick={() => setIsOpen(false)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white sm:hidden"
+                  aria-label="Close Notifications"
                 >
-                  Try Again
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-            ) : notifications.length > 0 ? (
-              notifications.map((n) => (
-                <div
-                  key={n._id}
-                  onClick={() => handleNotificationClick(n)}
-                  className={`p-3 sm:p-3.5 transition-all flex items-start gap-3 cursor-pointer group ${
-                    !n.isRead
-                      ? 'bg-slate-50 dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800/90 border-l-2 border-emerald-600 dark:border-emerald-400'
-                      : 'bg-white dark:bg-slate-950/40 hover:bg-slate-50 dark:hover:bg-slate-900/60'
-                  }`}
-                >
-                  <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 flex-shrink-0 mt-0.5 border border-slate-200 dark:border-slate-700">
-                    {getIcon(n.type)}
-                  </div>
+            </div>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-1 mb-0.5">
-                      <p
-                        className={`text-xs font-bold truncate ${
-                          !n.isRead ? 'text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'
-                        }`}
-                      >
-                        {n.title}
-                      </p>
-                      <span className="text-[10px] text-slate-400 dark:text-slate-500 whitespace-nowrap">
-                        {new Date(n.createdAt).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
+            {/* Body List */}
+            <div className="max-h-80 sm:max-h-96 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60 flex-1">
+              {loading ? (
+                <div className="py-8 text-center text-xs text-slate-500 dark:text-slate-400 space-y-2">
+                  <div className="w-5 h-5 border-2 border-emerald-600 dark:border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto" />
+                  <p>Loading notifications...</p>
+                </div>
+              ) : error ? (
+                <div className="py-6 px-4 text-center text-xs text-rose-600 dark:text-rose-400 space-y-2">
+                  <AlertCircle className="w-5 h-5 mx-auto" />
+                  <p>{error}</p>
+                  <button
+                    onClick={fetchNotifications}
+                    className="px-3 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-900 dark:text-white rounded-lg font-semibold text-[10px]"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              ) : notifications.length > 0 ? (
+                notifications.map((n) => (
+                  <div
+                    key={n._id}
+                    onClick={() => handleNotificationClick(n)}
+                    className={`p-3 sm:p-3.5 transition-all flex items-start gap-3 cursor-pointer group ${
+                      !n.isRead
+                        ? 'bg-slate-50 dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800/90 border-l-2 border-emerald-600 dark:border-emerald-400'
+                        : 'bg-white dark:bg-slate-950/40 hover:bg-slate-50 dark:hover:bg-slate-900/60'
+                    }`}
+                  >
+                    <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 flex-shrink-0 mt-0.5 border border-slate-200 dark:border-slate-700">
+                      {getIcon(n.type)}
                     </div>
 
-                    <p className="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
-                      {n.message}
-                    </p>
+                    <div className="flex-1 min-w-0 notification-content">
+                      <div className="flex items-center justify-between gap-1 mb-0.5">
+                        <p
+                          className={`text-xs font-bold truncate ${
+                            !n.isRead ? 'text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'
+                          }`}
+                        >
+                          {n.title}
+                        </p>
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 whitespace-nowrap flex-shrink-0 ml-1">
+                          {new Date(n.createdAt).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </div>
 
-                    {n.link && (
-                      <span className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 group-hover:underline">
-                        <span>View Details</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </span>
-                    )}
-                  </div>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed break-words">
+                        {n.message}
+                      </p>
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    {!n.isRead && (
+                      {n.link && (
+                        <span className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 group-hover:underline">
+                          <span>View Details</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      {!n.isRead && (
+                        <button
+                          onClick={(e) => handleMarkAsRead(n._id, e)}
+                          className="p-1.5 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                          title="Mark as read"
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                       <button
-                        onClick={(e) => handleMarkAsRead(n._id, e)}
-                        className="p-1.5 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        title="Mark as read"
+                        onClick={(e) => handleDelete(n._id, e)}
+                        className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                        title="Delete notification"
                       >
-                        <Check className="w-3.5 h-3.5" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
-                    )}
-                    <button
-                      onClick={(e) => handleDelete(n._id, e)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                      title="Delete notification"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="py-12 px-4 text-center text-slate-400 space-y-2">
+                  <Bell className="w-8 h-8 mx-auto opacity-30 text-slate-400" />
+                  <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">No notifications yet</p>
+                  <p className="text-[10px] text-slate-500">
+                    Updates on your registrations, payments, and tournaments will appear here.
+                  </p>
                 </div>
-              ))
-            ) : (
-              <div className="py-12 px-4 text-center text-slate-400 space-y-2">
-                <Bell className="w-8 h-8 mx-auto opacity-30 text-slate-400" />
-                <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">No notifications yet</p>
-                <p className="text-[10px] text-slate-500">
-                  Updates on your registrations, payments, and tournaments will appear here.
-                </p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* Notification Details Modal */}
