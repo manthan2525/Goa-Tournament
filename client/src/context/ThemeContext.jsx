@@ -1,20 +1,32 @@
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const ThemeContext = createContext();
 
-// Permanent Light Mode provider — removes any dark mode remnants and locks theme to light.
 export const ThemeProvider = ({ children }) => {
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'light';
+  });
+
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove('dark');
-    root.classList.add('light');
-    root.setAttribute('data-theme', 'light');
-    // Remove old saved theme preferences from localStorage
-    localStorage.removeItem('theme');
-  }, []);
+    if (theme === 'dark') {
+      root.classList.remove('light');
+      root.classList.add('dark');
+      root.setAttribute('data-theme', 'dark');
+    } else {
+      root.classList.remove('dark');
+      root.classList.add('light');
+      root.setAttribute('data-theme', 'light');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   return (
-    <ThemeContext.Provider value={{ theme: 'light', isDark: false }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, isDark: theme === 'dark', setTheme }}>
       {children}
     </ThemeContext.Provider>
   );

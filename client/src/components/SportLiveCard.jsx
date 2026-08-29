@@ -21,41 +21,41 @@ const FootballScore = ({ match }) => {
   const goals = fd.goals || [];
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 bg-slate-50 rounded-2xl p-4 border border-slate-200">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
         <div className="text-center space-y-1 min-w-0">
-          <p className="font-display font-bold text-sm sm:text-base text-slate-900 break-words leading-tight">{match.teamA?.name || "Team A"}</p>
-          <span className="text-[10px] uppercase font-mono text-slate-500 font-bold">Home</span>
+          <p className="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white break-words leading-tight">{match.teamA?.name || "Team A"}</p>
+          <span className="text-[10px] uppercase font-mono text-slate-500 dark:text-slate-400 font-bold">Home</span>
         </div>
         <div className="text-center flex-shrink-0 px-2">
-          <div className="text-2xl sm:text-4xl font-black font-mono text-emerald-700 tracking-wider whitespace-nowrap">
+          <div className="text-2xl sm:text-4xl font-black font-mono text-emerald-600 dark:text-emerald-400 tracking-wider whitespace-nowrap">
             {match.scoreA?.current ?? 0}<span className="text-slate-400 mx-1">-</span>{match.scoreB?.current ?? 0}
           </div>
           {fd.minute != null && (
-            <div className="mt-1 text-xs font-mono text-rose-600 font-bold">
-              {fd.minute}&apos;{fd.half && <span className="ml-1 text-slate-500 font-normal">{fd.half === 1 ? "1st Half" : "2nd Half"}</span>}
+            <div className="mt-1 text-xs font-mono text-rose-600 dark:text-rose-400 font-bold">
+              {fd.minute}&apos;{fd.half && <span className="ml-1 text-slate-500 dark:text-slate-400 font-normal">{fd.half === 1 ? "1st Half" : "2nd Half"}</span>}
             </div>
           )}
-          <span className="text-[10px] text-rose-600 uppercase font-bold tracking-widest block mt-1 animate-pulse">IN PROGRESS</span>
+          <span className="text-[10px] text-rose-600 dark:text-rose-400 uppercase font-bold tracking-widest block mt-1 animate-pulse">IN PROGRESS</span>
         </div>
         <div className="text-center space-y-1 min-w-0">
-          <p className="font-display font-bold text-sm sm:text-base text-slate-900 break-words leading-tight">{match.teamB?.name || "Team B"}</p>
-          <span className="text-[10px] uppercase font-mono text-slate-500 font-bold">Away</span>
+          <p className="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white break-words leading-tight">{match.teamB?.name || "Team B"}</p>
+          <span className="text-[10px] uppercase font-mono text-slate-500 dark:text-slate-400 font-bold">Away</span>
         </div>
       </div>
       {goals.length > 0 && (
         <div className="space-y-1.5 px-1">
           {goals.map((g, i) => (
-            <div key={i} className="flex items-center gap-2 text-xs text-slate-700">
+            <div key={i} className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
               <span>⚽</span>
-              <span className="font-mono text-emerald-700 font-bold flex-shrink-0">{g.minute}&apos;</span>
+              <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold flex-shrink-0">{g.minute}&apos;</span>
               <span className="font-semibold truncate">{g.team}</span>
-              {g.player && <span className="text-slate-500 truncate">({g.player})</span>}
+              {g.player && <span className="text-slate-500 dark:text-slate-400 truncate">({g.player})</span>}
             </div>
           ))}
         </div>
       )}
       {((fd.yellowCards?.length ?? 0) > 0 || (fd.redCards?.length ?? 0) > 0) && (
-        <div className="flex items-center gap-3 text-xs text-slate-600 px-1 font-semibold">
+        <div className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-400 px-1 font-semibold">
           {fd.yellowCards?.length > 0 && <span className="flex items-center gap-1"><span className="w-3 h-4 rounded-sm bg-amber-400 inline-block shadow-xs" />{fd.yellowCards.length}</span>}
           {fd.redCards?.length > 0 && <span className="flex items-center gap-1"><span className="w-3 h-4 rounded-sm bg-rose-500 inline-block shadow-xs" />{fd.redCards.length}</span>}
         </div>
@@ -75,32 +75,32 @@ const CricketScore = ({ match }) => {
   const battingName = battingTeam === 1 ? (match.teamA?.name || "Team A") : (match.teamB?.name || "Team B");
   const fieldingName = battingTeam === 1 ? (match.teamB?.name || "Team B") : (match.teamA?.name || "Team A");
   return (
-    <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-4">
+    <div className="bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="font-display font-bold text-sm sm:text-base text-slate-900 truncate">{battingName}</p>
-          <span className="text-[10px] uppercase font-mono text-emerald-700 font-bold">Batting</span>
+          <p className="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white truncate">{battingName}</p>
+          <span className="text-[10px] uppercase font-mono text-emerald-600 dark:text-emerald-400 font-bold">Batting</span>
         </div>
         <div className="text-right flex-shrink-0">
-          <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-700">{runs}/{wickets}</div>
-          <div className="text-xs font-mono text-slate-500">{overs} Overs</div>
+          <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-600 dark:text-emerald-400">{runs}/{wickets}</div>
+          <div className="text-xs font-mono text-slate-500 dark:text-slate-400">{overs} Overs</div>
         </div>
       </div>
-      <div className="border-t border-slate-200 pt-3 flex items-start justify-between gap-3">
+      <div className="border-t border-slate-200 dark:border-slate-700 pt-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="font-display font-bold text-sm sm:text-base text-slate-900 truncate">{fieldingName}</p>
-          <span className="text-[10px] uppercase font-mono text-slate-500 font-bold">Bowling</span>
+          <p className="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white truncate">{fieldingName}</p>
+          <span className="text-[10px] uppercase font-mono text-slate-500 dark:text-slate-400 font-bold">Bowling</span>
         </div>
         {target != null && (
           <div className="text-right flex-shrink-0">
-            <div className="text-sm font-bold text-amber-700">Target: {target}</div>
-            {innings === 2 && <div className="text-[10px] text-slate-500">Need {Math.max(0, target - runs)} from {Math.max(0, 10 - wickets)} wkts</div>}
+            <div className="text-sm font-bold text-amber-600 dark:text-amber-400">Target: {target}</div>
+            {innings === 2 && <div className="text-[10px] text-slate-500 dark:text-slate-400">Need {Math.max(0, target - runs)} from {Math.max(0, 10 - wickets)} wkts</div>}
           </div>
         )}
       </div>
-      <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 border-t border-slate-200 pt-2">
+      <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-700 pt-2">
         <span className="font-semibold">{innings === 1 ? "1st Innings" : "2nd Innings"}</span>
-        <span className="text-rose-600 font-bold animate-pulse uppercase tracking-wider">Live</span>
+        <span className="text-rose-600 dark:text-rose-400 font-bold animate-pulse uppercase tracking-wider">Live</span>
       </div>
     </div>
   );
@@ -113,53 +113,53 @@ const BadmintonScore = ({ match }) => {
   const pointA = bd.pointA ?? 0;
   const pointB = bd.pointB ?? 0;
   return (
-    <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-3">
+    <div className="bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 space-y-3">
       {sets.length > 0 && (
-        <div className="grid grid-cols-[1fr_auto] items-center gap-2 pb-2 border-b border-slate-200">
-          <span className="text-[10px] uppercase font-mono text-slate-500 font-bold">Player / Team</span>
+        <div className="grid grid-cols-[1fr_auto] items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
+          <span className="text-[10px] uppercase font-mono text-slate-500 dark:text-slate-400 font-bold">Player / Team</span>
           <div className="flex items-center gap-2">
-            {sets.map((_, i) => <span key={i} className="w-8 text-center text-[10px] uppercase font-mono text-slate-500 font-bold">S{i+1}</span>)}
-            <span className="w-10 text-center text-[10px] uppercase font-mono text-emerald-700 font-bold">Now</span>
+            {sets.map((_, i) => <span key={i} className="w-8 text-center text-[10px] uppercase font-mono text-slate-500 dark:text-slate-400 font-bold">S{i+1}</span>)}
+            <span className="w-10 text-center text-[10px] uppercase font-mono text-emerald-600 dark:text-emerald-400 font-bold">Now</span>
           </div>
         </div>
       )}
       <div className="grid grid-cols-[1fr_auto] items-center gap-2">
-        <p className="font-display font-bold text-sm text-slate-900 truncate">{match.teamA?.name || "Player A"}</p>
+        <p className="font-display font-bold text-sm text-slate-900 dark:text-white truncate">{match.teamA?.name || "Player A"}</p>
         <div className="flex items-center gap-2 font-mono">
-          {sets.map((s, i) => <span key={i} className={`w-8 text-center text-sm font-bold ${s[0] > s[1] ? "text-emerald-700" : "text-slate-500"}`}>{s[0]}</span>)}
-          <span className="w-10 text-center text-base font-black text-emerald-700">{pointA}</span>
+          {sets.map((s, i) => <span key={i} className={`w-8 text-center text-sm font-bold ${s[0] > s[1] ? "text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"}`}>{s[0]}</span>)}
+          <span className="w-10 text-center text-base font-black text-emerald-600 dark:text-emerald-400">{pointA}</span>
         </div>
       </div>
       <div className="grid grid-cols-[1fr_auto] items-center gap-2">
-        <p className="font-display font-bold text-sm text-slate-900 truncate">{match.teamB?.name || "Player B"}</p>
+        <p className="font-display font-bold text-sm text-slate-900 dark:text-white truncate">{match.teamB?.name || "Player B"}</p>
         <div className="flex items-center gap-2 font-mono">
-          {sets.map((s, i) => <span key={i} className={`w-8 text-center text-sm font-bold ${s[1] > s[0] ? "text-emerald-700" : "text-slate-500"}`}>{s[1]}</span>)}
-          <span className="w-10 text-center text-base font-black text-teal-700">{pointB}</span>
+          {sets.map((s, i) => <span key={i} className={`w-8 text-center text-sm font-bold ${s[1] > s[0] ? "text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"}`}>{s[1]}</span>)}
+          <span className="w-10 text-center text-base font-black text-teal-600 dark:text-teal-400">{pointB}</span>
         </div>
       </div>
-      <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 border-t border-slate-200 pt-2">
+      <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-700 pt-2">
         <span className="font-semibold">Set {currentSet} — {pointA} : {pointB}</span>
-        <span className="text-rose-600 font-bold animate-pulse uppercase tracking-wider">Live</span>
+        <span className="text-rose-600 dark:text-rose-400 font-bold animate-pulse uppercase tracking-wider">Live</span>
       </div>
     </div>
   );
 };
 
 const GenericScore = ({ match }) => (
-  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 bg-slate-50 rounded-2xl p-4 border border-slate-200">
+  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
     <div className="text-center space-y-1 min-w-0">
-      <p className="font-display font-bold text-sm sm:text-base text-slate-900 break-words leading-tight">{match.teamA?.name || "Team A"}</p>
-      <span className="text-[10px] uppercase font-mono text-slate-500 font-bold">Team A</span>
+      <p className="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white break-words leading-tight">{match.teamA?.name || "Team A"}</p>
+      <span className="text-[10px] uppercase font-mono text-slate-500 dark:text-slate-400 font-bold">Team A</span>
     </div>
     <div className="text-center flex-shrink-0 px-2">
-      <div className="text-2xl sm:text-4xl font-black font-mono text-emerald-700 tracking-wider whitespace-nowrap">
+      <div className="text-2xl sm:text-4xl font-black font-mono text-emerald-600 dark:text-emerald-400 tracking-wider whitespace-nowrap">
         {match.scoreA?.display || match.scoreA?.current || 0}<span className="text-slate-400 mx-1">:</span>{match.scoreB?.display || match.scoreB?.current || 0}
       </div>
-      <span className="text-[10px] text-rose-600 uppercase font-bold tracking-widest block mt-1 animate-pulse">IN PROGRESS</span>
+      <span className="text-[10px] text-rose-600 dark:text-rose-400 uppercase font-bold tracking-widest block mt-1 animate-pulse">IN PROGRESS</span>
     </div>
     <div className="text-center space-y-1 min-w-0">
-      <p className="font-display font-bold text-sm sm:text-base text-slate-900 break-words leading-tight">{match.teamB?.name || "Team B"}</p>
-      <span className="text-[10px] uppercase font-mono text-slate-500 font-bold">Team B</span>
+      <p className="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white break-words leading-tight">{match.teamB?.name || "Team B"}</p>
+      <span className="text-[10px] uppercase font-mono text-slate-500 dark:text-slate-400 font-bold">Team B</span>
     </div>
   </div>
 );
@@ -176,21 +176,21 @@ const SportLiveCard = ({ match }) => {
     }
   };
   return (
-    <div className="relative rounded-3xl bg-white border border-rose-200 p-5 sm:p-7 space-y-5 shadow-sm overflow-hidden">
+    <div className="relative rounded-3xl bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/50 p-5 sm:p-7 space-y-5 shadow-sm overflow-hidden text-slate-900 dark:text-white">
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 text-emerald-700 border border-emerald-200">{meta.emoji} {meta.label}</span>
-          <span className="text-xs font-mono font-semibold text-slate-600 truncate">{match.round}</span>
+          <span className="px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50">{meta.emoji} {meta.label}</span>
+          <span className="text-xs font-mono font-semibold text-slate-600 dark:text-slate-400 truncate">{match.round}</span>
         </div>
-        <div className="flex items-center gap-1.5 text-xs font-black text-rose-600 uppercase tracking-widest font-mono flex-shrink-0">
+        <div className="flex items-center gap-1.5 text-xs font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest font-mono flex-shrink-0">
           <span className="w-2 h-2 rounded-full bg-rose-500 live-indicator" />
           LIVE NOW
         </div>
       </div>
       <div>
-        <h3 className="font-display font-bold text-base sm:text-lg text-slate-900 truncate">{match.tournament?.name}</h3>
-        <div className="flex items-center gap-1.5 text-xs text-slate-600 mt-1 flex-wrap">
-          <MapPin className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+        <h3 className="font-display font-bold text-base sm:text-lg text-slate-900 dark:text-white truncate">{match.tournament?.name}</h3>
+        <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 mt-1 flex-wrap">
+          <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
           <span className="truncate">
             {match.tournament?.venue}{match.tournament?.location ? `, ${formatLocation(match.tournament.location)}` : ""}{match.venueCourt ? ` \u2022 ${match.venueCourt}` : ""}
           </span>
@@ -198,13 +198,13 @@ const SportLiveCard = ({ match }) => {
       </div>
       {renderScore()}
       {match.summary && (
-        <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-slate-700 italic flex items-center gap-2">
-          <Zap className="w-4 h-4 text-amber-600 flex-shrink-0" />
+        <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 text-xs text-slate-700 dark:text-slate-300 italic flex items-center gap-2">
+          <Zap className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
           <span className="line-clamp-2">{match.summary}</span>
         </div>
       )}
       <div className="pt-1 flex items-center justify-end">
-        <Link to={`/tournaments/${match.tournament?._id || match.tournament}`} className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700 group">
+        <Link to={`/tournaments/${match.tournament?._id || match.tournament}`} className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 group">
           <span>Full Bracket &amp; Standings</span>
           <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
         </Link>

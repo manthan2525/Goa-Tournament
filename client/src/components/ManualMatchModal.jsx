@@ -173,7 +173,6 @@ const ManualMatchModal = ({
       return;
     }
 
-    // STRICT VALIDATION: Same team cannot play against itself
     if (teamAName.trim().toLowerCase() === teamBName.trim().toLowerCase()) {
       setError('Team A and Team B cannot be the same team. Please select two different teams.');
       return;
@@ -227,14 +226,13 @@ const ManualMatchModal = ({
     try {
       setSubmitting(true);
 
-      // Validate all pairs
       const validMatches = [];
       for (let i = 0; i < batchPairs.length; i++) {
         const pair = batchPairs[i];
         const tA = pair.teamA.trim();
         const tB = pair.teamB.trim();
 
-        if (!tA && !tB) continue; // Skip completely empty rows
+        if (!tA && !tB) continue;
 
         if (!tA || !tB) {
           setError(`Match #${i + 1}: Please provide both Team A and Team B names.`);
@@ -242,7 +240,6 @@ const ManualMatchModal = ({
           return;
         }
 
-        // STRICT VALIDATION: Same team cannot play against itself
         if (tA.toLowerCase() === tB.toLowerCase()) {
           setError(`Match #${i + 1}: Team A and Team B cannot be the same team ('${tA}'). Please select different teams.`);
           setSubmitting(false);
@@ -278,12 +275,12 @@ const ManualMatchModal = ({
       });
 
       if (res.data.success) {
-        onSuccess(null, false, true); // true = batch created
+        onSuccess(null, false, true);
         onClose();
       }
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Failed to create batch fixtures.');
-    } finally {
+    } font-mono {
       setSubmitting(false);
     }
   };
@@ -292,7 +289,6 @@ const ManualMatchModal = ({
     e.preventDefault();
     setError('');
 
-    // If tournament has already started, show warning modal first
     if (isTournamentStarted(tournament)) {
       setWarningConfig({
         title: '⚠️ Tournament Already Started',
@@ -338,39 +334,39 @@ const ManualMatchModal = ({
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-md overflow-y-auto">
-        <div className={`relative w-full ${mode === 'quick' ? 'max-w-3xl' : 'max-w-lg'} flex flex-col my-auto rounded-2xl bg-white border border-slate-200 shadow-2xl p-4 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto transition-all`}>
+        <div className={`relative w-full ${mode === 'quick' ? 'max-w-3xl' : 'max-w-lg'} flex flex-col my-auto rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-4 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto transition-all text-slate-900 dark:text-white`}>
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-200 pb-3 flex-shrink-0">
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 flex-shrink-0">
             <div>
-              <h3 className="font-display font-bold text-lg text-slate-900 flex items-center gap-2">
+              <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
                 {editingMatch ? 'Edit Fixture Match' : 'Add Manual Tournament Fixtures'}
               </h3>
-              <p className="text-xs text-emerald-700 font-bold truncate max-w-[240px] sm:max-w-md">
+              <p className="text-xs text-emerald-700 dark:text-emerald-400 font-bold truncate max-w-[240px] sm:max-w-md">
                 {tournament.name}
               </p>
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Mode Switcher Tabs (Only when creating new matches) */}
+          {/* Mode Switcher Tabs */}
           {!editingMatch && (
-            <div className="grid grid-cols-2 gap-2 p-1.5 bg-slate-100 rounded-xl border border-slate-200 flex-shrink-0">
+            <div className="grid grid-cols-2 gap-2 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex-shrink-0">
               <button
                 type="button"
                 onClick={() => setMode('quick')}
                 className={`py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                   mode === 'quick'
                     ? 'bg-emerald-600 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <Zap className="w-4 h-4 fill-current" />
-                <span>⚡ Quick Round Builder (Round of 16 / QF)</span>
+                <span>⚡ Quick Round Builder</span>
               </button>
 
               <button
@@ -379,7 +375,7 @@ const ManualMatchModal = ({
                 className={`py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                   mode === 'single'
                     ? 'bg-emerald-600 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <Users className="w-4 h-4" />
@@ -389,28 +385,26 @@ const ManualMatchModal = ({
           )}
 
           {error && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300 flex items-start gap-2 flex-shrink-0">
-              <ShieldAlert className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
+            <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/50 text-xs text-rose-700 dark:text-rose-400 flex items-start gap-2 flex-shrink-0">
+              <ShieldAlert className="w-4 h-4 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
 
-          {/* MODE 1: QUICK ROUND BUILDER (ROUND OF 16, QF, SF, etc.) */}
+          {/* MODE 1: QUICK ROUND BUILDER */}
           {mode === 'quick' && !editingMatch && (
             <form onSubmit={handleBatchSubmit} className="space-y-4 text-xs">
-              {/* Preset Selection */}
-              <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-3">
                 <div className="flex items-center justify-between flex-wrap gap-2">
-                  <label className="font-bold text-white flex items-center gap-1.5 text-xs">
-                    <Sparkles className="w-4 h-4 text-emerald-400" />
+                  <label className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5 text-xs">
+                    <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                     Select Round Format &amp; Pairings
                   </label>
                   {verifiedTeams.length > 0 && (
                     <button
                       type="button"
                       onClick={handleAutoPairSquads}
-                      className="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 text-[11px] font-bold flex items-center gap-1 transition-colors"
-                      title="Automatically pair registered squads into matches"
+                      className="px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50 text-[11px] font-bold flex items-center gap-1 transition-colors"
                     >
                       <Sparkles className="w-3.5 h-3.5" />
                       Auto-Pair Confirmed Squads ({verifiedTeams.length} Teams)
@@ -426,8 +420,8 @@ const ManualMatchModal = ({
                       onClick={() => setSelectedPreset(preset.value)}
                       className={`p-2 rounded-xl border text-center transition-all ${
                         selectedPreset === preset.value
-                          ? 'bg-emerald-500/15 border-emerald-500 text-emerald-400 font-bold'
-                          : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                          ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-400 font-bold'
+                          : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                       }`}
                     >
                       <p className="font-bold text-xs truncate">{preset.value}</p>
@@ -437,40 +431,40 @@ const ManualMatchModal = ({
                 </div>
               </div>
 
-              {/* Global Defaults Bar (Date, Venue, Time) */}
-              <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2">
-                <p className="font-semibold text-slate-300 text-[11px] uppercase tracking-wider">
+              {/* Global Defaults Bar */}
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+                <p className="font-semibold text-slate-700 dark:text-slate-300 text-[11px] uppercase tracking-wider">
                   Default Match Schedule (Applies to all pairs)
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <div>
-                    <label className="block text-[10px] text-slate-400 mb-0.5">Date</label>
+                    <label className="block text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Date</label>
                     <input
                       type="text"
                       placeholder="e.g. 28 Aug 2026"
                       value={batchDate}
                       onChange={(e) => handleUpdateBatchDefaults(e.target.value, batchVenue, batchStartTime)}
-                      className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs"
+                      className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] text-slate-400 mb-0.5">Venue / Pitch</label>
+                    <label className="block text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Venue / Pitch</label>
                     <input
                       type="text"
                       placeholder="e.g. Panaji Turf"
                       value={batchVenue}
                       onChange={(e) => handleUpdateBatchDefaults(batchDate, e.target.value, batchStartTime)}
-                      className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs"
+                      className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] text-slate-400 mb-0.5">Start Time</label>
+                    <label className="block text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Start Time</label>
                     <input
                       type="text"
                       placeholder="e.g. 04:00 PM"
                       value={batchStartTime}
                       onChange={(e) => handleUpdateBatchDefaults(batchDate, batchVenue, e.target.value)}
-                      className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs"
+                      className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs"
                     />
                   </div>
                 </div>
@@ -478,9 +472,9 @@ const ManualMatchModal = ({
 
               {/* Pairs List */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-300 px-1">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 px-1">
                   <span>Match Pairings for {selectedPreset} ({batchPairs.length} Matches)</span>
-                  <span className="text-[10px] text-slate-400 font-normal">Team A and Team B cannot be identical</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">Team A and Team B cannot be identical</span>
                 </div>
 
                 <div className="space-y-2.5 max-h-[340px] overflow-y-auto pr-1">
@@ -492,30 +486,29 @@ const ManualMatchModal = ({
                         key={idx}
                         className={`p-3 rounded-xl border transition-all ${
                           isSameTeam
-                            ? 'bg-rose-500/10 border-rose-500/60'
-                            : 'bg-slate-900/70 border-slate-800 hover:border-slate-700'
+                            ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800/50'
+                            : 'bg-slate-50 dark:bg-slate-800/70 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
                         }`}
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <span className="font-mono font-bold text-emerald-400 text-xs">
+                          <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400 text-xs">
                             Match #{pair.matchNumber} ({selectedPreset})
                           </span>
                           {isSameTeam && (
-                            <span className="text-[10px] font-bold text-rose-400 flex items-center gap-1">
+                            <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1">
                               <ShieldAlert className="w-3 h-3" /> Same Team Selected!
                             </span>
                           )}
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {/* Team A */}
                           <div>
-                            <label className="block text-[10px] font-bold text-emerald-400 mb-1">Team A</label>
+                            <label className="block text-[10px] font-bold text-emerald-700 dark:text-emerald-400 mb-1">Team A</label>
                             {verifiedTeams.length > 0 && (
                               <select
                                 value={pair.teamA}
                                 onChange={(e) => handlePairChange(idx, 'teamA', e.target.value)}
-                                className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs mb-1"
+                                className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs mb-1"
                               >
                                 <option value="">-- Select Team A --</option>
                                 {verifiedTeams.map((t) => (
@@ -530,18 +523,17 @@ const ManualMatchModal = ({
                               placeholder="Or type Team A Name"
                               value={pair.teamA}
                               onChange={(e) => handlePairChange(idx, 'teamA', e.target.value)}
-                              className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs"
+                              className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs"
                             />
                           </div>
 
-                          {/* Team B */}
                           <div>
-                            <label className="block text-[10px] font-bold text-teal-400 mb-1">Team B</label>
+                            <label className="block text-[10px] font-bold text-teal-700 dark:text-teal-400 mb-1">Team B</label>
                             {verifiedTeams.length > 0 && (
                               <select
                                 value={pair.teamB}
                                 onChange={(e) => handlePairChange(idx, 'teamB', e.target.value)}
-                                className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs mb-1"
+                                className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs mb-1"
                               >
                                 <option value="">-- Select Team B --</option>
                                 {verifiedTeams
@@ -558,26 +550,25 @@ const ManualMatchModal = ({
                               placeholder="Or type Team B Name"
                               value={pair.teamB}
                               onChange={(e) => handlePairChange(idx, 'teamB', e.target.value)}
-                              className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs"
+                              className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs"
                             />
                           </div>
                         </div>
 
-                        {/* Optional Date & Time per row */}
-                        <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-800/60">
+                        <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
                           <input
                             type="text"
                             placeholder="Date"
                             value={pair.date}
                             onChange={(e) => handlePairChange(idx, 'date', e.target.value)}
-                            className="px-2 py-1 bg-slate-950/80 border border-slate-800 rounded text-[11px] text-slate-300"
+                            className="px-2 py-1 bg-white dark:bg-slate-950/80 border border-slate-300 dark:border-slate-700 rounded text-[11px] text-slate-800 dark:text-slate-200"
                           />
                           <input
                             type="text"
                             placeholder="Time"
                             value={pair.time}
                             onChange={(e) => handlePairChange(idx, 'time', e.target.value)}
-                            className="px-2 py-1 bg-slate-950/80 border border-slate-800 rounded text-[11px] text-slate-300"
+                            className="px-2 py-1 bg-white dark:bg-slate-950/80 border border-slate-300 dark:border-slate-700 rounded text-[11px] text-slate-800 dark:text-slate-200"
                           />
                         </div>
                       </div>
@@ -587,18 +578,18 @@ const ManualMatchModal = ({
               </div>
 
               {/* Submit Buttons */}
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white bg-slate-900 border border-slate-800"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-6 py-2.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition-all shadow-lg flex items-center gap-1.5"
+                  className="px-6 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-xs flex items-center gap-1.5"
                 >
                   <Zap className="w-4 h-4 fill-current" />
                   {submitting ? 'Creating Batch Fixtures...' : `Create All ${batchPairs.length} Fixtures for ${selectedPreset}`}
@@ -610,14 +601,13 @@ const ManualMatchModal = ({
           {/* MODE 2: SINGLE MATCH EDITOR */}
           {(mode === 'single' || editingMatch) && (
             <form onSubmit={handleSingleSubmit} className="space-y-4 text-xs">
-              {/* Round & Match Number */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Round *</label>
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Round *</label>
                   <select
                     value={round}
                     onChange={(e) => setRound(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-emerald-500"
+                    className="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:border-emerald-500"
                   >
                     {ROUND_OPTIONS.map((r) => (
                       <option key={r} value={r}>
@@ -628,26 +618,26 @@ const ManualMatchModal = ({
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Match Number #</label>
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Match Number #</label>
                   <input
                     type="number"
                     min="1"
                     required
                     value={matchNumber}
                     onChange={(e) => setMatchNumber(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono focus:border-emerald-500"
+                    className="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono focus:border-emerald-500"
                   />
                 </div>
               </div>
 
               {/* Team A Selection / Input */}
-              <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
-                <label className="block font-bold text-emerald-400">Team A *</label>
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2">
+                <label className="block font-bold text-emerald-700 dark:text-emerald-400">Team A *</label>
                 {verifiedTeams.length > 0 && (
                   <select
                     onChange={(e) => handleSelectTeamA(e.target.value)}
                     value={teamAName}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white mb-1"
+                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white mb-1"
                   >
                     <option value="">-- Select from Confirmed Squads --</option>
                     {verifiedTeams.map((t) => (
@@ -663,18 +653,18 @@ const ManualMatchModal = ({
                   placeholder="Or type Team A Name"
                   value={teamAName}
                   onChange={(e) => setTeamAName(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:border-emerald-500"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-emerald-500"
                 />
               </div>
 
               {/* Team B Selection / Input */}
-              <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
-                <label className="block font-bold text-teal-400">Team B *</label>
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2">
+                <label className="block font-bold text-teal-700 dark:text-teal-400">Team B *</label>
                 {verifiedTeams.length > 0 && (
                   <select
                     onChange={(e) => handleSelectTeamB(e.target.value)}
                     value={teamBName}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white mb-1"
+                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white mb-1"
                   >
                     <option value="">-- Select from Confirmed Squads --</option>
                     {verifiedTeams
@@ -692,53 +682,53 @@ const ManualMatchModal = ({
                   placeholder="Or type Team B Name"
                   value={teamBName}
                   onChange={(e) => setTeamBName(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:border-teal-500"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-teal-500"
                 />
               </div>
 
               {/* Date, Time, Venue */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Date</label>
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Date</label>
                   <input
                     type="text"
                     placeholder="e.g. 25 Aug 2026"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:border-emerald-500"
+                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-emerald-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Time</label>
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Time</label>
                   <input
                     type="text"
                     placeholder="e.g. 5:00 PM"
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:border-emerald-500"
+                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-emerald-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Venue / Pitch</label>
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Venue / Pitch</label>
                   <input
                     type="text"
                     placeholder="e.g. Asolna Turf / Court 1"
                     value={venue}
                     onChange={(e) => setVenue(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:border-emerald-500"
+                    className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-emerald-500"
                   />
                 </div>
               </div>
 
               {/* Match Status */}
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">Match Status</label>
+                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Match Status</label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-emerald-500"
+                  className="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:border-emerald-500"
                 >
                   {STATUS_OPTIONS.map((st) => (
                     <option key={st.value} value={st.value}>
@@ -750,24 +740,24 @@ const ManualMatchModal = ({
 
               {/* Optional Note / Summary */}
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">Summary / Note (Optional)</label>
+                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Summary / Note (Optional)</label>
                 <input
                   type="text"
                   placeholder="e.g. Winner advances to Semi Final"
                   value={summary}
                   onChange={(e) => setSummary(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:border-emerald-500"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-emerald-500"
                 />
               </div>
 
               {/* Buttons */}
-              <div className="flex items-center justify-between pt-3 border-t border-slate-800 gap-3">
+              <div className="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-800 gap-3">
                 {editingMatch ? (
                   <button
                     type="button"
                     onClick={handleDeleteClick}
                     disabled={deleting}
-                    className="px-3.5 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 border border-rose-500/30 font-bold text-xs flex items-center gap-1.5 transition-colors"
+                    className="px-3.5 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800/50 font-bold text-xs flex items-center gap-1.5 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                     {deleting ? 'Deleting...' : 'Delete Match'}
@@ -780,14 +770,14 @@ const ManualMatchModal = ({
                   <button
                     type="button"
                     onClick={onClose}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white bg-slate-900 border border-slate-800"
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="px-5 py-2 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition-all shadow-md"
+                    className="px-5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-xs"
                   >
                     {submitting
                       ? 'Saving...'
@@ -802,8 +792,8 @@ const ManualMatchModal = ({
         </div>
       </div>
 
-      {/* Confirmation / Warning Modal */}
-      {warningConfig && (
+      {/* Warning confirmation modal */}
+      {warningModalOpen && warningConfig && (
         <FixtureWarningModal
           isOpen={warningModalOpen}
           title={warningConfig.title}
@@ -811,16 +801,11 @@ const ManualMatchModal = ({
           details={warningConfig.details}
           comparison={warningConfig.comparison}
           confirmText={warningConfig.confirmText}
-          cancelText="Cancel"
-          loading={submitting || deleting}
           onConfirm={() => {
             setWarningModalOpen(false);
             if (pendingAction) pendingAction();
           }}
-          onCancel={() => {
-            setWarningModalOpen(false);
-            setPendingAction(null);
-          }}
+          onCancel={() => setWarningModalOpen(false)}
         />
       )}
     </>

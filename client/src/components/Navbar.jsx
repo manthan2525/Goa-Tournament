@@ -15,6 +15,8 @@ import {
   Zap,
   Home as HomeIcon,
   Settings,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import NotificationDropdown from './NotificationDropdown';
 import { useTheme } from '../context/ThemeContext';
@@ -22,6 +24,7 @@ import { useTheme } from '../context/ThemeContext';
 const Navbar = () => {
   const { user, isAuthenticated, isOrganizer, logout } = useAuth();
   const { isConnected } = useSocket();
+  const { theme, toggleTheme, isDark } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,7 +41,7 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
+      <header className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-xs transition-colors duration-200">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -47,10 +50,10 @@ const Navbar = () => {
                 <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-white stroke-[2.5]" />
               </div>
               <div>
-                <span className="font-display font-black text-lg sm:text-xl tracking-tight text-slate-900 flex items-center gap-1">
-                  GOA<span className="text-emerald-600">TOURNAMENT</span>
+                <span className="font-display font-black text-lg sm:text-xl tracking-tight text-slate-900 dark:text-white flex items-center gap-1">
+                  GOA<span className="text-emerald-600 dark:text-emerald-400">TOURNAMENT</span>
                 </span>
-                <span className="text-[9px] sm:text-[10px] uppercase font-semibold tracking-widest text-slate-500 block -mt-1">
+                <span className="text-[9px] sm:text-[10px] uppercase font-semibold tracking-widest text-slate-500 dark:text-slate-400 block -mt-1">
                   Multi-Sport Arena
                 </span>
               </div>
@@ -62,8 +65,8 @@ const Navbar = () => {
                 to="/tournaments"
                 className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isActive('/tournaments')
-                    ? 'bg-emerald-50 text-emerald-700 font-bold'
-                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 font-bold border border-emerald-200 dark:border-emerald-800/50'
+                    : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 Tournaments
@@ -73,8 +76,8 @@ const Navbar = () => {
                 to="/live"
                 className={`px-3.5 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${
                   isActive('/live')
-                    ? 'bg-rose-50 text-rose-600 border border-rose-200 font-bold'
-                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/50 font-bold'
+                    : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 <span className="w-2 h-2 rounded-full bg-rose-500 live-indicator"></span>
@@ -86,8 +89,8 @@ const Navbar = () => {
                   to="/player-dashboard"
                   className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive('/player-dashboard')
-                      ? 'bg-emerald-50 text-emerald-700 font-bold'
-                      : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+                      ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 font-bold border border-emerald-200 dark:border-emerald-800/50'
+                      : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
                   My Registrations
@@ -99,11 +102,11 @@ const Navbar = () => {
                   to="/organizer-dashboard"
                   className={`px-3.5 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
                     isActive('/organizer-dashboard')
-                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold'
-                      : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+                      ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50 font-bold'
+                      : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   Organizer Suite
                 </Link>
               )}
@@ -113,11 +116,11 @@ const Navbar = () => {
                   to="/admin/dashboard"
                   className={`px-3.5 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
                     location.pathname.startsWith('/admin')
-                      ? 'bg-rose-50 text-rose-600 border border-rose-200 font-bold'
-                      : 'text-rose-600 hover:text-rose-700 hover:bg-rose-50'
+                      ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/50 font-bold'
+                      : 'text-rose-600 dark:text-rose-400 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30'
                   }`}
                 >
-                  <ShieldAlert className="w-4 h-4 text-rose-600" />
+                  <ShieldAlert className="w-4 h-4 text-rose-600 dark:text-rose-400" />
                   Admin Panel
                 </Link>
               )}
@@ -125,12 +128,32 @@ const Navbar = () => {
 
             {/* Right Action Area */}
             <div className="hidden md:flex items-center space-x-3">
+              {/* Theme Toggle Button */}
+              <button
+                onClick={toggleTheme}
+                className="px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-all flex items-center gap-1.5 text-xs font-bold shadow-xs active:scale-95"
+                title={isDark ? 'Switch to Light Mode ☀️' : 'Switch to Dark Mode 🌙'}
+                aria-label="Toggle Theme"
+              >
+                {isDark ? (
+                  <>
+                    <Sun className="w-4 h-4 text-amber-400 animate-pulse" />
+                    <span>☀️ Light</span>
+                  </>
+                ) : (
+                  <>
+                    <Moon className="w-4 h-4 text-indigo-600" />
+                    <span>🌙 Dark</span>
+                  </>
+                )}
+              </button>
+
               {/* Live Socket Status Badge */}
               <div
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-medium border ${
                   isConnected
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                    : 'bg-amber-50 text-amber-700 border-amber-200'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50'
+                    : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/50'
                 }`}
                 title={isConnected ? 'Real-time WebSocket Live' : 'Connecting WebSocket...'}
               >
@@ -156,13 +179,13 @@ const Navbar = () => {
               )}
 
               {isAuthenticated ? (
-                <div className="flex items-center space-x-2 border-l border-slate-200 pl-3">
+                <div className="flex items-center space-x-2 border-l border-slate-200 dark:border-slate-800 pl-3">
                   <Link
                     to="/profile"
-                    className="flex items-center space-x-2 p-1 rounded-xl hover:bg-slate-100 transition-colors group"
+                    className="flex items-center space-x-2 p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group"
                     title="View & Edit Profile"
                   >
-                    <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-xs font-bold text-emerald-600 overflow-hidden group-hover:border-emerald-500 transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center text-xs font-bold text-emerald-600 dark:text-emerald-400 overflow-hidden group-hover:border-emerald-500 transition-colors">
                       {avatarUrl ? (
                         <img
                           src={avatarUrl}
@@ -174,10 +197,10 @@ const Navbar = () => {
                       )}
                     </div>
                     <div className="text-left leading-tight hidden lg:block">
-                      <p className="text-xs font-semibold text-slate-800 truncate max-w-[110px] group-hover:text-emerald-600 transition-colors">
+                      <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[110px] group-hover:text-emerald-600 transition-colors">
                         {user?.name}
                       </p>
-                      <span className="text-[10px] text-emerald-600 font-mono font-bold">
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-bold">
                         {user?.role}
                       </span>
                     </div>
@@ -186,7 +209,7 @@ const Navbar = () => {
                   <button
                     onClick={handleLogout}
                     title="Log out"
-                    className="p-2 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-slate-100 transition-colors"
+                    className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
                   </button>
@@ -195,7 +218,7 @@ const Navbar = () => {
                 <div className="flex items-center space-x-2">
                   <Link
                     to="/login"
-                    className="px-3.5 py-2 text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+                    className="px-3.5 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
                   >
                     Sign In
                   </Link>
@@ -211,6 +234,16 @@ const Navbar = () => {
 
             {/* Mobile Header Actions */}
             <div className="md:hidden flex items-center space-x-2">
+              {/* Mobile Theme Toggle Button */}
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-lg text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+                title={isDark ? 'Light Mode ☀️' : 'Dark Mode 🌙'}
+                aria-label="Toggle Theme"
+              >
+                {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
+              </button>
+
               {isAuthenticated && <NotificationDropdown />}
 
               <div
@@ -232,7 +265,7 @@ const Navbar = () => {
 
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 rounded-lg text-slate-700 hover:text-slate-900 bg-slate-100 border border-slate-200 focus:outline-none"
+                className="p-2 rounded-lg text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none"
                 aria-label="Toggle Navigation Menu"
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -243,12 +276,28 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-white/98 border-t border-slate-200 px-4 pt-3 pb-6 space-y-3 shadow-lg">
+          <div className="md:hidden bg-white/98 dark:bg-slate-900/98 border-t border-slate-200 dark:border-slate-800 px-4 pt-3 pb-6 space-y-3 shadow-lg transition-colors">
+            {/* Mobile Theme Toggle Banner */}
+            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                {isDark ? <Moon className="w-4 h-4 text-indigo-400" /> : <Sun className="w-4 h-4 text-amber-500" />}
+                Theme: {isDark ? 'Dark Mode 🌙' : 'Light Mode ☀️'}
+              </span>
+              <button
+                onClick={toggleTheme}
+                className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-xs"
+              >
+                Switch to {isDark ? 'Light ☀️' : 'Dark 🌙'}
+              </button>
+            </div>
+
             <Link
               to="/tournaments"
               onClick={() => setMobileMenuOpen(false)}
               className={`block px-3 py-2.5 rounded-xl text-sm font-medium ${
-                isActive('/tournaments') ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-700 hover:bg-slate-100'
+                isActive('/tournaments')
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 font-bold'
+                  : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               Browse Tournaments
@@ -258,7 +307,9 @@ const Navbar = () => {
               to="/live"
               onClick={() => setMobileMenuOpen(false)}
               className={`block px-3 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 ${
-                isActive('/live') ? 'bg-rose-50 text-rose-600 font-bold' : 'text-rose-600 hover:bg-slate-100'
+                isActive('/live')
+                  ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-bold'
+                  : 'text-rose-600 dark:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               <span className="w-2 h-2 rounded-full bg-rose-500 live-indicator"></span>
@@ -271,7 +322,9 @@ const Navbar = () => {
                   to="/player-dashboard"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`block px-3 py-2.5 rounded-xl text-sm font-medium ${
-                    isActive('/player-dashboard') ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-700 hover:bg-slate-100'
+                    isActive('/player-dashboard')
+                      ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 font-bold'
+                      : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
                   My Registrations &amp; Verification
@@ -281,7 +334,9 @@ const Navbar = () => {
                   to="/profile"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`block px-3 py-2.5 rounded-xl text-sm font-medium ${
-                    isActive('/profile') ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-700 hover:bg-slate-100'
+                    isActive('/profile')
+                      ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 font-bold'
+                      : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
                   My Profile &amp; Settings
@@ -295,7 +350,9 @@ const Navbar = () => {
                   to="/organizer-dashboard"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`block px-3 py-2.5 rounded-xl text-sm font-medium ${
-                    isActive('/organizer-dashboard') ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-emerald-700 hover:bg-slate-100'
+                    isActive('/organizer-dashboard')
+                      ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 font-bold'
+                      : 'text-emerald-700 dark:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
                   Organizer Management Suite
@@ -320,15 +377,15 @@ const Navbar = () => {
               </Link>
             )}
 
-            <div className="pt-3 border-t border-slate-200">
+            <div className="pt-3 border-t border-slate-200 dark:border-slate-800">
               {isAuthenticated ? (
-                <div className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
                   <Link
                     to="/profile"
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center gap-2.5"
                   >
-                    <div className="w-9 h-9 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center text-xs font-bold text-emerald-700 overflow-hidden">
+                    <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 flex items-center justify-center text-xs font-bold text-emerald-700 dark:text-emerald-400 overflow-hidden">
                       {avatarUrl ? (
                         <img src={avatarUrl} alt={user?.name} className="w-full h-full object-cover" />
                       ) : (
@@ -336,13 +393,13 @@ const Navbar = () => {
                       )}
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-slate-900 truncate max-w-[140px]">{user?.name}</p>
-                      <p className="text-[10px] text-emerald-600 font-mono font-bold">{user?.role}</p>
+                      <p className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-[140px]">{user?.name}</p>
+                      <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-bold">{user?.role}</p>
                     </div>
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="px-3 py-1.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg border border-rose-200"
+                    className="px-3 py-1.5 text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 rounded-lg border border-rose-200 dark:border-rose-800/50"
                   >
                     Log Out
                   </button>
@@ -352,7 +409,7 @@ const Navbar = () => {
                   <Link
                     to="/login"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="w-full text-center py-2.5 text-xs font-bold bg-slate-100 border border-slate-300 text-slate-800 rounded-xl"
+                    className="w-full text-center py-2.5 text-xs font-bold bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl"
                   >
                     Sign In
                   </Link>
@@ -371,11 +428,11 @@ const Navbar = () => {
       </header>
 
       {/* Mobile Bottom Navigation Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200 px-2 py-1.5 flex items-center justify-around text-[10px] font-medium text-slate-600 shadow-lg">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 px-2 py-1.5 flex items-center justify-around text-[10px] font-medium text-slate-600 dark:text-slate-400 shadow-lg transition-colors">
         <Link
           to="/"
           className={`flex flex-col items-center py-1 px-2 rounded-lg transition-colors ${
-            isActive('/') ? 'text-emerald-600 font-bold' : 'hover:text-slate-900'
+            isActive('/') ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'hover:text-slate-900 dark:hover:text-white'
           }`}
         >
           <HomeIcon className="w-5 h-5 mb-0.5" />
@@ -385,7 +442,7 @@ const Navbar = () => {
         <Link
           to="/tournaments"
           className={`flex flex-col items-center py-1 px-2 rounded-lg transition-colors ${
-            isActive('/tournaments') ? 'text-emerald-600 font-bold' : 'hover:text-slate-900'
+            isActive('/tournaments') ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'hover:text-slate-900 dark:hover:text-white'
           }`}
         >
           <Trophy className="w-5 h-5 mb-0.5" />
@@ -395,7 +452,7 @@ const Navbar = () => {
         <Link
           to="/live"
           className={`flex flex-col items-center py-1 px-2 rounded-lg transition-colors relative ${
-            isActive('/live') ? 'text-rose-600 font-bold' : 'hover:text-slate-900 text-rose-600/80'
+            isActive('/live') ? 'text-rose-600 dark:text-rose-400 font-bold' : 'hover:text-slate-900 dark:hover:text-white text-rose-600/80 dark:text-rose-400/80'
           }`}
         >
           <div className="relative">
@@ -410,14 +467,14 @@ const Navbar = () => {
             to={isAdmin ? '/admin/dashboard' : isOrganizer ? '/organizer-dashboard' : '/player-dashboard'}
             className={`flex flex-col items-center py-1 px-2 rounded-lg transition-colors ${
               location.pathname.startsWith('/admin') || isActive('/organizer-dashboard') || isActive('/player-dashboard')
-                ? 'text-emerald-600 font-bold'
-                : 'hover:text-slate-900'
+                ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+                : 'hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             {isAdmin ? (
-              <ShieldAlert className="w-5 h-5 mb-0.5 text-rose-600" />
+              <ShieldAlert className="w-5 h-5 mb-0.5 text-rose-600 dark:text-rose-400" />
             ) : isOrganizer ? (
-              <ShieldCheck className="w-5 h-5 mb-0.5 text-emerald-600" />
+              <ShieldCheck className="w-5 h-5 mb-0.5 text-emerald-600 dark:text-emerald-400" />
             ) : (
               <UserIcon className="w-5 h-5 mb-0.5" />
             )}
@@ -426,7 +483,7 @@ const Navbar = () => {
         ) : (
           <Link
             to="/login"
-            className="flex flex-col items-center py-1 px-2 rounded-lg hover:text-slate-900"
+            className="flex flex-col items-center py-1 px-2 rounded-lg hover:text-slate-900 dark:hover:text-white"
           >
             <UserIcon className="w-5 h-5 mb-0.5" />
             <span>Sign In</span>
