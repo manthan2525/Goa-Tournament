@@ -343,6 +343,28 @@ export const createManualMatch = async (req, res, next) => {
       });
     }
 
+    const nameA = typeof teamA === 'object' ? teamA?.name : teamA;
+    const nameB = typeof teamB === 'object' ? teamB?.name : teamB;
+
+    if (!nameA || !nameB || !nameA.trim() || !nameB.trim()) {
+      return res.status(400).json({ success: false, message: '⚠️ Please select both Team 1 and Team 2.' });
+    }
+
+    if (nameA.trim().toLowerCase() === nameB.trim().toLowerCase()) {
+      return res.status(400).json({ success: false, message: '⚠️ Team 1 and Team 2 cannot be the same team.' });
+    }
+
+    const duplicateMatch = await Match.findOne({
+      tournament: tournamentId,
+      $or: [
+        { 'teamA.name': nameA.trim(), 'teamB.name': nameB.trim() },
+        { 'teamA.name': nameB.trim(), 'teamB.name': nameA.trim() },
+      ],
+    });
+    if (duplicateMatch) {
+      return res.status(400).json({ success: false, message: '⚠️ This fixture already exists for this tournament.' });
+    }
+
     let mNum = matchNumber;
     if (!mNum) {
       const highestMatch = await Match.findOne({ tournament: tournamentId }).sort({
