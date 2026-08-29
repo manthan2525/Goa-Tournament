@@ -269,6 +269,41 @@ export const generateGroupStageFixtures = (tournamentId, verifiedTeams, startDat
 };
 
 /**
+ * Generates Group Stage Fixtures from Manual Group Assignments.
+ * Respects group assignments set by the organizer.
+ * Teams in Group A play ONLY against teams in Group A (never mixed with Group B during group stage).
+ */
+export const generateGroupStageFromManualAssignments = (tournamentId, groupAssignments, verifiedTeams, startDate = new Date()) => {
+  const groupMap = {};
+  groupAssignments.forEach((assign) => {
+    const grp = assign.groupName || 'Group A';
+    if (!groupMap[grp]) groupMap[grp] = [];
+
+    const teamObj = (verifiedTeams || []).find((t) => t._id.toString() === assign.teamRegistrationId?.toString()) || {
+      _id: assign.teamRegistrationId,
+      teamName: assign.teamName,
+    };
+    groupMap[grp].push(teamObj);
+  });
+
+  const matches = [];
+  let matchNumber = 1;
+
+  for (const [groupName, groupTeams] of Object.entries(groupMap)) {
+    if (groupTeams.length < 2) continue;
+    const groupMatches = generateRoundRobinFixtures(tournamentId, groupTeams, startDate);
+    groupMatches.forEach((m) => {
+      m.matchNumber = matchNumber++;
+      m.group = groupName;
+      m.round = `${groupName} - ${m.round}`;
+      matches.push(m);
+    });
+  }
+
+  return matches;
+};
+
+/**
  * Generates Knockout Finals Stage from completed Group Stage Standings.
  * Picks top teams from each group (e.g. 1st Group A vs 2nd Group B, 1st Group B vs 2nd Group A).
  */

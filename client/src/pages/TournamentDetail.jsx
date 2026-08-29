@@ -33,6 +33,7 @@ import { useSocket } from '../context/SocketContext';
 import FixtureBracket from '../components/FixtureBracket';
 import StandingsTable from '../components/StandingsTable';
 import RegisterModal from '../components/RegisterModal';
+import GroupManagementModal from '../components/GroupManagementModal';
 import PaymentModal from '../components/PaymentModal';
 import ScoreUpdateModal from '../components/ScoreUpdateModal';
 import EditTournamentModal from '../components/EditTournamentModal';
@@ -76,7 +77,9 @@ const TournamentDetail = () => {
   const [showBannerLightbox, setShowBannerLightbox] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
+  const [resetClearGroups, setResetClearGroups] = useState(false);
   const [resettingFixtures, setResettingFixtures] = useState(false);
+  const [showGroupManagementModal, setShowGroupManagementModal] = useState(false);
   const [activeRegistration, setActiveRegistration] = useState(null);
   const [selectedMatchForScore, setSelectedMatchForScore] = useState(null);
   const [startingTournament, setStartingTournament] = useState(false);
@@ -92,8 +95,12 @@ const TournamentDetail = () => {
       setResettingFixtures(true);
       setActionError('');
       const hasLive = matches.some((m) => m.status === 'LIVE');
-      const forceQuery = hasLive ? '?force=true' : '';
-      const res = await api.delete(`/tournaments/${id}/fixtures${forceQuery}`);
+      const queryParams = new URLSearchParams();
+      if (hasLive) queryParams.append('force', 'true');
+      if (resetClearGroups) queryParams.append('clearGroups', 'true');
+
+      const queryStr = queryParams.toString() ? `?${queryParams.toString()}` : '';
+      const res = await api.delete(`/tournaments/${id}/fixtures${queryStr}`);
       if (res.data.success) {
         setShowResetModal(false);
         fetchTournamentData();
@@ -368,6 +375,18 @@ const TournamentDetail = () => {
               <Zap className="w-3.5 h-3.5" />
               + Manual Fixture
             </button>
+
+            {/* Manage Groups Button (If Group Stage + Knockout) */}
+            {tournament.format === 'GROUP_KNOCKOUT' && (
+              <button
+                onClick={() => setShowGroupManagementModal(true)}
+                className="px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-1.5 transition-all shadow-md"
+                title="Manually assign teams to groups and set group structure"
+              >
+                <Users className="w-3.5 h-3.5" />
+                Manage Groups
+              </button>
+            )}
 
             {/* Reset Fixtures Button */}
             <button
@@ -1055,6 +1074,35 @@ const TournamentDetail = () => {
                 <p>This action will clear all generated match fixtures and standings for this tournament so you can generate them again from a clean state.</p>
               )}
 
+              {/* Reset Options Choice */}
+              {tournament.format === 'GROUP_KNOCKOUT' && (
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2">
+                  <span className="font-bold text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400">Reset Options:</span>
+                  <div className="space-y-1.5">
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold">
+                      <input
+                        type="radio"
+                        name="resetGroupOption"
+                        checked={!resetClearGroups}
+                        onChange={() => setResetClearGroups(false)}
+                        className="text-rose-600 focus:ring-rose-500"
+                      />
+                      <span>Clear fixtures only (Keep group team assignments)</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold">
+                      <input
+                        type="radio"
+                        name="resetGroupOption"
+                        checked={resetClearGroups}
+                        onChange={() => setResetClearGroups(true)}
+                        className="text-rose-600 focus:ring-rose-500"
+                      />
+                      <span>Clear fixtures + reset group assignments</span>
+                    </label>
+                  </div>
+                </div>
+              )}
+
               <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 text-[11px] text-emerald-800 dark:text-emerald-300 space-y-1">
                 <p className="font-bold">✓ Preserved Data:</p>
                 <p>Team registrations, player profiles, payments, banner, prizes, and tournament details will NOT be deleted.</p>
@@ -1080,6 +1128,15 @@ const TournamentDetail = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Group Management Modal */}
+      {showGroupManagementModal && (
+        <GroupManagementModal
+          tournamentId={id}
+          onClose={() => setShowGroupManagementModal(false)}
+          onSaved={() => fetchTournamentData()}
+        />
       )}
 
       {/* Fixture Warning & Confirmation Modal */}

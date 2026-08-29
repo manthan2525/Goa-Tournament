@@ -10,6 +10,8 @@ import {
   removeTournamentBanner,
   startTournament,
   resetTournamentFixtures,
+  getTournamentGroups,
+  updateTournamentGroups,
   getOrganizerTournaments,
 } from '../controllers/tournamentController.js';
 import { protect, authorize } from '../middleware/authMiddleware.js';
@@ -20,6 +22,7 @@ const router = express.Router();
 // Public routes
 router.get('/', getTournaments);
 router.get('/:id', getTournamentById);
+router.get('/:id/groups', getTournamentGroups);
 
 // Protected Organizer routes
 router.get(
@@ -51,6 +54,13 @@ router.put(
     { name: 'banner', maxCount: 1 },
   ]),
   updateTournament
+);
+
+router.put(
+  '/:id/groups',
+  protect,
+  authorize('ORGANIZER', 'ADMIN'),
+  updateTournamentGroups
 );
 
 router.delete(

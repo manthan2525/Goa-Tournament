@@ -78,6 +78,24 @@ const tournamentSchema = new mongoose.Schema(
       enum: ['KNOCKOUT', 'ROUND_ROBIN', 'GROUP_KNOCKOUT'],
       default: 'KNOCKOUT',
     },
+    groupAssignmentMode: {
+      type: String,
+      enum: ['AUTOMATIC', 'MANUAL'],
+      default: 'AUTOMATIC',
+    },
+    numberOfGroups: {
+      type: Number,
+      default: 2,
+      min: 2,
+      max: 8,
+    },
+    groupAssignments: [
+      {
+        groupName: { type: String, required: true },
+        teamRegistrationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Registration' },
+        teamName: { type: String, required: true },
+      },
+    ],
     maxTeams: {
       type: Number,
       required: true,

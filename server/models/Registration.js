@@ -90,6 +90,11 @@ const registrationSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    assignedGroup: {
+      type: String,
+      default: '',
+      trim: true,
+    },
     isTestData: {
       type: Boolean,
       default: false,

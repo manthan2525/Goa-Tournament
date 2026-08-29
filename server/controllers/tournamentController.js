@@ -8,6 +8,7 @@ import {
   generateKnockoutFixtures,
   generateRoundRobinFixtures,
   generateGroupStageFixtures,
+  generateGroupStageFromManualAssignments,
   generateKnockoutFromGroupStandings,
   generateGroupKnockoutFixtures,
 } from '../utils/fixtureGenerator.js';
@@ -645,8 +646,54 @@ export const startTournament = async (req, res, next) => {
           });
         }
 
-        const numGroups = verifiedRegistrations.length >= 8 ? 4 : 2;
-        const groupFixtures = generateGroupStageFixtures(tournament._id, verifiedRegistrations, tournament.startDate, numGroups);
+        let groupFixtures = [];
+        if (tournament.groupAssignmentMode === 'MANUAL' && tournament.groupAssignments && tournament.groupAssignments.length > 0) {
+          // Check manual group assignments
+          const assignedTeamIds = new Set(tournament.groupAssignments.map((a) => a.teamRegistrationId?.toString()));
+          if (assignedTeamIds.size < 2) {
+            return res.status(400).json({
+              success: false,
+              message: '⚠️ Please assign teams to groups before generating fixtures, or switch to Automatic mode.',
+            });
+          }
+          groupFixtures = generateGroupStageFromManualAssignments(
+            tournament._id,
+            tournament.groupAssignments,
+            verifiedRegistrations,
+            tournament.startDate
+          );
+        } else {
+          // Automatic mode
+          const numGroups = tournament.numberOfGroups || (verifiedRegistrations.length >= 8 ? 4 : 2);
+          groupFixtures = generateGroupStageFixtures(tournament._id, verifiedRegistrations, tournament.startDate, numGroups);
+
+          // Save auto-assigned groups into tournament schema
+          const teamGroups = {};
+          groupFixtures.forEach((m) => {
+            if (m.group && m.teamA?.name && m.teamA.name !== 'TBD' && m.teamA.registrationId) {
+              teamGroups[m.teamA.registrationId.toString()] = { groupName: m.group, teamName: m.teamA.name, regId: m.teamA.registrationId };
+            }
+            if (m.group && m.teamB?.name && m.teamB.name !== 'TBD' && m.teamB.registrationId) {
+              teamGroups[m.teamB.registrationId.toString()] = { groupName: m.group, teamName: m.teamB.name, regId: m.teamB.registrationId };
+            }
+          });
+
+          const autoAssignments = Object.values(teamGroups).map((info) => ({
+            groupName: info.groupName,
+            teamRegistrationId: info.regId,
+            teamName: info.teamName,
+          }));
+
+          tournament.groupAssignments = autoAssignments;
+        }
+
+        if (groupFixtures.length === 0) {
+          return res.status(400).json({
+            success: false,
+            message: '⚠️ Unable to generate group fixtures. Please check team group assignments.',
+          });
+        }
+
         const insertedMatches = await Match.insertMany(groupFixtures);
 
         // Initialize Group Standings
@@ -815,6 +862,12 @@ export const resetTournamentFixtures = async (req, res, next) => {
     await Match.deleteMany({ tournament: tournament._id });
     await Standings.deleteMany({ tournament: tournament._id });
 
+    const clearGroups = req.query.clearGroups === 'true';
+    if (clearGroups) {
+      tournament.groupAssignments = [];
+      await Registration.updateMany({ tournament: tournament._id }, { assignedGroup: '' });
+    }
+
     // Reset tournament status back to REGISTRATION_OPEN
     tournament.status = 'REGISTRATION_OPEN';
     tournament.winner = null;
@@ -828,7 +881,102 @@ export const resetTournamentFixtures = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: 'Fixtures and standings have been reset successfully. Registrations and teams remain intact.',
+      message: clearGroups
+        ? 'Fixtures, standings, and group assignments have been reset successfully.'
+        : 'Fixtures and standings have been reset successfully. Group team assignments and registrations remain intact.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get group assignments and verified teams for group management
+// @route   GET /api/tournaments/:id/groups
+export const getTournamentGroups = async (req, res, next) => {
+  try {
+    const tournament = await Tournament.findById(req.params.id);
+    if (!tournament) {
+      return res.status(404).json({ success: false, message: 'Tournament not found.' });
+    }
+
+    const verifiedTeams = await Registration.find({
+      tournament: tournament._id,
+      status: { $in: ['VERIFIED', 'APPROVED'] },
+    }).select('_id teamName captainName status assignedGroup');
+
+    const assignedIds = new Set(tournament.groupAssignments?.map((a) => a.teamRegistrationId?.toString()) || []);
+    const unassignedTeams = verifiedTeams.filter((t) => !assignedIds.has(t._id.toString()));
+
+    res.status(200).json({
+      success: true,
+      mode: tournament.groupAssignmentMode || 'AUTOMATIC',
+      numberOfGroups: tournament.numberOfGroups || 2,
+      groupAssignments: tournament.groupAssignments || [],
+      verifiedTeams,
+      unassignedTeams,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update group assignments and group mode (Organizer & Admin only)
+// @route   PUT /api/tournaments/:id/groups
+export const updateTournamentGroups = async (req, res, next) => {
+  try {
+    const tournament = await Tournament.findById(req.params.id);
+    if (!tournament) {
+      return res.status(404).json({ success: false, message: 'Tournament not found.' });
+    }
+
+    if (tournament.organizer.toString() !== req.user._id.toString() && req.user.role !== 'ADMIN') {
+      return res.status(403).json({ success: false, message: 'Only the tournament organizer or admin can update group assignments.' });
+    }
+
+    const { mode, numberOfGroups, assignments } = req.body;
+
+    if (mode) tournament.groupAssignmentMode = mode;
+    if (numberOfGroups) tournament.numberOfGroups = Math.max(2, Math.min(8, Number(numberOfGroups)));
+
+    if (assignments && Array.isArray(assignments)) {
+      // Validate that a team registration ID is not assigned to multiple groups
+      const seenTeams = new Map();
+      for (const item of assignments) {
+        if (!item.teamRegistrationId) continue;
+        const regIdStr = item.teamRegistrationId.toString();
+        if (seenTeams.has(regIdStr)) {
+          const existingGroup = seenTeams.get(regIdStr);
+          return res.status(400).json({
+            success: false,
+            message: `⚠️ Team "${item.teamName || 'Team'}" is already assigned to ${existingGroup}. A team can belong to ONLY ONE group.`,
+          });
+        }
+        seenTeams.set(regIdStr, item.groupName);
+      }
+
+      tournament.groupAssignments = assignments.map((a) => ({
+        groupName: a.groupName,
+        teamRegistrationId: a.teamRegistrationId,
+        teamName: a.teamName,
+      }));
+
+      // Update Registration assignedGroup fields
+      await Registration.updateMany({ tournament: tournament._id }, { assignedGroup: '' });
+      for (const a of assignments) {
+        if (a.teamRegistrationId) {
+          await Registration.findByIdAndUpdate(a.teamRegistrationId, { assignedGroup: a.groupName });
+        }
+      }
+    }
+
+    await tournament.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Group stage settings and team assignments saved successfully!',
+      mode: tournament.groupAssignmentMode,
+      numberOfGroups: tournament.numberOfGroups,
+      groupAssignments: tournament.groupAssignments,
     });
   } catch (error) {
     next(error);
