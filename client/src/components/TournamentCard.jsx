@@ -1,15 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Calendar, Users, Trophy, IndianRupee, ArrowRight, ShieldCheck } from 'lucide-react';
+import { MapPin, Calendar, Users, Trophy, IndianRupee, ArrowRight, ShieldCheck, Share2 } from 'lucide-react';
 import { STATUS_COLORS, formatLocation } from '../utils/constants';
 import { getSportLogo, getSportTheme } from '../utils/sportLogos';
+import ShareModal from './ShareModal';
 
 const TournamentCard = ({ tournament }) => {
+  const [showShareModal, setShowShareModal] = useState(false);
   const statusInfo = STATUS_COLORS[tournament.status] || STATUS_COLORS.REGISTRATION_OPEN;
   const progressPercent = Math.min(
     100,
     Math.round(((tournament.registeredTeamsCount || 0) / (tournament.maxTeams || 16)) * 100)
   );
+
+  const handleShare = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const shareUrl = `${window.location.origin}/tournaments/${tournament._id}`;
+    const title = tournament?.name || 'Goa Tournament';
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title,
+          text: `Check out ${title} on Goa Tournament!`,
+          url: shareUrl,
+        });
+        return;
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          setShowShareModal(true);
+        }
+        return;
+      }
+    }
+    setShowShareModal(true);
+  };
 
   // Home & Listing cards ALWAYS use the clean transparent SVG sport logo + sport theme header
   // They MUST NEVER use the organizer's uploaded banner
@@ -154,17 +179,33 @@ const TournamentCard = ({ tournament }) => {
           </div>
         </div>
 
-        {/* Action Button */}
-        <div className="pt-2">
+        {/* Action Buttons Area */}
+        <div className="pt-2 flex items-center gap-2">
           <Link
             to={`/tournaments/${tournament._id}`}
-            className="w-full min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-xs group/btn"
+            className="flex-1 min-h-[44px] flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-xs group/btn"
           >
             <span>View Tournament &amp; Fixtures</span>
             <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
           </Link>
+          <button
+            onClick={handleShare}
+            title="Share Tournament"
+            aria-label="Share Tournament"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-all hover:scale-105 active:scale-95 flex-shrink-0 shadow-xs"
+          >
+            <Share2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          </button>
         </div>
       </div>
+
+      {/* Quick Share Modal */}
+      {showShareModal && (
+        <ShareModal
+          tournament={tournament}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
     </div>
   );
 };

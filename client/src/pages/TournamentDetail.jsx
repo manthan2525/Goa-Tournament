@@ -23,6 +23,7 @@ import {
   Camera,
   Layers,
   Maximize2,
+  Share2,
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -37,6 +38,7 @@ import DeleteTournamentModal from '../components/DeleteTournamentModal';
 import DeclareWinnersModal from '../components/DeclareWinnersModal';
 import ManualMatchModal from '../components/ManualMatchModal';
 import FixtureWarningModal from '../components/FixtureWarningModal';
+import ShareModal from '../components/ShareModal';
 import {
   isTournamentStarted,
   getFixtureEditWarning,
@@ -70,6 +72,7 @@ const TournamentDetail = () => {
   const [showManualMatchModal, setShowManualMatchModal] = useState(false);
   const [editingMatch, setEditingMatch] = useState(null);
   const [showBannerLightbox, setShowBannerLightbox] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [activeRegistration, setActiveRegistration] = useState(null);
   const [selectedMatchForScore, setSelectedMatchForScore] = useState(null);
   const [startingTournament, setStartingTournament] = useState(false);
@@ -79,6 +82,27 @@ const TournamentDetail = () => {
   const [warningModalOpen, setWarningModalOpen] = useState(false);
   const [warningConfig, setWarningConfig] = useState(null);
   const [pendingAction, setPendingAction] = useState(null);
+
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/tournaments/${id}`;
+    const title = tournament?.name || 'Goa Tournament';
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title,
+          text: `Check out ${title} on Goa Tournament!`,
+          url: shareUrl,
+        });
+        return;
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          setShowShareModal(true);
+        }
+        return;
+      }
+    }
+    setShowShareModal(true);
+  };
 
   const fetchTournamentData = async () => {
     try {
@@ -457,7 +481,7 @@ const TournamentDetail = () => {
             </div>
           </div>
 
-          <div>
+          <div className="flex flex-wrap items-center gap-3">
             {tournament.status === 'REGISTRATION_OPEN' && (
               <button
                 onClick={(e) => {
@@ -473,6 +497,14 @@ const TournamentDetail = () => {
                 Register Team ({tournament.registrationFee === 0 ? 'FREE' : `₹${tournament.registrationFee}`})
               </button>
             )}
+
+            <button
+              onClick={handleShare}
+              className="px-5 py-3 rounded-xl font-display font-bold text-xs uppercase tracking-wider bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-2 transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+            >
+              <Share2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span>Share Tournament</span>
+            </button>
           </div>
         </div>
 
@@ -931,6 +963,14 @@ const TournamentDetail = () => {
           imageUrl={bannerImg}
           altText={`${tournament.name} banner`}
           onClose={() => setShowBannerLightbox(false)}
+        />
+      )}
+
+      {/* Share Modal */}
+      {showShareModal && (
+        <ShareModal
+          tournament={tournament}
+          onClose={() => setShowShareModal(false)}
         />
       )}
 
