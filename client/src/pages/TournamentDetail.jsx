@@ -46,7 +46,7 @@ import {
 import MapPreview from '../components/map/MapPreview';
 import BannerLightbox from '../components/BannerLightbox';
 import { STATUS_COLORS } from '../utils/constants';
-import { getSportImage } from '../utils/sportImages';
+import { getSportLogo, getSportTheme } from '../utils/sportLogos';
 
 const TournamentDetail = () => {
   const { id } = useParams();
@@ -261,12 +261,11 @@ const TournamentDetail = () => {
   const isTournamentOwner =
     user && tournament.organizer && (user._id === tournament.organizer._id || user._id === tournament.organizer);
 
-  const statusInfo = STATUS_COLORS[tournament.status] || STATUS_COLORS.REGISTRATION_OPEN;
-
-  const bannerImg =
-    tournament.bannerImage ||
-    tournament.banner ||
-    getSportImage(tournament.sport);
+  const organizerBanner = tournament.bannerImage || tournament.banner;
+  const hasOrganizerBanner = Boolean(organizerBanner);
+  const sportTheme = getSportTheme(tournament.sport);
+  const sportLogoPath = getSportLogo(tournament.sport);
+  const bannerImg = organizerBanner || sportLogoPath;
 
   const organizerAvatar = tournament.organizer?.profilePhoto || tournament.organizer?.profileImage;
 
@@ -348,48 +347,85 @@ const TournamentDetail = () => {
 
       {/* Hero Header Card */}
       <div className="relative rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm text-slate-900 dark:text-white">
-        {/* Banner: ONLY this div opens the lightbox */}
-        <div
-          onClick={() => setShowBannerLightbox(true)}
-          className="relative w-full bg-slate-950 cursor-zoom-in group/banner"
-          title="Click to view full tournament banner"
-          role="button"
-          aria-label="View full tournament banner"
-        >
-          <img
-            src={bannerImg}
-            alt={`${tournament.name} banner`}
-            className="w-full max-h-[520px] object-contain"
-          />
+        {hasOrganizerBanner ? (
+          /* Organizer Uploaded Banner: Opens fullsize Lightbox */
+          <div
+            onClick={() => setShowBannerLightbox(true)}
+            className="relative w-full bg-slate-950 cursor-zoom-in group/banner"
+            title="Click to view full tournament banner"
+            role="button"
+            aria-label="View full tournament banner"
+          >
+            <img
+              src={bannerImg}
+              alt={`${tournament.name} banner`}
+              className="w-full max-h-[520px] object-contain"
+            />
 
-          {/* Hover overlay — click hint */}
-          <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover/banner:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-            <span className="px-3.5 py-2 rounded-xl bg-slate-900/90 backdrop-blur-md text-white text-xs font-bold border border-slate-700 flex items-center gap-2 shadow-xl">
-              <Maximize2 className="w-4 h-4 text-emerald-400" /> View Full Banner
-            </span>
-          </div>
-
-          {/* Top Badges */}
-          <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2 pointer-events-none">
-            <span className="px-3 py-1 rounded-xl text-xs font-bold bg-slate-950/80 backdrop-blur-md text-emerald-400 border border-emerald-500/30">
-              {tournament.sport}
-            </span>
-            <span className="px-3 py-1 rounded-xl text-xs font-semibold bg-slate-950/80 backdrop-blur-md text-slate-200 border border-slate-700">
-              {tournament.format?.replace('_', ' ')}
-            </span>
-            {tournament.requireAadhaarVerification && (
-              <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-teal-950/80 backdrop-blur-md text-teal-300 border border-teal-500/30 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5" /> Aadhaar Verification Required
+            {/* Hover overlay — click hint */}
+            <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover/banner:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+              <span className="px-3.5 py-2 rounded-xl bg-slate-900/90 backdrop-blur-md text-white text-xs font-bold border border-slate-700 flex items-center gap-2 shadow-xl">
+                <Maximize2 className="w-4 h-4 text-emerald-400" /> View Full Banner
               </span>
-            )}
-          </div>
+            </div>
 
-          <div className="absolute top-4 right-4 pointer-events-none">
-            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${statusInfo.badge}`}>
-              {statusInfo.label}
-            </span>
+            {/* Top Badges */}
+            <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2 pointer-events-none">
+              <span className="px-3 py-1 rounded-xl text-xs font-bold bg-slate-950/80 backdrop-blur-md text-emerald-400 border border-emerald-500/30">
+                {tournament.sport}
+              </span>
+              <span className="px-3 py-1 rounded-xl text-xs font-semibold bg-slate-950/80 backdrop-blur-md text-slate-200 border border-slate-700">
+                {tournament.format?.replace('_', ' ')}
+              </span>
+              {tournament.requireAadhaarVerification && (
+                <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-teal-950/80 backdrop-blur-md text-teal-300 border border-teal-500/30 flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5" /> Aadhaar Verification Required
+                </span>
+              )}
+            </div>
+
+            <div className="absolute top-4 right-4 pointer-events-none">
+              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${statusInfo.badge}`}>
+                {statusInfo.label}
+              </span>
+            </div>
           </div>
-        </div>
+        ) : (
+          /* Fallback Header (No organizer banner uploaded): Clean SVG Sport Header */
+          <div className={`relative h-56 w-full bg-gradient-to-br ${sportTheme.gradient} p-6 flex flex-col items-center justify-center text-center overflow-hidden`}>
+            <div className="relative z-10 p-4 rounded-2xl bg-white/10 dark:bg-slate-950/40 backdrop-blur-md border border-white/20 dark:border-slate-700/50 shadow-inner flex items-center justify-center mb-2">
+              <img
+                src={sportLogoPath}
+                alt={`${tournament.sport} logo`}
+                className="w-16 h-16 object-contain filter drop-shadow-md invert dark:invert-0 brightness-200 dark:brightness-100"
+              />
+            </div>
+            <span className="relative z-10 font-display font-black text-sm tracking-widest uppercase text-white/90 drop-shadow-sm flex items-center gap-1.5">
+              <span>{sportTheme.emoji}</span> {tournament.sport} Championship
+            </span>
+
+            {/* Top Badges */}
+            <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2 pointer-events-none z-20">
+              <span className="px-3 py-1 rounded-xl text-xs font-bold bg-slate-950/80 backdrop-blur-md text-emerald-400 border border-emerald-500/30">
+                {tournament.sport}
+              </span>
+              <span className="px-3 py-1 rounded-xl text-xs font-semibold bg-slate-950/80 backdrop-blur-md text-slate-200 border border-slate-700">
+                {tournament.format?.replace('_', ' ')}
+              </span>
+              {tournament.requireAadhaarVerification && (
+                <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-teal-950/80 backdrop-blur-md text-teal-300 border border-teal-500/30 flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5" /> Aadhaar Verification Required
+                </span>
+              )}
+            </div>
+
+            <div className="absolute top-4 right-4 pointer-events-none z-20">
+              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${statusInfo.badge}`}>
+                {statusInfo.label}
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Tournament Info & Register */}
         <div className="p-6 sm:p-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white">

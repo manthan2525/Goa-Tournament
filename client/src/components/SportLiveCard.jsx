@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { MapPin, ArrowRight, Zap } from "lucide-react";
 import { formatLocation } from "../utils/constants";
+import { getSportLogo, getSportTheme } from "../utils/sportLogos";
 
 export const SPORT_META = {
   Football:       { emoji: "⚽", label: "Football" },
@@ -166,7 +167,8 @@ const GenericScore = ({ match }) => (
 
 const SportLiveCard = ({ match }) => {
   const sport = match.tournament?.sport || "Football";
-  const meta = SPORT_META[sport] || { emoji: "🏆", label: sport };
+  const theme = getSportTheme(sport);
+  const logoPath = getSportLogo(sport);
   const renderScore = () => {
     switch (sport) {
       case "Football": case "Futsal": return <FootballScore match={match} />;
@@ -179,7 +181,10 @@ const SportLiveCard = ({ match }) => {
     <div className="relative rounded-3xl bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/50 p-5 sm:p-7 space-y-5 shadow-sm overflow-hidden text-slate-900 dark:text-white">
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50">{meta.emoji} {meta.label}</span>
+          <span className="px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50 flex items-center gap-1.5">
+            <img src={logoPath} alt={sport} className="w-4 h-4 object-contain filter dark:invert" />
+            <span>{theme.emoji} {sport}</span>
+          </span>
           <span className="text-xs font-mono font-semibold text-slate-600 dark:text-slate-400 truncate">{match.round}</span>
         </div>
         <div className="flex items-center gap-1.5 text-xs font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest font-mono flex-shrink-0">

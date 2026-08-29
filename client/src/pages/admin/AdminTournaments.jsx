@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import api from '../../services/api';
 import { SPORTS_LIST, GOA_LOCATIONS, STATUS_COLORS } from '../../utils/constants';
-import { getSportImage } from '../../utils/sportImages';
+import { getSportLogo } from '../../utils/sportLogos';
 
 const statusOptions = [
   { value: '', label: 'All Statuses' },
@@ -155,8 +155,8 @@ const AdminTournaments = () => {
                   <tr key={t._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                          <img src={getSportImage(t.sport)} alt={t.name} className="w-full h-full object-cover" />
+                        <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center p-1.5">
+                          <img src={getSportLogo(t.sport)} alt={t.name} className="w-full h-full object-contain filter dark:invert" />
                         </div>
                         <span className="font-semibold text-slate-900 dark:text-white max-w-[160px] truncate">{t.name}</span>
                       </div>
