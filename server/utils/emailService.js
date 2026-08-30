@@ -210,10 +210,12 @@ GoaSportX Security Team
     console.log(`[REAL EMAIL SENT SUCCESS] OTP email delivered to ${email} via Gmail Service`);
     return { success: true, method: 'gmail_service' };
   } catch (errGmail) {
-    console.error('[SMTP Ports Blocked by Local ISP/Firewall]', errGmail.message);
-    console.log('====================================================');
-    console.log(`[FALLBACK OTP CODE FOR ${email}]: ${otpCode}`);
-    console.log('====================================================');
-    return { success: true, method: 'local_fallback', otpCode };
+    const isBadCredentials = errGmail.message?.includes('535') || errGmail.message?.includes('Invalid login') || errGmail.code === 'EAUTH';
+    const errText = isBadCredentials
+      ? `Gmail authentication rejected (535 Bad Credentials) for ${smtpUser}. The App Password in server/.env is invalid or expired. Please generate a fresh 16-character App Password at myaccount.google.com/apppasswords.`
+      : `Failed to deliver OTP email via Gmail: ${errGmail.message}`;
+    
+    console.error('[SMTP Email Error]', errText);
+    throw new Error(errText);
   }
 };
