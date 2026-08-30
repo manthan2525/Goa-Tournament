@@ -8,8 +8,8 @@ const ShareModal = ({ tournament, onClose }) => {
 
   // Build the canonical tournament URL
   const shareUrl = `${window.location.origin}/tournaments/${tournament._id}`;
-  const title = tournament.name || 'Goa Tournament';
-  const textMessage = `🏆 Goa Tournament\n\nCheck out this tournament:\n${title}\n\n${shareUrl}`;
+  const title = tournament.name || 'GoaSportX';
+  const textMessage = `🏆 GoaSportX\n\nCheck out this tournament:\n${title}\n\n${shareUrl}`;
 
   // Copy Link Handler
   const handleCopyLink = async () => {
@@ -34,8 +34,8 @@ const ShareModal = ({ tournament, onClose }) => {
   // Social Share URLs
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(textMessage)}`;
   const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out ${title} on Goa Tournament!`)}&url=${encodeURIComponent(shareUrl)}`;
-  const emailUrl = `mailto:?subject=${encodeURIComponent(`Check out this tournament - ${title}`)}&body=${encodeURIComponent(`Check out this tournament on Goa Tournament:\n\n${title}\n\n${shareUrl}`)}`;
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out ${title} on GoaSportX!`)}&url=${encodeURIComponent(shareUrl)}`;
+  const emailUrl = `mailto:?subject=${encodeURIComponent(`Check out this tournament - ${title}`)}&body=${encodeURIComponent(`Check out this tournament on GoaSportX:\n\n${title}\n\n${shareUrl}`)}`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-md overflow-y-auto">

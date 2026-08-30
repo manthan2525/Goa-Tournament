@@ -64,7 +64,7 @@ const AdminSidebar = ({ mobileOpen, onClose }) => {
             </div>
             <div>
               <p className="font-display font-black text-sm text-slate-900 dark:text-white">Admin Panel</p>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Goa Tournament</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">GoaSportX</p>
             </div>
           </div>
 

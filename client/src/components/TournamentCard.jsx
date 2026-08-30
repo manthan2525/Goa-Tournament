@@ -17,12 +17,12 @@ const TournamentCard = ({ tournament }) => {
     e.preventDefault();
     e.stopPropagation();
     const shareUrl = `${window.location.origin}/tournaments/${tournament._id}`;
-    const title = tournament?.name || 'Goa Tournament';
+    const title = tournament?.name || 'GoaSportX';
     if (navigator.share) {
       try {
         await navigator.share({
           title,
-          text: `Check out ${title} on Goa Tournament!`,
+          text: `Check out ${title} on GoaSportX!`,
           url: shareUrl,
         });
         return;
