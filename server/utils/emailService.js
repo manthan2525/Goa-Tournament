@@ -3,22 +3,37 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const isSmtpConfigured = Boolean(
-  process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS
-);
+const getTransporter = () => {
+  const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER;
+  const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_PASS;
+  const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const smtpPort = Number(process.env.SMTP_PORT) || 465;
 
-let transporter = null;
-if (isSmtpConfigured) {
-  transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: Number(process.env.SMTP_PORT) === 465,
+  if (!smtpUser || !smtpPass) {
+    return null;
+  }
+
+  // If host is smtp.gmail.com or service is gmail
+  if (smtpHost.includes('gmail')) {
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: smtpUser,
+        pass: smtpPass,
+      },
+    });
+  }
+
+  return nodemailer.createTransport({
+    host: smtpHost,
+    port: smtpPort,
+    secure: smtpPort === 465,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: smtpUser,
+      pass: smtpPass,
     },
   });
-}
+};
 
 /**
  * Sends a password reset email to the user
@@ -132,25 +147,29 @@ GoaSportX Security Team
     </div>
   `;
 
+  const transporter = getTransporter();
+  const smtpFrom = process.env.SMTP_FROM || process.env.SMTP_USER || process.env.GMAIL_USER;
+
   if (transporter) {
     try {
       await transporter.sendMail({
-        from: process.env.SMTP_FROM || `"GoaSportX Security" <${process.env.SMTP_USER}>`,
+        from: smtpFrom ? `"GoaSportX Security" <${smtpFrom}>` : `"GoaSportX" <noreply@goasportx.com>`,
         to: email,
         subject: `${otpCode} is your GoaSportX Password Reset OTP Code`,
         text: message,
         html,
       });
+      console.log(`[REAL EMAIL SENT] OTP email delivered to ${email}`);
       return { success: true, method: 'smtp' };
     } catch (err) {
-      console.error('[SMTP OTP Email Error]', err.message);
-      return { success: true, method: 'dev_fallback', otpCode };
+      console.error('[SMTP OTP Email Delivery Failed]', err.message);
+      throw new Error(`Failed to deliver OTP email to ${email}. ${err.message}`);
     }
   } else {
     console.log('----------------------------------------------------');
     console.log(`[GoaSportX Password Reset OTP Code for ${email}]`);
     console.log(`OTP Code: ${otpCode}`);
     console.log('----------------------------------------------------');
-    return { success: true, method: 'dev_fallback', otpCode };
+    return { success: true, method: 'console_log', otpCode };
   }
 };

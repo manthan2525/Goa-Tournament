@@ -301,13 +301,12 @@ export const forgotPassword = async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     // Send 6-digit OTP email
-    const emailResult = await sendOtpEmail(user.email, otpCode, user.name);
+    await sendOtpEmail(user.email, otpCode, user.name);
 
     res.status(200).json({
       success: true,
-      message: `A 6-digit OTP verification code has been sent to ${user.email}.`,
+      message: `A 6-digit OTP verification code has been sent to your email (${user.email}). Please check your inbox.`,
       email: user.email,
-      ...(emailResult?.otpCode ? { devOtp: emailResult.otpCode } : {}),
     });
   } catch (error) {
     next(error);
