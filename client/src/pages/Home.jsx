@@ -196,7 +196,7 @@ const Home = () => {
       <LiveScoreTicker liveMatches={liveMatches} />
 
       {/* ── Hero Banner ── */}
-      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
         <div className="relative rounded-3xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 sm:p-14 shadow-sm transition-all duration-500 text-slate-900 dark:text-white">
           {/* Sport-coloured ambient glows */}
           <div className={`absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full ${theme.glow1} blur-3xl pointer-events-none transition-colors duration-700`} />
