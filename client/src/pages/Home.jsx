@@ -191,7 +191,7 @@ const Home = () => {
   const theme = SPORT_HERO_THEMES[selectedSport] || SPORT_HERO_THEMES.All;
 
   return (
-    <div className="space-y-8 sm:space-y-12 pb-12 text-slate-900 dark:text-white">
+    <div className="space-y-6 sm:space-y-8 pb-2 text-slate-900 dark:text-white">
       {/* ── Live Score Ticker Bar (if live matches exist) ── */}
       <LiveScoreTicker liveMatches={liveMatches} />
 
@@ -330,7 +330,7 @@ const Home = () => {
       </section>
 
       {/* ── Feature Highlights ── */}
-      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-2">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 text-slate-900 dark:text-white">
             <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
