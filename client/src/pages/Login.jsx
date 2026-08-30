@@ -35,14 +35,16 @@ const Login = () => {
       <div className="w-full max-w-md space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center mx-auto shadow-md shadow-emerald-500/20">
-            <Trophy className="w-7 h-7 text-white stroke-[2.5]" />
-          </div>
+          <img
+            src="/logo.png"
+            alt="GoaSportX Logo"
+            className="w-14 h-14 object-contain mx-auto"
+          />
           <h2 className="font-display font-black text-2xl text-slate-900 dark:text-white">
-            Welcome to Goa Tournament
+            Welcome to Goa<span className="text-amber-500 font-extrabold">SportX</span>
           </h2>
-          <p className="text-xs text-slate-600 dark:text-slate-400">
-            Sign in to manage teams, track live scores, and participate in Goa sports championships.
+          <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">
+            One Platform. Every Sport. Every Tournament.
           </p>
         </div>
 

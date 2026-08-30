@@ -138,9 +138,9 @@ const SPORT_HERO_THEMES = {
     cta: { label: 'Explore Kabaddi Tournaments', to: '/tournaments?sport=Kabaddi' },
   },
   All: {
-    badge: '🏆 Goa Multi-Sport Platform',
-    heading: 'Discover, Host & Play Sports Tournaments Across Goa',
-    sub: 'The all-in-one platform for Football, Cricket, Badminton, Futsal, Chess & more across Panaji, Mapusa, Margao, Vasco, and all Goa venues.',
+    badge: '🏆 GoaSportX',
+    heading: 'GoaSportX — One Platform. Every Sport. Every Tournament.',
+    sub: 'Discover, host, and play Football, Cricket, Badminton, Futsal, Chess & more across Panaji, Mapusa, Margao, Vasco, and all Goa venues.',
     badgeBg: 'bg-emerald-500/10 dark:bg-emerald-950/40',
     badgeText: 'text-emerald-700 dark:text-emerald-400',
     border: 'border-emerald-500/30',

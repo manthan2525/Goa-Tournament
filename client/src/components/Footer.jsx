@@ -31,19 +31,20 @@ const Footer = () => {
           {/* ── Brand ── */}
           <div className="sm:col-span-2 lg:col-span-1 space-y-4">
             <div className="flex items-center space-x-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center shadow-md shadow-emerald-500/20 flex-shrink-0">
-                <Trophy className="w-5 h-5 text-white stroke-[2.5]" />
-              </div>
-              <span className="font-display font-black text-lg text-slate-900 dark:text-white tracking-tight">
-                GOA<span className="text-emerald-600 dark:text-emerald-400">TOURNAMENT</span>
+              <img
+                src="/logo.png"
+                alt="GoaSportX Logo"
+                className="w-10 h-10 object-contain flex-shrink-0"
+              />
+              <span className="font-display font-black text-xl text-slate-900 dark:text-white tracking-tight">
+                Goa<span className="text-amber-500 dark:text-amber-400 font-extrabold">SportX</span>
               </span>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-xs">
-              Discover, register, and manage sports tournaments across Goa.
-              Real-time fixtures, live scores, and UPI payments — all in one platform.
+              Discover, register, and manage sports tournaments across Goa. Real-time fixtures, live scores, and UPI verification — all in one platform.
             </p>
-            <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-mono font-bold">
-              Multi-Sport Arena Platform
+            <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-mono font-bold uppercase">
+              ONE PLATFORM. EVERY SPORT. EVERY TOURNAMENT.
             </p>
           </div>
 
@@ -191,7 +192,7 @@ const Footer = () => {
 
         {/* ── Bottom bar ── */}
         <div className="mt-10 pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-3">
-          <p>© {new Date().getFullYear()} Goa Tournament. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} GoaSportX. All rights reserved.</p>
           <p className="text-slate-500 dark:text-slate-400 text-center">
             Made for Goa's athletes, teams &amp; organizers.
           </p>

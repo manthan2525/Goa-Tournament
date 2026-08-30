@@ -46,15 +46,17 @@ const Navbar = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2.5 sm:space-x-3 group">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform flex-shrink-0">
-                <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-white stroke-[2.5]" />
-              </div>
+              <img
+                src="/logo.png"
+                alt="GoaSportX Logo"
+                className="w-9 h-9 sm:w-10 sm:h-10 object-contain group-hover:scale-105 transition-transform flex-shrink-0"
+              />
               <div>
-                <span className="font-display font-black text-lg sm:text-xl tracking-tight text-slate-900 dark:text-white flex items-center gap-1">
-                  GOA<span className="text-emerald-600 dark:text-emerald-400">TOURNAMENT</span>
+                <span className="font-display font-black text-lg sm:text-xl tracking-tight text-slate-900 dark:text-white flex items-center">
+                  Goa<span className="text-amber-500 dark:text-amber-400 font-extrabold">SportX</span>
                 </span>
-                <span className="text-[9px] sm:text-[10px] uppercase font-semibold tracking-widest text-slate-500 dark:text-slate-400 block -mt-1">
-                  Multi-Sport Arena
+                <span className="text-[8px] sm:text-[9px] uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400 block -mt-1">
+                  ONE PLATFORM. EVERY SPORT.
                 </span>
               </div>
             </Link>
