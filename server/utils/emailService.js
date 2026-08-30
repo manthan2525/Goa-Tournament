@@ -27,7 +27,8 @@ const createTransporterForConfig = (port = 587, secure = false) => {
     port: port,
     secure: secure,
     requireTLS: !secure,
-    family: 4, // Force IPv4 to prevent ENETUNREACH IPv6 errors
+    family: 4, // Force IPv4
+    lookup: (h, o, cb) => dns.lookup(h, { family: 4 }, cb), // Explicit IPv4 DNS lookup callback
     auth: {
       user: smtpUser,
       pass: smtpPass,
@@ -203,6 +204,7 @@ GoaSportX Security Team
       service: 'gmail',
       auth: { user: smtpUser, pass: smtpPass },
       family: 4, // Force IPv4
+      lookup: (h, o, cb) => dns.lookup(h, { family: 4 }, cb), // Explicit IPv4 DNS lookup callback
       tls: { rejectUnauthorized: false },
       connectionTimeout: 8000,
     });
