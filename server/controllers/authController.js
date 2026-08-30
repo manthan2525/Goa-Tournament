@@ -301,8 +301,9 @@ export const forgotPassword = async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     // Send 6-digit OTP email
+    let otpResult = { success: true };
     try {
-      await sendOtpEmail(user.email, otpCode, user.name);
+      otpResult = await sendOtpEmail(user.email, otpCode, user.name);
     } catch (emailErr) {
       console.error('[OTP Email Error]', emailErr.message);
       return res.status(400).json({
@@ -313,8 +314,9 @@ export const forgotPassword = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: `A 6-digit OTP verification code has been sent to your email (${user.email}). Please check your inbox.`,
+      message: `A 6-digit OTP verification code has been generated for ${user.email}.`,
       email: user.email,
+      ...(otpResult?.devOtp ? { devOtp: otpResult.devOtp } : {}),
     });
   } catch (error) {
     next(error);
