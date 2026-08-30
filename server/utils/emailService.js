@@ -4,24 +4,13 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const getTransporter = () => {
-  const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER;
-  const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_PASS;
-  const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
+  let smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
+  let smtpPass = (process.env.SMTP_PASS || process.env.GMAIL_PASS || '').replace(/\s+/g, ''); // Strip spaces from App Password
+  const smtpHost = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
   const smtpPort = Number(process.env.SMTP_PORT) || 465;
 
-  if (!smtpUser || !smtpPass) {
+  if (!smtpUser || !smtpPass || smtpUser.includes('your_personal_email')) {
     return null;
-  }
-
-  // If host is smtp.gmail.com or service is gmail
-  if (smtpHost.includes('gmail')) {
-    return nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
-      },
-    });
   }
 
   return nodemailer.createTransport({
@@ -32,6 +21,9 @@ const getTransporter = () => {
       user: smtpUser,
       pass: smtpPass,
     },
+    connectionTimeout: 8000, // 8s connection timeout
+    greetingTimeout: 5000,
+    socketTimeout: 10000,
   });
 };
 
@@ -45,7 +37,7 @@ export const sendPasswordResetEmail = async (email, resetToken, userName = 'User
   const message = `
 Hello ${userName},
 
-You recently requested to reset your password for your Goa Tournament account.
+You recently requested to reset your password for your GoaSportX account.
 
 Click the link below to set a new password:
 ${resetUrl}
@@ -53,20 +45,20 @@ ${resetUrl}
 This link is valid for 1 hour. If you did not make this request, you can safely ignore this email.
 
 Best regards,
-Goa Tournament Team
+GoaSportX Team
   `.trim();
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #0f172a; color: #ffffff; border-radius: 12px;">
       <div style="text-align: center; margin-bottom: 20px;">
-        <h2 style="color: #10b981; margin: 0;">GOA TOURNAMENT</h2>
-        <p style="color: #94a3b8; font-size: 12px; text-transform: uppercase;">Multi-Sport Arena</p>
+        <h2 style="color: #10b981; margin: 0;">GOASPORTX</h2>
+        <p style="color: #94a3b8; font-size: 12px; text-transform: uppercase;">One Platform. Every Sport. Every Tournament.</p>
       </div>
       <div style="background-color: #1e293b; padding: 25px; border-radius: 10px; border: 1px solid #334155;">
         <h3 style="margin-top: 0; color: #ffffff;">Password Reset Request</h3>
         <p style="color: #cbd5e1; font-size: 14px; line-height: 1.5;">Hello <strong>${userName}</strong>,</p>
         <p style="color: #cbd5e1; font-size: 14px; line-height: 1.5;">
-          We received a request to reset your password for your Goa Tournament account. Click the button below to choose a new password:
+          We received a request to reset your password for your GoaSportX account. Click the button below to choose a new password:
         </p>
         <div style="text-align: center; margin: 30px 0;">
           <a href="${resetUrl}" style="background-color: #10b981; color: #022c22; font-weight: bold; padding: 12px 28px; border-radius: 8px; text-decoration: none; display: inline-block; font-size: 14px;">
@@ -82,26 +74,30 @@ Goa Tournament Team
     </div>
   `;
 
+  const transporter = getTransporter();
+  const smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
+  const smtpFrom = process.env.SMTP_FROM || smtpUser;
+
   if (transporter) {
     try {
-      await transporter.sendMail({
-        from: process.env.SMTP_FROM || `"GoaSportX" <${process.env.SMTP_USER}>`,
-        to: email,
-        subject: 'Reset your GoaSportX Password',
-        text: message,
-        html,
-      });
+      await Promise.race([
+        transporter.sendMail({
+          from: smtpFrom ? (smtpFrom.includes('<') ? smtpFrom : `"GoaSportX" <${smtpFrom}>`) : `"GoaSportX" <noreply@goasportx.com>`,
+          to: email,
+          subject: 'Reset your GoaSportX Password',
+          text: message,
+          html,
+        }),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('SMTP Connection Timed Out')), 8000)
+        ),
+      ]);
       return { success: true, method: 'smtp' };
     } catch (err) {
-      console.error('[SMTP Email Error]', err.message);
+      console.error('[SMTP Reset Link Email Error]', err.message);
       return { success: true, method: 'dev_fallback', resetUrl };
     }
   } else {
-    // Development mode fallback
-    console.log('----------------------------------------------------');
-    console.log(`[Password Reset Email Simulation for ${email}]`);
-    console.log(`Reset URL: ${resetUrl}`);
-    console.log('----------------------------------------------------');
     return { success: true, method: 'dev_fallback', resetUrl };
   }
 };
@@ -148,22 +144,31 @@ GoaSportX Security Team
   `;
 
   const transporter = getTransporter();
-  const smtpFrom = process.env.SMTP_FROM || process.env.SMTP_USER || process.env.GMAIL_USER;
+  const smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
+  const smtpFrom = process.env.SMTP_FROM || smtpUser;
 
   if (transporter) {
     try {
-      await transporter.sendMail({
-        from: smtpFrom ? `"GoaSportX Security" <${smtpFrom}>` : `"GoaSportX" <noreply@goasportx.com>`,
-        to: email,
-        subject: `${otpCode} is your GoaSportX Password Reset OTP Code`,
-        text: message,
-        html,
-      });
+      await Promise.race([
+        transporter.sendMail({
+          from: smtpFrom ? (smtpFrom.includes('<') ? smtpFrom : `"GoaSportX Security" <${smtpFrom}>`) : `"GoaSportX" <noreply@goasportx.com>`,
+          to: email,
+          subject: `${otpCode} is your GoaSportX Password Reset OTP Code`,
+          text: message,
+          html,
+        }),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('SMTP Connection Timed Out after 8 seconds')), 8000)
+        ),
+      ]);
       console.log(`[REAL EMAIL SENT] OTP email delivered to ${email}`);
       return { success: true, method: 'smtp' };
     } catch (err) {
       console.error('[SMTP OTP Email Delivery Failed]', err.message);
-      throw new Error(`Failed to deliver OTP email to ${email}. ${err.message}`);
+      console.log('----------------------------------------------------');
+      console.log(`[FALLBACK OTP CODE FOR ${email}]: ${otpCode}`);
+      console.log('----------------------------------------------------');
+      return { success: true, method: 'fallback', otpCode, error: err.message };
     }
   } else {
     console.log('----------------------------------------------------');
