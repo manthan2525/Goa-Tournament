@@ -162,6 +162,20 @@ const ForgotPassword = () => {
           </div>
         )}
 
+        {/* Dev / Network Fallback OTP Box */}
+        {devOtp && step === 2 && (
+          <div className="p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 rounded-2xl text-xs space-y-1 text-amber-900 dark:text-amber-300 animate-in fade-in">
+            <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-[10px] text-amber-700 dark:text-amber-400">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>OTP Verification Code:</span>
+            </div>
+            <p className="font-mono font-black text-2xl text-slate-900 dark:text-white tracking-widest my-1">
+              {devOtp}
+            </p>
+            <p className="text-[10px] opacity-80">Use this 6-digit verification code to update your password below.</p>
+          </div>
+        )}
+
         {/* STEP 1: Enter Email */}
         {step === 1 && (
           <form onSubmit={handleRequestOtp} className="space-y-4">
