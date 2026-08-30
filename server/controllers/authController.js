@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { uploadImageBuffer } from '../config/cloudinary.js';
-import { sendPasswordResetEmail } from '../utils/emailService.js';
+import { sendPasswordResetEmail, sendOtpEmail } from '../utils/emailService.js';
 import { createNotification } from '../utils/notify.js';
 import { logActivity } from '../models/ActivityLog.js';
 
@@ -263,7 +263,7 @@ export const removeProfilePhoto = async (req, res, next) => {
   }
 };
 
-// @desc    Forgot password - generate reset token & send email
+// @desc    Forgot password - generate 6-digit OTP code & send email
 // @route   POST /api/auth/forgot-password
 export const forgotPassword = async (req, res, next) => {
   try {
@@ -278,38 +278,113 @@ export const forgotPassword = async (req, res, next) => {
 
     const user = await User.findOne({ email: email.toLowerCase().trim() });
 
-    // Always respond with a generic message for security if user not found
     if (!user) {
-      return res.status(200).json({
-        success: true,
-        message: 'If an account exists with that email, password reset instructions have been sent.',
+      return res.status(404).json({
+        success: false,
+        message: 'No account found with this email address.',
       });
     }
 
-    // Generate random 32-byte token
-    const resetToken = crypto.randomBytes(32).toString('hex');
+    // Generate 6-digit numeric OTP
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Hash token and save to user with 1 hour expiration
-    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-    user.resetPasswordToken = hashedToken;
+    // Hash OTP code & save to user with 10-minute expiration
+    const hashedOtp = crypto.createHash('sha256').update(otpCode).digest('hex');
+    user.resetOtp = hashedOtp;
+    user.resetOtpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+    // Also generate link resetToken for backwards compatibility
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
     user.resetPasswordExpires = Date.now() + 60 * 60 * 1000; // 1 hour
 
     await user.save({ validateBeforeSave: false });
 
-    // Send email (or log link if in local dev)
-    const emailResult = await sendPasswordResetEmail(user.email, resetToken, user.name);
+    // Send 6-digit OTP email
+    const emailResult = await sendOtpEmail(user.email, otpCode, user.name);
 
     res.status(200).json({
       success: true,
-      message: 'Password reset link sent to your email.',
-      ...(emailResult?.resetUrl ? { devResetUrl: emailResult.resetUrl } : {}),
+      message: `A 6-digit OTP verification code has been sent to ${user.email}.`,
+      email: user.email,
+      ...(emailResult?.otpCode ? { devOtp: emailResult.otpCode } : {}),
     });
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Reset password using token
+// @desc    Reset password using 6-digit OTP
+// @route   POST /api/auth/reset-password-otp
+export const resetPasswordWithOtp = async (req, res, next) => {
+  try {
+    const { email, otp, password } = req.body;
+
+    if (!email || !otp || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide email, 6-digit OTP code, and new password.',
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 6 characters long.',
+      });
+    }
+
+    const cleanOtp = otp.toString().replace(/\D/g, '');
+    const hashedOtp = crypto.createHash('sha256').update(cleanOtp).digest('hex');
+
+    const user = await User.findOne({
+      email: email.toLowerCase().trim(),
+      resetOtp: hashedOtp,
+      resetOtpExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired 6-digit OTP code. Please request a new OTP.',
+      });
+    }
+
+    // Update user password and clear OTP fields
+    user.password = password;
+    user.resetOtp = null;
+    user.resetOtpExpires = null;
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+
+    await user.save();
+
+    // Log activity
+    await logActivity({
+      action: 'Password Reset Completed',
+      performedBy: user._id,
+      performerRole: user.role,
+      targetType: 'USER',
+      targetId: user._id,
+      targetName: user.name,
+      details: `${user.name} reset their password via email OTP verification`,
+    });
+
+    // Create system notification
+    await createNotification({
+      recipient: user._id,
+      title: 'Password Updated',
+      message: 'Your account password was successfully reset using OTP verification.',
+      type: 'SYSTEM',
+    });
+
+    sendTokenResponse(user, 200, res, 'Password reset successful! You are now logged in.');
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Reset password using token (URL link fallback)
 // @route   POST /api/auth/reset-password/:token
 export const resetPassword = async (req, res, next) => {
   try {
@@ -334,12 +409,14 @@ export const resetPassword = async (req, res, next) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid or expired password reset link. Please request a new one.',
+        message: 'Invalid or expired password reset link. Please request a new OTP.',
       });
     }
 
     // Set new password
     user.password = password;
+    user.resetOtp = null;
+    user.resetOtpExpires = null;
     user.resetPasswordToken = null;
     user.resetPasswordExpires = null;
 
@@ -353,7 +430,7 @@ export const resetPassword = async (req, res, next) => {
       type: 'SYSTEM',
     });
 
-    sendTokenResponse(user, 200, res, 'Password reset successful! You can now log in.');
+    sendTokenResponse(user, 200, res, 'Password reset successful! You are now logged in.');
   } catch (error) {
     next(error);
   }

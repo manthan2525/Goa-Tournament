@@ -9,6 +9,7 @@ import {
   removeProfilePhoto,
   forgotPassword,
   resetPassword,
+  resetPasswordWithOtp,
 } from '../controllers/authController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { upload } from '../middleware/uploadMiddleware.js';
@@ -20,6 +21,7 @@ router.post('/register', upload.single('photo'), register);
 router.post('/login', login);
 router.post('/logout', logout);
 router.post('/forgot-password', forgotPassword);
+router.post('/reset-password-otp', resetPasswordWithOtp);
 router.post('/reset-password/:token', resetPassword);
 
 // Protected routes

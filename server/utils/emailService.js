@@ -70,9 +70,9 @@ Goa Tournament Team
   if (transporter) {
     try {
       await transporter.sendMail({
-        from: process.env.SMTP_FROM || `"Goa Tournament" <${process.env.SMTP_USER}>`,
+        from: process.env.SMTP_FROM || `"GoaSportX" <${process.env.SMTP_USER}>`,
         to: email,
-        subject: 'Reset your Goa Tournament Password',
+        subject: 'Reset your GoaSportX Password',
         text: message,
         html,
       });
@@ -88,5 +88,69 @@ Goa Tournament Team
     console.log(`Reset URL: ${resetUrl}`);
     console.log('----------------------------------------------------');
     return { success: true, method: 'dev_fallback', resetUrl };
+  }
+};
+
+/**
+ * Sends a 6-digit OTP verification code to the user's email
+ */
+export const sendOtpEmail = async (email, otpCode, userName = 'User') => {
+  const message = `
+Hello ${userName},
+
+Your 6-digit OTP verification code to reset your GoaSportX password is: ${otpCode}
+
+This code is valid for 10 minutes. Do not share this OTP code with anyone.
+
+Best regards,
+GoaSportX Security Team
+  `.trim();
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 550px; margin: 0 auto; padding: 24px; background-color: #0f172a; color: #ffffff; border-radius: 16px;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="color: #ffffff; margin: 0; font-size: 24px;">Goa<span style="color: #f59e0b;">SportX</span></h2>
+        <p style="color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-top: 4px;">One Platform. Every Sport. Every Tournament.</p>
+      </div>
+      <div style="background-color: #1e293b; padding: 28px; border-radius: 12px; border: 1px solid #334155; text-align: center;">
+        <h3 style="margin-top: 0; color: #ffffff; font-size: 18px;">Password Reset Verification OTP</h3>
+        <p style="color: #cbd5e1; font-size: 14px; line-height: 1.5; margin-bottom: 20px;">
+          Hello <strong>${userName}</strong>,<br/>Use the 6-digit OTP code below to reset your password:
+        </p>
+        
+        <div style="background-color: #0f172a; border: 2px dashed #10b981; border-radius: 12px; padding: 18px; margin: 24px 0; display: inline-block;">
+          <span style="font-family: monospace; font-size: 36px; font-weight: 800; letter-spacing: 10px; color: #10b981;">${otpCode}</span>
+        </div>
+        
+        <p style="color: #94a3b8; font-size: 12px; margin-top: 20px;">
+          This OTP code is valid for <strong>10 minutes</strong>. If you did not request a password reset, please ignore this email.
+        </p>
+      </div>
+      <div style="text-align: center; margin-top: 20px; color: #64748b; font-size: 11px;">
+        &copy; ${new Date().getFullYear()} GoaSportX. All rights reserved.
+      </div>
+    </div>
+  `;
+
+  if (transporter) {
+    try {
+      await transporter.sendMail({
+        from: process.env.SMTP_FROM || `"GoaSportX Security" <${process.env.SMTP_USER}>`,
+        to: email,
+        subject: `${otpCode} is your GoaSportX Password Reset OTP Code`,
+        text: message,
+        html,
+      });
+      return { success: true, method: 'smtp' };
+    } catch (err) {
+      console.error('[SMTP OTP Email Error]', err.message);
+      return { success: true, method: 'dev_fallback', otpCode };
+    }
+  } else {
+    console.log('----------------------------------------------------');
+    console.log(`[GoaSportX Password Reset OTP Code for ${email}]`);
+    console.log(`OTP Code: ${otpCode}`);
+    console.log('----------------------------------------------------');
+    return { success: true, method: 'dev_fallback', otpCode };
   }
 };
