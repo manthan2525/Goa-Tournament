@@ -1,7 +1,17 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import dns from 'dns';
 
 dotenv.config();
+
+// Force Node.js to prefer IPv4 over IPv6 to fix ENETUNREACH errors on smtp.gmail.com
+try {
+  if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+  }
+} catch (e) {
+  // ignore
+}
 
 const createTransporterForConfig = (port = 587, secure = false) => {
   let smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
@@ -17,6 +27,7 @@ const createTransporterForConfig = (port = 587, secure = false) => {
     port: port,
     secure: secure,
     requireTLS: !secure,
+    family: 4, // Force IPv4 to prevent ENETUNREACH IPv6 errors
     auth: {
       user: smtpUser,
       pass: smtpPass,
@@ -191,6 +202,7 @@ GoaSportX Security Team
     const tGmail = nodemailer.createTransport({
       service: 'gmail',
       auth: { user: smtpUser, pass: smtpPass },
+      family: 4, // Force IPv4
       tls: { rejectUnauthorized: false },
       connectionTimeout: 8000,
     });
