@@ -195,26 +195,7 @@ const Home = () => {
       {/* ── Live Score Ticker Bar (if live matches exist) ── */}
       <LiveScoreTicker liveMatches={liveMatches} />
 
-      {/* ── Sport Filter Pills — drives the hero banner below ── */}
-      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
-          {SPORTS_LIST.map((sport) => (
-            <button
-              key={sport}
-              onClick={() => setSelectedSport(sport)}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                selectedSport === sport
-                  ? 'bg-emerald-600 text-white font-bold shadow-xs'
-                  : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
-              }`}
-            >
-              {sport}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Sport-Reactive Hero ── */}
+      {/* ── Hero Banner ── */}
       <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative rounded-3xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 sm:p-14 shadow-sm transition-all duration-500 text-slate-900 dark:text-white">
           {/* Sport-coloured ambient glows */}
@@ -230,11 +211,6 @@ const Home = () => {
           </div>
 
           <div className="relative z-10 max-w-4xl space-y-6">
-            {/* Sport badge */}
-            <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full ${theme.badgeBg} border ${theme.border} ${theme.badgeText} text-xs font-bold tracking-wide uppercase font-mono`}>
-              <Flame className="w-4 h-4" />
-              {theme.badge}
-            </div>
 
             {/* Heading */}
             <h1 className="font-display font-black text-4xl sm:text-6xl tracking-tight text-slate-900 dark:text-white leading-tight transition-all duration-300">
