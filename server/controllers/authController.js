@@ -304,12 +304,16 @@ export const forgotPassword = async (req, res, next) => {
     try {
       await sendOtpEmail(user.email, otpCode, user.name);
     } catch (emailErr) {
-      console.error('[OTP Email Dispatch Error]', emailErr.message);
+      console.error('[OTP Email Delivery Error]', emailErr.message);
+      return res.status(500).json({
+        success: false,
+        message: emailErr.message || 'Failed to deliver OTP email. Please verify your email server configuration.',
+      });
     }
 
     res.status(200).json({
       success: true,
-      message: `A 6-digit OTP verification code has been dispatched to ${user.email}.`,
+      message: `A 6-digit OTP verification code has been sent to your email (${user.email}). Please check your inbox.`,
       email: user.email,
     });
   } catch (error) {

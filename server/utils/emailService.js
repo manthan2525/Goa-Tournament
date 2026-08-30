@@ -9,8 +9,22 @@ const getTransporter = () => {
   const smtpHost = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
   const smtpPort = Number(process.env.SMTP_PORT) || 465;
 
-  if (!smtpUser || !smtpPass || smtpUser.includes('your_personal_email')) {
+  if (!smtpUser || !smtpPass || smtpUser.includes('your_personal_email') || smtpPass.includes('your_16_character')) {
     return null;
+  }
+
+  // Use service: 'gmail' if host is smtp.gmail.com
+  if (smtpHost.includes('gmail')) {
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: smtpUser,
+        pass: smtpPass,
+      },
+      connectionTimeout: 12000, // 12s connection timeout
+      greetingTimeout: 8000,
+      socketTimeout: 15000,
+    });
   }
 
   return nodemailer.createTransport({
@@ -21,9 +35,9 @@ const getTransporter = () => {
       user: smtpUser,
       pass: smtpPass,
     },
-    connectionTimeout: 8000, // 8s connection timeout
-    greetingTimeout: 5000,
-    socketTimeout: 10000,
+    connectionTimeout: 12000,
+    greetingTimeout: 8000,
+    socketTimeout: 15000,
   });
 };
 
@@ -78,27 +92,27 @@ GoaSportX Team
   const smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
   const smtpFrom = process.env.SMTP_FROM || smtpUser;
 
-  if (transporter) {
-    try {
-      await Promise.race([
-        transporter.sendMail({
-          from: smtpFrom ? (smtpFrom.includes('<') ? smtpFrom : `"GoaSportX" <${smtpFrom}>`) : `"GoaSportX" <noreply@goasportx.com>`,
-          to: email,
-          subject: 'Reset your GoaSportX Password',
-          text: message,
-          html,
-        }),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('SMTP Connection Timed Out')), 8000)
-        ),
-      ]);
-      return { success: true, method: 'smtp' };
-    } catch (err) {
-      console.error('[SMTP Reset Link Email Error]', err.message);
-      return { success: true, method: 'dev_fallback', resetUrl };
-    }
-  } else {
-    return { success: true, method: 'dev_fallback', resetUrl };
+  if (!transporter) {
+    throw new Error('Email service is not configured. Please set SMTP_USER and SMTP_PASS in environment settings.');
+  }
+
+  try {
+    await Promise.race([
+      transporter.sendMail({
+        from: smtpFrom ? (smtpFrom.includes('<') ? smtpFrom : `"GoaSportX" <${smtpFrom}>`) : `"GoaSportX" <noreply@goasportx.com>`,
+        to: email,
+        subject: 'Reset your GoaSportX Password',
+        text: message,
+        html,
+      }),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('SMTP Connection Timed Out')), 12000)
+      ),
+    ]);
+    return { success: true, method: 'smtp' };
+  } catch (err) {
+    console.error('[SMTP Reset Link Email Error]', err.message);
+    throw new Error(`Email delivery failed: ${err.message}`);
   }
 };
 
@@ -147,34 +161,29 @@ GoaSportX Security Team
   const smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
   const smtpFrom = process.env.SMTP_FROM || smtpUser;
 
-  if (transporter) {
-    try {
-      await Promise.race([
-        transporter.sendMail({
-          from: smtpFrom ? (smtpFrom.includes('<') ? smtpFrom : `"GoaSportX Security" <${smtpFrom}>`) : `"GoaSportX" <noreply@goasportx.com>`,
-          to: email,
-          subject: `${otpCode} is your GoaSportX Password Reset OTP Code`,
-          text: message,
-          html,
-        }),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('SMTP Connection Timed Out after 8 seconds')), 8000)
-        ),
-      ]);
-      console.log(`[REAL EMAIL SENT] OTP email delivered to ${email}`);
-      return { success: true, method: 'smtp' };
-    } catch (err) {
-      console.error('[SMTP OTP Email Delivery Failed]', err.message);
-      console.log('----------------------------------------------------');
-      console.log(`[FALLBACK OTP CODE FOR ${email}]: ${otpCode}`);
-      console.log('----------------------------------------------------');
-      return { success: true, method: 'fallback', otpCode, error: err.message };
-    }
-  } else {
-    console.log('----------------------------------------------------');
-    console.log(`[GoaSportX Password Reset OTP Code for ${email}]`);
-    console.log(`OTP Code: ${otpCode}`);
-    console.log('----------------------------------------------------');
-    return { success: true, method: 'console_log', otpCode };
+  if (!transporter) {
+    const errorMsg = 'Email service is not configured. Please set SMTP_USER (your Gmail address) and SMTP_PASS (your 16-character Gmail App Password) in your server .env file or Render Environment variables.';
+    console.error('[SMTP Config Missing]', errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  try {
+    await Promise.race([
+      transporter.sendMail({
+        from: smtpFrom ? (smtpFrom.includes('<') ? smtpFrom : `"GoaSportX Security" <${smtpFrom}>`) : `"GoaSportX" <noreply@goasportx.com>`,
+        to: email,
+        subject: `${otpCode} is your GoaSportX Password Reset OTP Code`,
+        text: message,
+        html,
+      }),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('SMTP Connection timed out after 12 seconds. Please verify your Gmail App Password and network settings.')), 12000)
+      ),
+    ]);
+    console.log(`[REAL EMAIL SENT SUCCESS] OTP email delivered to ${email}`);
+    return { success: true, method: 'smtp' };
+  } catch (err) {
+    console.error('[SMTP Email Delivery Error]', err.message);
+    throw new Error(`Failed to deliver OTP email: ${err.message}`);
   }
 };
