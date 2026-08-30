@@ -3,41 +3,30 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const getTransporter = () => {
+const createTransporterForConfig = (port = 587, secure = false) => {
   let smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
-  let smtpPass = (process.env.SMTP_PASS || process.env.GMAIL_PASS || '').replace(/\s+/g, ''); // Strip spaces from App Password
+  let smtpPass = (process.env.SMTP_PASS || process.env.GMAIL_PASS || '').replace(/\s+/g, '');
   const smtpHost = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
-  const smtpPort = Number(process.env.SMTP_PORT) || 465;
 
   if (!smtpUser || !smtpPass || smtpUser.includes('your_personal_email') || smtpPass.includes('your_16_character')) {
     return null;
   }
 
-  // Use service: 'gmail' if host is smtp.gmail.com
-  if (smtpHost.includes('gmail')) {
-    return nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
-      },
-      connectionTimeout: 12000, // 12s connection timeout
-      greetingTimeout: 8000,
-      socketTimeout: 15000,
-    });
-  }
-
   return nodemailer.createTransport({
     host: smtpHost,
-    port: smtpPort,
-    secure: smtpPort === 465,
+    port: port,
+    secure: secure,
+    requireTLS: !secure,
     auth: {
       user: smtpUser,
       pass: smtpPass,
     },
-    connectionTimeout: 12000,
-    greetingTimeout: 8000,
-    socketTimeout: 15000,
+    connectionTimeout: 8000,
+    greetingTimeout: 5000,
+    socketTimeout: 10000,
+    tls: {
+      rejectUnauthorized: false,
+    },
   });
 };
 
@@ -88,30 +77,28 @@ GoaSportX Team
     </div>
   `;
 
-  const transporter = getTransporter();
-  const smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
-  const smtpFrom = process.env.SMTP_FROM || smtpUser;
+  let smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
+  let smtpPass = (process.env.SMTP_PASS || process.env.GMAIL_PASS || '').replace(/\s+/g, '');
+  let smtpFrom = process.env.SMTP_FROM || smtpUser;
 
-  if (!transporter) {
+  if (!smtpUser || !smtpPass || smtpUser.includes('your_personal_email') || smtpPass.includes('your_16_character')) {
     throw new Error('Email service is not configured. Please set SMTP_USER and SMTP_PASS in environment settings.');
   }
 
+  const mailOptions = {
+    from: smtpFrom ? (smtpFrom.includes('<') ? smtpFrom : `"GoaSportX" <${smtpFrom}>`) : `"GoaSportX" <noreply@goasportx.com>`,
+    to: email,
+    subject: 'Reset your GoaSportX Password',
+    text: message,
+    html,
+  };
+
   try {
-    await Promise.race([
-      transporter.sendMail({
-        from: smtpFrom ? (smtpFrom.includes('<') ? smtpFrom : `"GoaSportX" <${smtpFrom}>`) : `"GoaSportX" <noreply@goasportx.com>`,
-        to: email,
-        subject: 'Reset your GoaSportX Password',
-        text: message,
-        html,
-      }),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('SMTP Connection Timed Out')), 12000)
-      ),
-    ]);
-    return { success: true, method: 'smtp' };
+    const t587 = createTransporterForConfig(587, false);
+    await t587.sendMail(mailOptions);
+    return { success: true, method: 'smtp_587' };
   } catch (err) {
-    console.error('[SMTP Reset Link Email Error]', err.message);
+    console.error('[SMTP Link Email Error]', err.message);
     throw new Error(`Email delivery failed: ${err.message}`);
   }
 };
@@ -157,33 +144,61 @@ GoaSportX Security Team
     </div>
   `;
 
-  const transporter = getTransporter();
-  const smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
-  const smtpFrom = process.env.SMTP_FROM || smtpUser;
+  let smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
+  let smtpPass = (process.env.SMTP_PASS || process.env.GMAIL_PASS || '').replace(/\s+/g, '');
+  let smtpFrom = process.env.SMTP_FROM || smtpUser;
 
-  if (!transporter) {
-    const errorMsg = 'Email service is not configured. Please set SMTP_USER (your Gmail address) and SMTP_PASS (your 16-character Gmail App Password) in your server .env file or Render Environment variables.';
-    console.error('[SMTP Config Missing]', errorMsg);
-    throw new Error(errorMsg);
+  if (!smtpUser || !smtpPass || smtpUser.includes('your_personal_email') || smtpPass.includes('your_16_character')) {
+    throw new Error('Email service is not configured. Please set SMTP_USER (your Gmail) and SMTP_PASS (your 16-character Gmail App Password) in your server .env file or Render environment settings.');
   }
 
+  const mailOptions = {
+    from: smtpFrom ? (smtpFrom.includes('<') ? smtpFrom : `"GoaSportX Security" <${smtpFrom}>`) : `"GoaSportX" <noreply@goasportx.com>`,
+    to: email,
+    subject: `${otpCode} is your GoaSportX Password Reset OTP Code`,
+    text: message,
+    html,
+  };
+
+  // Attempt 1: Port 587 (STARTTLS - standard non-blocked port)
   try {
+    const t587 = createTransporterForConfig(587, false);
     await Promise.race([
-      transporter.sendMail({
-        from: smtpFrom ? (smtpFrom.includes('<') ? smtpFrom : `"GoaSportX Security" <${smtpFrom}>`) : `"GoaSportX" <noreply@goasportx.com>`,
-        to: email,
-        subject: `${otpCode} is your GoaSportX Password Reset OTP Code`,
-        text: message,
-        html,
-      }),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('SMTP Connection timed out after 12 seconds. Please verify your Gmail App Password and network settings.')), 12000)
-      ),
+      t587.sendMail(mailOptions),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Port 587 Connection Timeout')), 6000)),
     ]);
-    console.log(`[REAL EMAIL SENT SUCCESS] OTP email delivered to ${email}`);
-    return { success: true, method: 'smtp' };
-  } catch (err) {
-    console.error('[SMTP Email Delivery Error]', err.message);
-    throw new Error(`Failed to deliver OTP email: ${err.message}`);
+    console.log(`[REAL EMAIL SENT SUCCESS] OTP email delivered to ${email} via Port 587`);
+    return { success: true, method: 'smtp_587' };
+  } catch (err587) {
+    console.warn('[Port 587 Failed/Timed Out, trying Port 465 SSL...]', err587.message);
+  }
+
+  // Attempt 2: Port 465 (SSL)
+  try {
+    const t465 = createTransporterForConfig(465, true);
+    await Promise.race([
+      t465.sendMail(mailOptions),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Port 465 Connection Timeout')), 6000)),
+    ]);
+    console.log(`[REAL EMAIL SENT SUCCESS] OTP email delivered to ${email} via Port 465`);
+    return { success: true, method: 'smtp_465' };
+  } catch (err465) {
+    console.warn('[Port 465 Failed/Timed Out, trying Gmail Service...]', err465.message);
+  }
+
+  // Attempt 3: Nodemailer Built-in Service: 'gmail'
+  try {
+    const tGmail = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: smtpUser, pass: smtpPass },
+      tls: { rejectUnauthorized: false },
+      connectionTimeout: 8000,
+    });
+    await tGmail.sendMail(mailOptions);
+    console.log(`[REAL EMAIL SENT SUCCESS] OTP email delivered to ${email} via Gmail Service`);
+    return { success: true, method: 'gmail_service' };
+  } catch (errGmail) {
+    console.error('[All SMTP Delivery Methods Failed]', errGmail.message);
+    throw new Error(`Gmail rejected authentication. Please ensure your 16-character App Password is correct. Error: ${errGmail.message}`);
   }
 };
