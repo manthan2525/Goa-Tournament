@@ -61,9 +61,6 @@ const ForgotPassword = () => {
       if (res.data.success) {
         setStep(2);
         setSuccessMessage(res.data.message || 'OTP code sent to your email address.');
-        if (res.data.devOtp) {
-          setDevOtp(res.data.devOtp);
-        }
         setCooldown(30); // 30 second cooldown before resending
       }
     } catch (err) {
@@ -159,20 +156,6 @@ const ForgotPassword = () => {
           <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-xs text-emerald-700 dark:text-emerald-400 flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
             <span>{successMessage}</span>
-          </div>
-        )}
-
-        {/* Dev / Network Fallback OTP Box */}
-        {devOtp && step === 2 && (
-          <div className="p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 rounded-2xl text-xs space-y-1 text-amber-900 dark:text-amber-300 animate-in fade-in">
-            <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-[10px] text-amber-700 dark:text-amber-400">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              <span>OTP Verification Code:</span>
-            </div>
-            <p className="font-mono font-black text-2xl text-slate-900 dark:text-white tracking-widest my-1">
-              {devOtp}
-            </p>
-            <p className="text-[10px] opacity-80">Use this 6-digit verification code to update your password below.</p>
           </div>
         )}
 

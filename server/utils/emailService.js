@@ -13,7 +13,7 @@ try {
   // ignore
 }
 
-const createTransporterForConfig = (port = 587, secure = false) => {
+const getTransporter = () => {
   let smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
   let smtpPass = (process.env.SMTP_PASS || process.env.GMAIL_PASS || '').replace(/\s+/g, '');
   const smtpHost = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
@@ -22,20 +22,32 @@ const createTransporterForConfig = (port = 587, secure = false) => {
     return null;
   }
 
+  // Use Nodemailer service: 'gmail' for Gmail accounts
+  if (smtpHost.includes('gmail') || smtpUser.endsWith('@gmail.com')) {
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: smtpUser,
+        pass: smtpPass,
+      },
+      family: 4,
+      lookup: (h, o, cb) => dns.lookup(h, { family: 4 }, cb),
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+  }
+
   return nodemailer.createTransport({
     host: smtpHost,
-    port: port,
-    secure: secure,
-    requireTLS: !secure,
-    family: 4, // Force IPv4
-    lookup: (h, o, cb) => dns.lookup(h, { family: 4 }, cb), // Explicit IPv4 DNS lookup callback
+    port: Number(process.env.SMTP_PORT) || 465,
+    secure: Number(process.env.SMTP_PORT) === 465,
+    family: 4,
+    lookup: (h, o, cb) => dns.lookup(h, { family: 4 }, cb),
     auth: {
       user: smtpUser,
       pass: smtpPass,
     },
-    connectionTimeout: 8000,
-    greetingTimeout: 5000,
-    socketTimeout: 10000,
     tls: {
       rejectUnauthorized: false,
     },
@@ -89,11 +101,11 @@ GoaSportX Team
     </div>
   `;
 
+  const transporter = getTransporter();
   let smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
-  let smtpPass = (process.env.SMTP_PASS || process.env.GMAIL_PASS || '').replace(/\s+/g, '');
   let smtpFrom = process.env.SMTP_FROM || smtpUser;
 
-  if (!smtpUser || !smtpPass || smtpUser.includes('your_personal_email') || smtpPass.includes('your_16_character')) {
+  if (!transporter) {
     throw new Error('Email service is not configured. Please set SMTP_USER and SMTP_PASS in environment settings.');
   }
 
@@ -106,11 +118,10 @@ GoaSportX Team
   };
 
   try {
-    const t587 = createTransporterForConfig(587, false);
-    await t587.sendMail(mailOptions);
-    return { success: true, method: 'smtp_587' };
+    const info = await transporter.sendMail(mailOptions);
+    return { success: true, messageId: info.messageId };
   } catch (err) {
-    console.error('[SMTP Link Email Error]', err.message);
+    console.error('[SMTP Reset Link Email Error]', err.message);
     throw new Error(`Email delivery failed: ${err.message}`);
   }
 };
@@ -156,11 +167,11 @@ GoaSportX Security Team
     </div>
   `;
 
+  const transporter = getTransporter();
   let smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
-  let smtpPass = (process.env.SMTP_PASS || process.env.GMAIL_PASS || '').replace(/\s+/g, '');
   let smtpFrom = process.env.SMTP_FROM || smtpUser;
 
-  if (!smtpUser || !smtpPass || smtpUser.includes('your_personal_email') || smtpPass.includes('your_16_character')) {
+  if (!transporter) {
     throw new Error('Email service is not configured. Please set SMTP_USER (your Gmail) and SMTP_PASS (your 16-character Gmail App Password) in your server .env file or Render environment settings.');
   }
 
@@ -172,65 +183,16 @@ GoaSportX Security Team
     html,
   };
 
-  // Attempt 1: Port 587 (STARTTLS - standard non-blocked port)
   try {
-    const t587 = createTransporterForConfig(587, false);
-    await Promise.race([
-      t587.sendMail(mailOptions),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Port 587 Connection Timeout')), 6000)),
-    ]);
-    console.log(`[REAL EMAIL SENT SUCCESS] OTP email delivered to ${email} via Port 587`);
-    return { success: true, method: 'smtp_587' };
-  } catch (err587) {
-    console.warn('[Port 587 Failed/Timed Out, trying Port 465 SSL...]', err587.message);
-  }
-
-  // Attempt 2: Port 465 (SSL)
-  try {
-    const t465 = createTransporterForConfig(465, true);
-    await Promise.race([
-      t465.sendMail(mailOptions),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Port 465 Connection Timeout')), 6000)),
-    ]);
-    console.log(`[REAL EMAIL SENT SUCCESS] OTP email delivered to ${email} via Port 465`);
-    return { success: true, method: 'smtp_465' };
-  } catch (err465) {
-    console.warn('[Port 465 Failed/Timed Out, trying Gmail Service...]', err465.message);
-  }
-
-  // Attempt 3: Nodemailer Built-in Service: 'gmail'
-  try {
-    const tGmail = nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user: smtpUser, pass: smtpPass },
-      family: 4, // Force IPv4
-      lookup: (h, o, cb) => dns.lookup(h, { family: 4 }, cb), // Explicit IPv4 DNS lookup callback
-      tls: { rejectUnauthorized: false },
-      connectionTimeout: 8000,
-    });
-    await tGmail.sendMail(mailOptions);
-    console.log(`[REAL EMAIL SENT SUCCESS] OTP email delivered to ${email} via Gmail Service`);
-    return { success: true, method: 'gmail_service' };
-  } catch (errGmail) {
-    const isBadCredentials = errGmail.message?.includes('535') || errGmail.message?.includes('Invalid login') || errGmail.code === 'EAUTH';
-    const isTimeout = errGmail.message?.includes('Timeout') || errGmail.message?.includes('ETIMEDOUT') || errGmail.code === 'ETIMEDOUT';
-
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`[REAL EMAIL SENT SUCCESS] OTP email delivered to ${email} (Message ID: ${info.messageId})`);
+    return { success: true, messageId: info.messageId };
+  } catch (err) {
+    console.error('[SMTP Email Delivery Error]', err.message);
+    const isBadCredentials = err.message?.includes('535') || err.message?.includes('Invalid login') || err.code === 'EAUTH';
     if (isBadCredentials) {
-      const errText = `Gmail authentication rejected (535 Bad Credentials) for ${smtpUser}. The App Password in server/.env is invalid. Please generate a fresh 16-character App Password at myaccount.google.com/apppasswords.`;
-      console.error('[SMTP Auth Error]', errText);
-      throw new Error(errText);
+      throw new Error(`Gmail authentication failed (535 Bad Credentials). Please verify your 16-character App Password at myaccount.google.com/apppasswords.`);
     }
-
-    if (isTimeout) {
-      console.warn('[Local ISP / Firewall blocked SMTP ports 587 & 465]');
-      console.log('====================================================');
-      console.log(`[LOCAL DEV FALLBACK OTP CODE FOR ${email}]: ${otpCode}`);
-      console.log('====================================================');
-      return { success: true, method: 'local_port_blocked_fallback', devOtp: otpCode };
-    }
-
-    console.error('[SMTP Email Error]', errGmail.message);
-    console.log(`[FALLBACK OTP CODE FOR ${email}]: ${otpCode}`);
-    return { success: true, method: 'local_port_blocked_fallback', devOtp: otpCode };
+    throw new Error(`Failed to deliver OTP email to ${email}: ${err.message}`);
   }
 };
