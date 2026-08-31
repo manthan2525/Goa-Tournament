@@ -57,10 +57,16 @@ const ForgotPassword = () => {
 
     try {
       setSubmitting(true);
+      const isResend = step === 2;
       const res = await api.post('/auth/forgot-password', { email: email.trim() });
       if (res.data.success) {
         setStep(2);
-        setSuccessMessage(res.data.message || 'OTP code sent to your email address.');
+        setOtp(''); // Clear input for new OTP
+        setSuccessMessage(
+          isResend
+            ? `✨ A new 6-digit OTP code has been sent to ${email.trim()}. Please check your inbox & spam.`
+            : res.data.message || 'OTP code sent to your email address.'
+        );
         setCooldown(30); // 30 second cooldown before resending
       }
     } catch (err) {
