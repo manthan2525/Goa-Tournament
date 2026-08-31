@@ -184,7 +184,12 @@ GoaSportX Security Team
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
+    const info = await Promise.race([
+      transporter.sendMail(mailOptions),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Email server connection timed out after 6 seconds. Please try again.')), 6000)
+      ),
+    ]);
     console.log(`[REAL EMAIL SENT SUCCESS] OTP email delivered to ${email} (Message ID: ${info.messageId})`);
     return { success: true, messageId: info.messageId };
   } catch (err) {
