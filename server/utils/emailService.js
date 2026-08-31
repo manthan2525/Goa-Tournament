@@ -25,7 +25,20 @@ const ipv4Lookup = (hostname, options, callback) => {
   });
 };
 
-const getTransporter = () => {
+// Resolve smtp.gmail.com to explicit IPv4 IP string address so Node.js net socket never attempts IPv6
+const getGmailIpv4Host = async () => {
+  try {
+    const ips = await dns.promises.resolve4('smtp.gmail.com');
+    if (ips && ips.length > 0) {
+      return ips[0]; // e.g. '192.178.211.108'
+    }
+  } catch (e) {
+    // fallback
+  }
+  return 'smtp.gmail.com';
+};
+
+const getTransporter = async () => {
   let smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
   let smtpPass = (process.env.SMTP_PASS || process.env.GMAIL_PASS || '').replace(/\s+/g, '');
   const smtpHost = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
@@ -36,21 +49,23 @@ const getTransporter = () => {
 
   // Use Port 587 STARTTLS for Gmail accounts (unblocked on Render and cloud hosts)
   if (smtpHost.includes('gmail') || smtpUser.endsWith('@gmail.com')) {
+    const targetHost = await getGmailIpv4Host();
     return nodemailer.createTransport({
-      host: 'smtp.gmail.com',
+      host: targetHost,
       port: 587,
       secure: false,
       requireTLS: true,
+      family: 4,
+      lookup: ipv4Lookup,
       auth: {
         user: smtpUser,
         pass: smtpPass,
       },
-      family: 4,
-      lookup: ipv4Lookup,
       connectionTimeout: 10000,
       greetingTimeout: 5000,
       socketTimeout: 15000,
       tls: {
+        servername: 'smtp.gmail.com',
         rejectUnauthorized: false,
       },
     });
@@ -119,7 +134,7 @@ GoaSportX Team
     </div>
   `;
 
-  const transporter = getTransporter();
+  const transporter = await getTransporter();
   let smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
   let smtpFrom = process.env.SMTP_FROM || smtpUser;
 
@@ -185,7 +200,7 @@ GoaSportX Security Team
     </div>
   `;
 
-  const transporter = getTransporter();
+  const transporter = await getTransporter();
   let smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
   let smtpFrom = process.env.SMTP_FROM || smtpUser;
 
