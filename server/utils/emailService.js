@@ -110,9 +110,9 @@ GoaSportX Team
   }
 
   const mailOptions = {
-    from: smtpFrom ? (smtpFrom.includes('<') ? smtpFrom : `"GoaSportX" <${smtpFrom}>`) : `"GoaSportX" <noreply@goasportx.com>`,
+    from: smtpUser,
     to: email,
-    subject: 'Reset your GoaSportX Password',
+    subject: '[GoaSportX] Reset your Password',
     text: message,
     html,
   };
@@ -176,9 +176,9 @@ GoaSportX Security Team
   }
 
   const mailOptions = {
-    from: smtpFrom ? (smtpFrom.includes('<') ? smtpFrom : `"GoaSportX Security" <${smtpFrom}>`) : `"GoaSportX" <noreply@goasportx.com>`,
+    from: smtpUser, // Plain email address prevents Google from dropping emails due to display name spoofing
     to: email,
-    subject: `${otpCode} is your GoaSportX Password Reset OTP Code`,
+    subject: `[GoaSportX] ${otpCode} is your Password Reset OTP Code`,
     text: message,
     html,
   };
