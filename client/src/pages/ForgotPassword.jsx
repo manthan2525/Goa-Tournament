@@ -153,9 +153,14 @@ const ForgotPassword = () => {
 
         {/* Success Alert */}
         {successMessage && step !== 3 && (
-          <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-xs text-emerald-700 dark:text-emerald-400 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-            <span>{successMessage}</span>
+          <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-xs text-emerald-700 dark:text-emerald-400 space-y-1">
+            <div className="flex items-center gap-2 font-semibold">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+              <span>{successMessage}</span>
+            </div>
+            <p className="text-[11px] opacity-90 pl-6">
+              📩 Please check your <strong>Primary inbox</strong> and <strong>Spam / Junk folder</strong> for an email from GoaSportX.
+            </p>
           </div>
         )}
 
