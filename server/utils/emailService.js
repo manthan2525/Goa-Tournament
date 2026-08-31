@@ -13,6 +13,18 @@ try {
   // ignore
 }
 
+// Strict IPv4 DNS lookup callback to prevent ENETUNREACH IPv6 socket errors on Render/Linux
+const ipv4Lookup = (hostname, options, callback) => {
+  if (typeof options === 'function') {
+    callback = options;
+    options = {};
+  }
+  dns.lookup(hostname, { family: 4, hints: 0 }, (err, address) => {
+    if (err) return callback(err);
+    callback(null, address, 4);
+  });
+};
+
 const getTransporter = () => {
   let smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
   let smtpPass = (process.env.SMTP_PASS || process.env.GMAIL_PASS || '').replace(/\s+/g, '');
@@ -34,7 +46,7 @@ const getTransporter = () => {
         pass: smtpPass,
       },
       family: 4,
-      lookup: (h, o, cb) => dns.lookup(h, { family: 4 }, cb),
+      lookup: ipv4Lookup,
       connectionTimeout: 10000,
       greetingTimeout: 5000,
       socketTimeout: 15000,
@@ -49,7 +61,7 @@ const getTransporter = () => {
     port: Number(process.env.SMTP_PORT) || 465,
     secure: Number(process.env.SMTP_PORT) === 465,
     family: 4,
-    lookup: (h, o, cb) => dns.lookup(h, { family: 4 }, cb),
+    lookup: ipv4Lookup,
     auth: {
       user: smtpUser,
       pass: smtpPass,
