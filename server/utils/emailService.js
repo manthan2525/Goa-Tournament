@@ -25,6 +25,40 @@ const ipv4Lookup = (hostname, options, callback) => {
   });
 };
 
+// Resend HTTPS API delivery helper (Port 443 - 100% unblocked on Render and cloud hosts)
+const sendViaResendApi = async (to, subject, html, text) => {
+  const apiKey = (process.env.RESEND_API_KEY || process.env.EMAIL_API_KEY || '').trim();
+  if (!apiKey) return null;
+
+  try {
+    const fromAddress = process.env.RESEND_FROM || 'GoaSportX Security <onboarding@resend.dev>';
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: fromAddress,
+        to: [to],
+        subject: subject,
+        html: html,
+        text: text,
+      }),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      console.log(`[RESEND HTTPS API SUCCESS] Email delivered to ${to} (Message ID: ${data.id})`);
+      return { success: true, messageId: data.id, method: 'resend_https_api' };
+    }
+    console.warn('[Resend HTTPS API Warning]', data.message || JSON.stringify(data));
+  } catch (err) {
+    console.error('[Resend HTTPS API Error]', err.message);
+  }
+  return null;
+};
+
 // Resolve smtp.gmail.com to explicit IPv4 IP string address so Node.js net socket never attempts IPv6
 const getGmailIpv4Host = async () => {
   try {
@@ -200,12 +234,18 @@ GoaSportX Security Team
     </div>
   `;
 
+  // Attempt 1: Resend HTTPS API (Port 443 - 100% unblocked on Render)
+  if (process.env.RESEND_API_KEY || process.env.EMAIL_API_KEY) {
+    const resendResult = await sendViaResendApi(email, `[GoaSportX] ${otpCode} is your Password Reset OTP Code`, html, message);
+    if (resendResult) return resendResult;
+  }
+
   const transporter = await getTransporter();
   let smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
   let smtpFrom = process.env.SMTP_FROM || smtpUser;
 
   if (!transporter) {
-    throw new Error('Email service is not configured. Please set SMTP_USER (your Gmail) and SMTP_PASS (your 16-character Gmail App Password) in your server .env file or Render environment settings.');
+    throw new Error('Email service is not configured. Please set RESEND_API_KEY (or SMTP_USER and SMTP_PASS) in your environment settings.');
   }
 
   const mailOptions = {
