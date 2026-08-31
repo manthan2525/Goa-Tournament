@@ -22,16 +22,22 @@ const getTransporter = () => {
     return null;
   }
 
-  // Use Nodemailer service: 'gmail' for Gmail accounts
+  // Use Port 587 STARTTLS for Gmail accounts (unblocked on Render and cloud hosts)
   if (smtpHost.includes('gmail') || smtpUser.endsWith('@gmail.com')) {
     return nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      requireTLS: true,
       auth: {
         user: smtpUser,
         pass: smtpPass,
       },
       family: 4,
       lookup: (h, o, cb) => dns.lookup(h, { family: 4 }, cb),
+      connectionTimeout: 10000,
+      greetingTimeout: 5000,
+      socketTimeout: 15000,
       tls: {
         rejectUnauthorized: false,
       },
@@ -187,7 +193,7 @@ GoaSportX Security Team
     const info = await Promise.race([
       transporter.sendMail(mailOptions),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Email server connection timed out after 6 seconds. Please try again.')), 6000)
+        setTimeout(() => reject(new Error('Email server connection timed out after 12 seconds. Please check your network connection and try again.')), 12000)
       ),
     ]);
     console.log(`[REAL EMAIL SENT SUCCESS] OTP email delivered to ${email} (Message ID: ${info.messageId})`);
