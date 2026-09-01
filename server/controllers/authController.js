@@ -141,9 +141,9 @@ export const login = async (req, res, next) => {
 
     const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
     if (!user) {
-      return res.status(401).json({
+      return res.status(404).json({
         success: false,
-        message: 'Invalid email or password.',
+        message: 'No account found with this email address. Please check your email or register a new account.',
       });
     }
 
@@ -324,7 +324,7 @@ export const forgotPassword = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'No account found with this email address.',
+        message: 'No account found with this email address. Please check your email or register a new account.',
       });
     }
 
