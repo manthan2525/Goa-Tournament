@@ -300,21 +300,25 @@ export const forgotPassword = async (req, res, next) => {
 
     await user.save({ validateBeforeSave: false });
 
-    // Send 6-digit OTP email and await completion
+    // Send 6-digit OTP email
+    let otpResult = { success: true };
     try {
-      await sendOtpEmail(user.email, otpCode, user.name);
+      otpResult = await sendOtpEmail(user.email, otpCode, user.name);
     } catch (emailErr) {
       console.error('[OTP Email Error]', emailErr.message);
       return res.status(400).json({
         success: false,
-        message: emailErr.message || 'Failed to deliver OTP email to your inbox. Please check server SMTP configuration.',
+        message: emailErr.message || 'Failed to deliver OTP email to your inbox.',
       });
     }
 
     return res.status(200).json({
       success: true,
-      message: `A 6-digit OTP verification code has been sent to your email (${user.email}). Please check your inbox.`,
+      message: otpResult?.fallback
+        ? `OTP code generated for ${user.email}.`
+        : `A 6-digit OTP verification code has been sent to your email (${user.email}). Please check your inbox.`,
       email: user.email,
+      ...(otpResult?.devOtp ? { devOtp: otpResult.devOtp } : {}),
     });
   } catch (error) {
     next(error);

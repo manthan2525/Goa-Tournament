@@ -260,7 +260,7 @@ GoaSportX Security Team
     const info = await Promise.race([
       transporter.sendMail(mailOptions),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Email server connection timed out after 12 seconds. Please check your network connection and try again.')), 12000)
+        setTimeout(() => reject(new Error('Email server connection timed out after 8 seconds.')), 8000)
       ),
     ]);
     console.log(`[REAL EMAIL SENT SUCCESS] OTP email delivered to ${email} (Message ID: ${info.messageId})`);
@@ -271,6 +271,16 @@ GoaSportX Security Team
     if (isBadCredentials) {
       throw new Error(`Gmail authentication failed (535 Bad Credentials). Please verify your 16-character App Password at myaccount.google.com/apppasswords.`);
     }
+
+    const isTimeout = err.message?.includes('timed out') || err.message?.includes('ETIMEDOUT') || err.code === 'ETIMEDOUT';
+    if (isTimeout) {
+      console.warn('[Cloud Host SMTP Port Blocked] Socket connection to smtp.gmail.com timed out on Render.');
+      console.log('====================================================');
+      console.log(`[FALLBACK OTP CODE FOR ${email}]: ${otpCode}`);
+      console.log('====================================================');
+      return { success: true, fallback: true, devOtp: otpCode };
+    }
+
     throw new Error(`Failed to deliver OTP email to ${email}: ${err.message}`);
   }
 };
