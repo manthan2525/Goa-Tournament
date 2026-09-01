@@ -21,8 +21,8 @@ const createAdminAccount = async () => {
       process.exit(1);
     }
 
-    const email = (process.env.ADMIN_EMAIL || 'admin@goatournament.com').toLowerCase().trim();
-    const password = process.env.ADMIN_PASSWORD || 'AdminGoa2026!';
+    const email = (process.env.ADMIN_EMAIL || 'goasportx004@gmail.com').toLowerCase().trim();
+    const password = process.env.ADMIN_PASSWORD || 'goasportx@123';
     const name = process.env.ADMIN_NAME || 'Platform Administrator';
 
     console.log(`Connecting to MongoDB Atlas...`);
