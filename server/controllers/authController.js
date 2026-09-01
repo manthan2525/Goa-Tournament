@@ -77,6 +77,8 @@ export const register = async (req, res, next) => {
     }
 
     // Never allow ADMIN creation via public register endpoint
+    const assignedRole = role === 'ORGANIZER' ? 'ORGANIZER' : 'PLAYER';
+
     // Generate 6-digit Email Verification OTP
     const verificationOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const hashedVerificationOtp = crypto.createHash('sha256').update(verificationOtpCode).digest('hex');
