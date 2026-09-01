@@ -59,6 +59,40 @@ const sendViaResendApi = async (to, subject, html, text) => {
   return null;
 };
 
+// Brevo HTTPS API delivery helper (Port 443 - 300 free emails/day to any recipient)
+const sendViaBrevoApi = async (to, subject, html, text) => {
+  const apiKey = (process.env.BREVO_API_KEY || '').trim();
+  if (!apiKey) return null;
+
+  try {
+    const senderEmail = (process.env.SMTP_USER || 'goasportx004@gmail.com').trim();
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'api-key': apiKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sender: { name: 'GoaSportX', email: senderEmail },
+        to: [{ email: to }],
+        subject: subject,
+        htmlContent: html,
+        textContent: text,
+      }),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      console.log(`[BREVO HTTPS API SUCCESS] Email delivered to ${to} (Message ID: ${data.messageId})`);
+      return { success: true, messageId: data.messageId, method: 'brevo_https_api' };
+    }
+    console.warn('[Brevo HTTPS API Warning]', data.message || JSON.stringify(data));
+  } catch (err) {
+    console.error('[Brevo HTTPS API Error]', err.message);
+  }
+  return null;
+};
+
 // Resolve smtp.gmail.com to explicit IPv4 IP string address so Node.js net socket never attempts IPv6
 const getGmailIpv4Host = async () => {
   try {
@@ -234,7 +268,13 @@ GoaSportX Security Team
     </div>
   `;
 
-  // Attempt 1: Resend HTTPS API (Port 443 - 100% unblocked on Render)
+  // Attempt 1: Brevo HTTPS API (Port 443 - 300 free emails/day to any recipient)
+  if (process.env.BREVO_API_KEY) {
+    const brevoResult = await sendViaBrevoApi(email, `[GoaSportX] ${otpCode} is your Password Reset OTP Code`, html, message);
+    if (brevoResult) return brevoResult;
+  }
+
+  // Attempt 2: Resend HTTPS API (Port 443 - 100% unblocked on Render)
   if (process.env.RESEND_API_KEY || process.env.EMAIL_API_KEY) {
     const resendResult = await sendViaResendApi(email, `[GoaSportX] ${otpCode} is your Password Reset OTP Code`, html, message);
     if (resendResult) return resendResult;
