@@ -274,11 +274,7 @@ GoaSportX Security Team
 
     const isTimeout = err.message?.includes('timed out') || err.message?.includes('ETIMEDOUT') || err.code === 'ETIMEDOUT';
     if (isTimeout) {
-      console.warn('[Cloud Host SMTP Port Blocked] Socket connection to smtp.gmail.com timed out on Render.');
-      console.log('====================================================');
-      console.log(`[FALLBACK OTP CODE FOR ${email}]: ${otpCode}`);
-      console.log('====================================================');
-      return { success: true, fallback: true, devOtp: otpCode };
+      throw new Error(`Email server connection timed out. On cloud hosts like Render, please add RESEND_API_KEY to your Render Environment settings for instant Port 443 email delivery.`);
     }
 
     throw new Error(`Failed to deliver OTP email to ${email}: ${err.message}`);

@@ -31,7 +31,6 @@ const ForgotPassword = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [devOtp, setDevOtp] = useState('');
   const [cooldown, setCooldown] = useState(0);
 
   // Resend cooldown timer
@@ -62,11 +61,6 @@ const ForgotPassword = () => {
       if (res.data.success) {
         setStep(2);
         setOtp(''); // Clear input for new OTP
-        if (res.data.devOtp) {
-          setDevOtp(res.data.devOtp);
-        } else {
-          setDevOtp('');
-        }
         setSuccessMessage(
           isResend
             ? `✨ A new 6-digit OTP code has been sent to ${email.trim()}. Please check your inbox & spam.`
@@ -169,26 +163,8 @@ const ForgotPassword = () => {
               <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
               <span>{successMessage}</span>
             </div>
-            {!devOtp && (
-              <p className="text-[11px] opacity-90 pl-6">
-                📩 Please check your <strong>Primary inbox</strong> and <strong>Spam / Junk folder</strong> for an email from GoaSportX.
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Fallback OTP Display when Cloud Host (Render) blocks SMTP ports */}
-        {devOtp && step === 2 && (
-          <div className="p-4 bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-700/70 rounded-2xl text-xs space-y-1.5 text-amber-900 dark:text-amber-300 animate-in fade-in">
-            <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-[11px] text-amber-800 dark:text-amber-400">
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              <span>Verification OTP Code:</span>
-            </div>
-            <p className="font-mono font-black text-3xl text-slate-900 dark:text-white tracking-widest my-1">
-              {devOtp}
-            </p>
-            <p className="text-[11px] opacity-90 leading-normal">
-              (Note: Render cloud host blocked SMTP socket connections. Enter this 6-digit verification code below to reset your password).
+            <p className="text-[11px] opacity-90 pl-6">
+              📩 Please check your <strong>Primary inbox</strong> and <strong>Spam / Junk folder</strong> for an email from GoaSportX.
             </p>
           </div>
         )}
