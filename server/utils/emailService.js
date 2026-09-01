@@ -53,8 +53,14 @@ const sendViaResendApi = async (to, subject, html, text) => {
       return { success: true, messageId: data.id, method: 'resend_https_api' };
     }
     console.warn('[Resend HTTPS API Warning]', data.message || JSON.stringify(data));
+    if (data.message && data.message.includes('only send testing emails')) {
+      throw new Error(`Resend free test domain only permits emails to goasportx004@gmail.com. Please enter goasportx004@gmail.com or add a Brevo API Key (xkeysib-...) on Render.`);
+    }
   } catch (err) {
     console.error('[Resend HTTPS API Error]', err.message);
+    if (err.message && err.message.includes('Resend free test domain')) {
+      throw err;
+    }
   }
   return null;
 };
