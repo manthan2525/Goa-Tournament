@@ -43,6 +43,7 @@ const createAdminAccount = async () => {
         // Elevate existing account to ADMIN
         adminUser.role = 'ADMIN';
         adminUser.isActive = true;
+        adminUser.isEmailVerified = true;
         await adminUser.save();
         console.log(`✅ Existing user "${email}" successfully elevated to active ADMIN role in "${conn.connection.name}".`);
       }
@@ -54,6 +55,7 @@ const createAdminAccount = async () => {
         password,
         role: 'ADMIN',
         isActive: true,
+        isEmailVerified: true,
         location: 'Panaji, Goa',
       });
       console.log(`✅ New Admin account successfully created in "${conn.connection.name}"!`);

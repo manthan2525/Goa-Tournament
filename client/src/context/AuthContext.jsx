@@ -56,10 +56,26 @@ export const AuthProvider = ({ children }) => {
     if (res.data?.success) {
       if (res.data.token) {
         localStorage.setItem('token', res.data.token);
+        setUser(res.data.user);
+      }
+      return res.data;
+    }
+  };
+
+  const verifyEmailOtp = async (email, otp) => {
+    const res = await api.post('/auth/verify-email-otp', { email, otp });
+    if (res.data?.success) {
+      if (res.data.token) {
+        localStorage.setItem('token', res.data.token);
       }
       setUser(res.data.user);
       return res.data;
     }
+  };
+
+  const resendVerificationOtp = async (email) => {
+    const res = await api.post('/auth/resend-verification-otp', { email });
+    return res.data;
   };
 
   const updateProfile = async (profileData) => {
@@ -111,6 +127,8 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         register,
+        verifyEmailOtp,
+        resendVerificationOtp,
         logout,
         checkUser,
         updateProfile,

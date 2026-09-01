@@ -53,9 +53,17 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: 'Goa, India',
     },
-    isActive: {
+    isEmailVerified: {
       type: Boolean,
-      default: true,
+      default: false,
+    },
+    verificationOtp: {
+      type: String,
+      default: null,
+    },
+    verificationOtpExpires: {
+      type: Date,
+      default: null,
     },
     resetPasswordToken: {
       type: String,

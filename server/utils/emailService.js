@@ -326,3 +326,86 @@ GoaSportX Security Team
     throw new Error(`Failed to deliver OTP email to ${email}: ${err.message}`);
   }
 };
+
+/**
+ * Sends a 6-digit Email Verification OTP code to new registered users
+ */
+export const sendVerificationOtpEmail = async (email, otpCode, userName = 'User') => {
+  const message = `
+Hello ${userName},
+
+Welcome to GoaSportX! Your 6-digit account verification code is: ${otpCode}
+
+This code is valid for 10 minutes. Please enter this code to activate your account.
+
+Best regards,
+GoaSportX Team
+  `.trim();
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 550px; margin: 0 auto; padding: 24px; background-color: #0f172a; color: #ffffff; border-radius: 16px;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="color: #ffffff; margin: 0; font-size: 24px;">Goa<span style="color: #f59e0b;">SportX</span></h2>
+        <p style="color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-top: 4px;">One Platform. Every Sport. Every Tournament.</p>
+      </div>
+      <div style="background-color: #1e293b; padding: 28px; border-radius: 12px; border: 1px solid #334155; text-align: center;">
+        <h3 style="margin-top: 0; color: #ffffff; font-size: 18px;">Account Email Verification</h3>
+        <p style="color: #cbd5e1; font-size: 14px; line-height: 1.5; margin-bottom: 20px;">
+          Welcome <strong>${userName}</strong>!<br/>Enter the 6-digit OTP code below to verify your email and activate your account:
+        </p>
+        
+        <div style="background-color: #0f172a; border: 2px dashed #10b981; border-radius: 12px; padding: 18px; margin: 24px 0; display: inline-block;">
+          <span style="font-family: monospace; font-size: 36px; font-weight: 800; letter-spacing: 10px; color: #10b981;">${otpCode}</span>
+        </div>
+        
+        <p style="color: #94a3b8; font-size: 12px; margin-top: 20px;">
+          This OTP code is valid for <strong>10 minutes</strong>.
+        </p>
+      </div>
+      <div style="text-align: center; margin-top: 20px; color: #64748b; font-size: 11px;">
+        &copy; ${new Date().getFullYear()} GoaSportX. All rights reserved.
+      </div>
+    </div>
+  `;
+
+  // Attempt 1: Brevo HTTPS API
+  if (process.env.BREVO_API_KEY) {
+    const brevoResult = await sendViaBrevoApi(email, `[GoaSportX] ${otpCode} is your Email Verification Code`, html, message);
+    if (brevoResult) return brevoResult;
+  }
+
+  // Attempt 2: Resend HTTPS API
+  if (process.env.RESEND_API_KEY || process.env.EMAIL_API_KEY) {
+    const resendResult = await sendViaResendApi(email, `[GoaSportX] ${otpCode} is your Email Verification Code`, html, message);
+    if (resendResult) return resendResult;
+  }
+
+  const transporter = await getTransporter();
+  let smtpUser = (process.env.SMTP_USER || process.env.GMAIL_USER || '').trim();
+
+  if (!transporter) {
+    throw new Error('Email service is not configured. Please set RESEND_API_KEY, BREVO_API_KEY, or SMTP_USER.');
+  }
+
+  const mailOptions = {
+    from: smtpUser,
+    to: email,
+    subject: `[GoaSportX] ${otpCode} is your Email Verification Code`,
+    text: message,
+    html,
+  };
+
+  try {
+    const info = await Promise.race([
+      transporter.sendMail(mailOptions),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Email server connection timed out after 8 seconds.')), 8000)
+      ),
+    ]);
+    console.log(`[VERIFICATION EMAIL SENT SUCCESS] Verification code delivered to ${email} (Message ID: ${info.messageId})`);
+    return { success: true, messageId: info.messageId };
+  } catch (err) {
+    console.error('[Verification Email Delivery Error]', err.message);
+    throw new Error(`Failed to deliver verification email to ${email}: ${err.message}`);
+  }
+};

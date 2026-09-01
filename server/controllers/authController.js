@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { uploadImageBuffer } from '../config/cloudinary.js';
-import { sendPasswordResetEmail, sendOtpEmail } from '../utils/emailService.js';
+import { sendPasswordResetEmail, sendOtpEmail, sendVerificationOtpEmail } from '../utils/emailService.js';
 import { createNotification } from '../utils/notify.js';
 import { logActivity } from '../models/ActivityLog.js';
 
@@ -77,7 +77,9 @@ export const register = async (req, res, next) => {
     }
 
     // Never allow ADMIN creation via public register endpoint
-    const assignedRole = role === 'ORGANIZER' ? 'ORGANIZER' : 'PLAYER';
+    // Generate 6-digit Email Verification OTP
+    const verificationOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashedVerificationOtp = crypto.createHash('sha256').update(verificationOtpCode).digest('hex');
 
     const user = await User.create({
       name: name.trim(),
@@ -89,6 +91,9 @@ export const register = async (req, res, next) => {
       profilePhoto: profilePhotoUrl,
       bio: bio || '',
       location: location || 'Goa, India',
+      isEmailVerified: false,
+      verificationOtp: hashedVerificationOtp,
+      verificationOtpExpires: Date.now() + 10 * 60 * 1000, // 10 minutes
     });
 
     await logActivity({
@@ -98,10 +103,22 @@ export const register = async (req, res, next) => {
       targetType: assignedRole === 'ORGANIZER' ? 'ORGANIZER' : 'USER',
       targetId: user._id,
       targetName: user.name,
-      details: `${user.name} registered as ${assignedRole}`,
+      details: `${user.name} registered as ${assignedRole} (Email Verification Pending)`,
     });
 
-    sendTokenResponse(user, 201, res, 'Registration successful! Welcome to Goa Tournament.');
+    // Send 6-digit Email Verification OTP
+    try {
+      await sendVerificationOtpEmail(user.email, verificationOtpCode, user.name);
+    } catch (emailErr) {
+      console.error('[Registration Verification Email Dispatch Error]', emailErr.message);
+    }
+
+    return res.status(201).json({
+      success: true,
+      requiresVerification: true,
+      email: user.email,
+      message: `Registration successful! A 6-digit verification code has been sent to your email (${user.email}). Please verify your email to activate your account.`,
+    });
   } catch (error) {
     next(error);
   }
@@ -140,6 +157,30 @@ export const login = async (req, res, next) => {
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password.',
+      });
+    }
+
+    // Check if email is verified
+    if (user.isEmailVerified === false) {
+      // Send fresh 6-digit Email Verification OTP
+      const verificationOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const hashedVerificationOtp = crypto.createHash('sha256').update(verificationOtpCode).digest('hex');
+
+      user.verificationOtp = hashedVerificationOtp;
+      user.verificationOtpExpires = Date.now() + 10 * 60 * 1000;
+      await user.save();
+
+      try {
+        await sendVerificationOtpEmail(user.email, verificationOtpCode, user.name);
+      } catch (e) {
+        // ignore email errors during login check
+      }
+
+      return res.status(403).json({
+        success: false,
+        requiresVerification: true,
+        email: user.email,
+        message: `Please verify your email address before signing in. A 6-digit verification code has been sent to your email (${user.email}).`,
       });
     }
 
@@ -321,6 +362,128 @@ export const forgotPassword = async (req, res, next) => {
   }
 };
 
+// @desc    Verify 6-digit Email Verification OTP for newly registered users
+// @route   POST /api/auth/verify-email-otp
+export const verifyEmailOtp = async (req, res, next) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide your email address and 6-digit verification OTP code.',
+      });
+    }
+
+    const cleanOtp = otp.toString().replace(/\D/g, '').trim();
+    if (cleanOtp.length !== 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Verification OTP must be a 6-digit number.',
+      });
+    }
+
+    const hashedOtp = crypto.createHash('sha256').update(cleanOtp).digest('hex');
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'No account found with this email address.',
+      });
+    }
+
+    if (user.isEmailVerified) {
+      return sendTokenResponse(user, 200, res, 'Your email is already verified! Welcome to GoaSportX.');
+    }
+
+    if (!user.verificationOtp || user.verificationOtp !== hashedOtp) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid 6-digit verification code. Please check your email and try again.',
+      });
+    }
+
+    if (user.verificationOtpExpires && user.verificationOtpExpires < Date.now()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Verification code has expired (valid for 10 minutes). Please click "Resend Code" to receive a new OTP.',
+      });
+    }
+
+    // Activate user email
+    user.isEmailVerified = true;
+    user.verificationOtp = null;
+    user.verificationOtpExpires = null;
+    await user.save();
+
+    await logActivity({
+      action: 'Email Verified',
+      performedBy: user._id,
+      performerRole: user.role,
+      targetType: 'USER',
+      targetId: user._id,
+      targetName: user.name,
+      details: `${user.name} verified their email address via OTP`,
+    });
+
+    sendTokenResponse(user, 200, res, 'Email verified successfully! Welcome to GoaSportX.');
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Resend 6-digit Email Verification OTP
+// @route   POST /api/auth/resend-verification-otp
+export const resendVerificationOtp = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide your email address.',
+      });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'No account found with this email address.',
+      });
+    }
+
+    if (user.isEmailVerified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Your email address is already verified.',
+      });
+    }
+
+    const verificationOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashedVerificationOtp = crypto.createHash('sha256').update(verificationOtpCode).digest('hex');
+
+    user.verificationOtp = hashedVerificationOtp;
+    user.verificationOtpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    await user.save();
+
+    try {
+      await sendVerificationOtpEmail(user.email, verificationOtpCode, user.name);
+    } catch (emailErr) {
+      console.error('[Resend Verification Email Error]', emailErr.message);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `A new 6-digit verification code has been sent to your email (${user.email}).`,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Reset password using 6-digit OTP
 // @route   POST /api/auth/reset-password-otp
 export const resetPasswordWithOtp = async (req, res, next) => {
@@ -334,6 +497,14 @@ export const resetPasswordWithOtp = async (req, res, next) => {
       });
     }
 
+    const cleanOtp = otp.toString().replace(/\D/g, '').trim();
+    if (cleanOtp.length !== 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'OTP verification code must be a 6-digit number.',
+      });
+    }
+
     if (password.length < 6) {
       return res.status(400).json({
         success: false,
@@ -341,19 +512,41 @@ export const resetPasswordWithOtp = async (req, res, next) => {
       });
     }
 
-    const cleanOtp = otp.toString().replace(/\D/g, '');
     const hashedOtp = crypto.createHash('sha256').update(cleanOtp).digest('hex');
 
     const user = await User.findOne({
       email: email.toLowerCase().trim(),
-      resetOtp: hashedOtp,
-      resetOtpExpires: { $gt: Date.now() },
-    });
+    }).select('+password');
 
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid or expired 6-digit OTP code. Please request a new OTP.',
+        message: 'No account found with this email address.',
+      });
+    }
+
+    // Check OTP validity
+    if (!user.resetOtp || user.resetOtp !== hashedOtp) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid 6-digit OTP verification code. Please check your email and try again.',
+      });
+    }
+
+    // Check OTP expiration
+    if (user.resetOtpExpires && user.resetOtpExpires < Date.now()) {
+      return res.status(400).json({
+        success: false,
+        message: 'OTP verification code has expired (valid for 10 minutes). Please request a new OTP.',
+      });
+    }
+
+    // Check requirement: "no old password" - new password cannot match current old password
+    const isSameAsOld = await user.matchPassword(password);
+    if (isSameAsOld) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password cannot be the same as your old password. Please choose a different password.',
       });
     }
 

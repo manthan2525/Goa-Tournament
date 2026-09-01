@@ -10,6 +10,8 @@ import {
   forgotPassword,
   resetPassword,
   resetPasswordWithOtp,
+  verifyEmailOtp,
+  resendVerificationOtp,
 } from '../controllers/authController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { upload } from '../middleware/uploadMiddleware.js';
@@ -18,6 +20,8 @@ const router = express.Router();
 
 // Public routes
 router.post('/register', upload.single('photo'), register);
+router.post('/verify-email-otp', verifyEmailOtp);
+router.post('/resend-verification-otp', resendVerificationOtp);
 router.post('/login', login);
 router.post('/logout', logout);
 router.post('/forgot-password', forgotPassword);
