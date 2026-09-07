@@ -106,16 +106,15 @@ const ForgotPassword = () => {
 
       if (res.data.success) {
         setStep(3);
-        setSuccessMessage('Password reset successfully! Redirecting to sign in...');
+        setSuccessMessage('Password reset successfully! Redirecting to Sign In page...');
         
-        // Auto-login or redirect after 2.2 seconds
+        // Remove transient token and redirect strictly to login page
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        
         setTimeout(() => {
-          if (res.data.token && res.data.user) {
-            window.location.href = '/';
-          } else {
-            navigate('/login');
-          }
-        }, 2200);
+          navigate('/login');
+        }, 1500);
       }
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Failed to reset password. Please verify your OTP.');
