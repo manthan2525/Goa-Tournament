@@ -14,15 +14,18 @@ import {
   updateTournamentGroups,
   getOrganizerTournaments,
 } from '../controllers/tournamentController.js';
-import { protect, authorize } from '../middleware/authMiddleware.js';
+import { protect, authorize, optionalAuth } from '../middleware/authMiddleware.js';
 import { upload } from '../middleware/uploadMiddleware.js';
+import { getTournamentComments, createComment } from '../controllers/commentController.js';
 
 const router = express.Router();
 
-// Public routes
+// Public / Optionally Authenticated routes
 router.get('/', getTournaments);
 router.get('/:id', getTournamentById);
 router.get('/:id/groups', getTournamentGroups);
+router.get('/:tournamentId/comments', optionalAuth, getTournamentComments);
+router.post('/:tournamentId/comments', protect, createComment);
 
 // Protected Organizer routes
 router.get(

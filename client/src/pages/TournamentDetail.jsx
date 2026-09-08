@@ -30,6 +30,7 @@ import {
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
+import TournamentComments from '../components/TournamentComments';
 import FixtureBracket from '../components/FixtureBracket';
 import StandingsTable from '../components/StandingsTable';
 import RegisterModal from '../components/RegisterModal';
@@ -941,6 +942,9 @@ const TournamentDetail = () => {
           </div>
         </div>
       )}
+
+      {/* 💬 Tournament Discussion & Organizer Replies */}
+      <TournamentComments tournament={tournament} isOrganizer={isTournamentOwner} />
 
       {/* Modals */}
       {showRegisterModal && (

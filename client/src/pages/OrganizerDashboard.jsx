@@ -37,6 +37,7 @@ import TeamDetailsModal from '../components/TeamDetailsModal';
 import FixtureWarningModal from '../components/FixtureWarningModal';
 import { getRegenerateWarning } from '../utils/fixtureWarnings';
 import { STATUS_COLORS, formatLocation } from '../utils/constants';
+import OrganizerCommentsTab from '../components/OrganizerCommentsTab';
 
 const OrganizerDashboard = () => {
   const { user } = useAuth();
@@ -352,6 +353,18 @@ const OrganizerDashboard = () => {
           }`}
         >
           Participant Verification Center
+        </button>
+
+        <button
+          onClick={() => setActiveTab('comments')}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+            activeTab === 'comments'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+          }`}
+        >
+          <MessageSquare className="w-3.5 h-3.5" />
+          <span>Comments & Q&A</span>
         </button>
       </div>
 
@@ -860,6 +873,9 @@ const OrganizerDashboard = () => {
           )}
         </div>
       )}
+
+      {/* TAB 3: Comments & Organizer Q&A */}
+      {activeTab === 'comments' && <OrganizerCommentsTab />}
 
       {/* Edit Tournament Modal */}
       {selectedTournamentForEdit && (

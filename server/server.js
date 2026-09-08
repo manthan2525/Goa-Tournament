@@ -15,6 +15,7 @@ import paymentRoutes from './routes/paymentRoutes.js';
 import matchRoutes from './routes/matchRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import commentRoutes from './routes/commentRoutes.js';
 
 dotenv.config();
 
@@ -69,6 +70,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/matches', matchRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/comments', commentRoutes);
 
 // Error Handling Middleware
 app.use(notFoundHandler);

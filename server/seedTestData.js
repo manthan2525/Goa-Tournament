@@ -9,6 +9,7 @@ import Match from './models/Match.js';
 import Registration from './models/Registration.js';
 import Notification from './models/Notification.js';
 import Payment from './models/Payment.js';
+import Comment from './models/Comment.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -488,6 +489,85 @@ const seedTestData = async () => {
       await notif.save();
     }
     console.log('Seeded notifications.');
+
+    // 6. Seed Sample Discussion Comments & Organizer Replies
+    await Comment.deleteMany({ isTestData: true });
+
+    const comment1 = await Comment.create({
+      tournament: t1._id,
+      user: seededPlayers[0]._id,
+      text: 'Will registration close before the tournament starts, or are spot registrations allowed?',
+      isOrganizerReply: false,
+      isTestData: true,
+    });
+
+    await Comment.create({
+      tournament: t1._id,
+      user: seededOrganizers[0]._id,
+      parentComment: comment1._id,
+      text: 'Registration closes 2 days before the start date. No spot registrations will be allowed.',
+      isOrganizerReply: true,
+      isTestData: true,
+    });
+
+    const comment2 = await Comment.create({
+      tournament: t1._id,
+      user: seededPlayers[1]._id,
+      text: 'Is there parking available near Fatorda Stadium main gate?',
+      isOrganizerReply: false,
+      isTestData: true,
+    });
+
+    await Comment.create({
+      tournament: t1._id,
+      user: seededOrganizers[0]._id,
+      parentComment: comment2._id,
+      text: 'Yes, designated parking Gate 3 is open for all tournament participants.',
+      isOrganizerReply: true,
+      isTestData: true,
+    });
+
+    const t2 = seededTournaments[1];
+    if (t2) {
+      const comment3 = await Comment.create({
+        tournament: t2._id,
+        user: seededPlayers[2]._id,
+        text: 'Are there any restrictions on maximum squad size for T20?',
+        isOrganizerReply: false,
+        isTestData: true,
+      });
+
+      await Comment.create({
+        tournament: t2._id,
+        user: seededOrganizers[1]._id,
+        parentComment: comment3._id,
+        text: 'Each team can register up to 15 players in their squad.',
+        isOrganizerReply: true,
+        isTestData: true,
+      });
+    }
+
+    const t3 = seededTournaments[2];
+    if (t3) {
+      const comment4 = await Comment.create({
+        tournament: t3._id,
+        user: seededPlayers[3]._id,
+        text: 'Is this singles or doubles category?',
+        isOrganizerReply: false,
+        isTestData: true,
+      });
+
+      await Comment.create({
+        tournament: t3._id,
+        user: seededOrganizers[2]._id,
+        parentComment: comment4._id,
+        text: 'This tournament supports Open Singles.',
+        isOrganizerReply: true,
+        isTestData: true,
+      });
+    }
+
+    console.log('Seeded discussion comments and organizer replies.');
 
     console.log('====================================================');
     console.log('TEST DATA SEED COMPLETED SUCCESSFULLY!');

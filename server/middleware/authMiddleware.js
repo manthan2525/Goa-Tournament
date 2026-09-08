@@ -62,12 +62,42 @@ export const authorize = (...roles) => {
   };
 };
 
+// Optional authentication middleware (attaches req.user if token is present, proceeds cleanly if guest)
+export const optionalAuth = async (req, res, next) => {
+  try {
+    let token = null;
+
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+
+    if ((!token || token === 'none' || token === 'null') && req.cookies && req.cookies.token) {
+      token = req.cookies.token;
+    }
+
+    if (token && token !== 'none' && token !== 'null' && token !== 'undefined') {
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET || 'goa_tournament_super_secret_jwt_key_2026_mca_project'
+      );
+      const user = await User.findById(decoded.id).select('-password');
+      if (user) {
+        req.user = user;
+      }
+    }
+  } catch (error) {
+    // Ignore error for optional auth
+  }
+  next();
+};
+
 // Aliases for compatibility
 export const verifyAuth = protect;
 export const authorizeRoles = authorize;
 
 export default {
   protect,
+  optionalAuth,
   verifyAuth,
   authorize,
   authorizeRoles,
