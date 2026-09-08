@@ -185,26 +185,6 @@ const seedTestData = async () => {
         registeredTeamsCount: 5,
         isTestData: true,
       },
-      {
-        name: 'Goa Futsal Group Cup 2026',
-        sport: 'Futsal',
-        organizer: seededOrganizers[0]._id,
-        description: 'Group Stage + Knockout Finals Futsal Tournament in Panaji featuring 8 teams in Group A & Group B.',
-        venue: 'Panaji Indoor Turf Arena',
-        location: { address: 'Panaji Indoor Stadium, Panaji, Goa', latitude: 15.4989, longitude: 73.8278 },
-        startDate: new Date('2026-09-05'),
-        endDate: new Date('2026-09-12'),
-        registrationFee: 450,
-        upiId: 'goafutsal@upi',
-        format: 'GROUP_KNOCKOUT',
-        numberOfGroups: 2,
-        maxTeams: 8,
-        status: 'REGISTRATION_OPEN',
-        requireAadhaarVerification: false,
-        bannerImage: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80',
-        registeredTeamsCount: 8,
-        isTestData: true,
-      },
     ];
 
     const seededTournaments = [];
@@ -308,60 +288,7 @@ const seedTestData = async () => {
       },
     ];
 
-    // Futsal Group Cup (seededTournaments[5]) 8 Teams Registration
-    const futsalTeams = [
-      { name: 'Goa Warriors', group: 'Group A' },
-      { name: 'Margao United', group: 'Group A' },
-      { name: 'Panjim FC', group: 'Group A' },
-      { name: 'Vasco Strikers', group: 'Group A' },
-      { name: 'Salcete Futsal', group: 'Group B' },
-      { name: 'Mapusa Smashers', group: 'Group B' },
-      { name: 'Calangute Beach Boys', group: 'Group B' },
-      { name: 'Ponda Lions', group: 'Group B' },
-    ];
 
-    const futsalGroupAssignments = [];
-    const futsalTourn = seededTournaments[5];
-
-    for (let i = 0; i < futsalTeams.length; i++) {
-      const fTeam = futsalTeams[i];
-      const playerUser = seededPlayers[i % seededPlayers.length];
-      let reg = await Registration.findOne({ tournament: futsalTourn._id, user: playerUser._id });
-      if (!reg) {
-        reg = new Registration({
-          tournament: futsalTourn._id,
-          user: playerUser._id,
-          teamName: fTeam.name,
-          captainName: playerUser.name,
-          contactPhone: playerUser.phone,
-          contactEmail: playerUser.email,
-          contactWhatsapp: playerUser.whatsapp,
-          assignedGroup: fTeam.group,
-          status: 'APPROVED',
-          paymentStatus: 'VERIFIED',
-          isTestData: true,
-          playersList: [
-            { name: `${fTeam.name} Player 1`, role: 'Captain', jerseyNumber: 10 },
-            { name: `${fTeam.name} Player 2`, role: 'Forward', jerseyNumber: 7 },
-          ],
-        });
-        await reg.save();
-      } else {
-        reg.assignedGroup = fTeam.group;
-        reg.status = 'APPROVED';
-        await reg.save();
-      }
-
-      futsalGroupAssignments.push({
-        groupName: fTeam.group,
-        teamRegistrationId: reg._id,
-        teamName: fTeam.name,
-      });
-    }
-
-    futsalTourn.groupAssignments = futsalGroupAssignments;
-    await futsalTourn.save();
-    console.log('Saved 8 team registrations & group assignments for Goa Futsal Group Cup 2026.');
 
     for (const rDef of regDefs) {
       let reg = await Registration.findOne({ tournament: rDef.tournament, user: rDef.user });
