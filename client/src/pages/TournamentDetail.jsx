@@ -444,11 +444,11 @@ const TournamentDetail = () => {
         ) : (
           /* Fallback Header (No organizer banner uploaded): Clean SVG Sport Header */
           <div className={`relative h-56 w-full bg-gradient-to-br ${sportTheme.gradient} p-6 flex flex-col items-center justify-center text-center overflow-hidden`}>
-            <div className="relative z-10 p-4 rounded-2xl bg-white/10 dark:bg-slate-950/40 backdrop-blur-md border border-white/20 dark:border-slate-700/50 shadow-inner flex items-center justify-center mb-2">
+            <div className="relative z-10 flex items-center justify-center mb-2">
               <img
                 src={sportLogoPath}
                 alt={`${tournament.sport} logo`}
-                className="w-16 h-16 object-contain filter drop-shadow-md invert dark:invert-0 brightness-200 dark:brightness-100"
+                className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-md"
               />
             </div>
             <span className="relative z-10 font-display font-black text-sm tracking-widest uppercase text-white/90 drop-shadow-sm flex items-center gap-1.5">

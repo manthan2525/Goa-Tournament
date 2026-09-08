@@ -49,12 +49,12 @@ const TournamentCard = ({ tournament }) => {
         <div className="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-white/5 blur-xl pointer-events-none" />
         <div className="absolute -left-8 -top-8 w-32 h-32 rounded-full bg-white/5 blur-xl pointer-events-none" />
 
-        {/* Clean SVG Sport Logo */}
-        <div className="relative z-10 p-3 rounded-2xl bg-white/10 dark:bg-slate-950/40 backdrop-blur-md border border-white/20 dark:border-slate-700/50 shadow-inner flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
+        {/* Clean Sport Logo Badge */}
+        <div className="relative z-10 flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
           <img
             src={sportLogoPath}
             alt={`${tournament.sport} logo`}
-            className="w-12 h-12 object-contain filter drop-shadow-md invert dark:invert-0 brightness-200 dark:brightness-100"
+            className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-md"
           />
         </div>
 

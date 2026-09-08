@@ -277,8 +277,8 @@ const AdminDashboard = () => {
             ) : stats?.recentTournaments?.length > 0 ? (
               stats.recentTournaments.map((t) => (
                 <div key={t._id} className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center flex-shrink-0 overflow-hidden p-2">
-                    <img src={getSportLogo(t.sport)} alt={t.name} className="w-full h-full object-contain filter dark:invert" />
+                  <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center flex-shrink-0 overflow-hidden p-1">
+                    <img src={getSportLogo(t.sport)} alt={t.name} className="w-full h-full object-contain" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">{t.name}</p>

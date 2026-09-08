@@ -182,7 +182,7 @@ const SportLiveCard = ({ match }) => {
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50 flex items-center gap-1.5">
-            <img src={logoPath} alt={sport} className="w-4 h-4 object-contain filter dark:invert" />
+            <img src={logoPath} alt={sport} className="w-5 h-5 object-contain" />
             <span>{theme.emoji} {sport}</span>
           </span>
           <span className="text-xs font-mono font-semibold text-slate-600 dark:text-slate-400 truncate">{match.round}</span>
