@@ -47,7 +47,10 @@ const formatRelativeTime = (dateString) => {
 
 const TournamentComments = ({ tournament, isOrganizer: isPropOrganizer }) => {
   const { user, isAuthenticated } = useAuth();
-  const socket = useSocket();
+  const socketContext = useSocket();
+  const socket = socketContext?.socket;
+  const joinTournament = socketContext?.joinTournament;
+  const leaveTournament = socketContext?.leaveTournament;
 
   const tournamentId = tournament?._id || tournament?.id;
   const isTournamentOrganizer =
@@ -126,9 +129,11 @@ const TournamentComments = ({ tournament, isOrganizer: isPropOrganizer }) => {
 
   // Socket.IO real-time updates
   useEffect(() => {
-    if (!socket || !tournamentId) return;
+    if (!tournamentId) return;
 
-    socket.emit('join_tournament', tournamentId);
+    if (joinTournament) {
+      joinTournament(tournamentId);
+    }
 
     const handleCommentAdded = () => {
       fetchComments(1, false);
@@ -146,21 +151,27 @@ const TournamentComments = ({ tournament, isOrganizer: isPropOrganizer }) => {
       fetchComments(1, false);
     };
 
-    socket.on('comment_added', handleCommentAdded);
-    socket.on('comment_reply_added', handleCommentAdded);
-    socket.on('comment_updated', handleCommentUpdated);
-    socket.on('comment_deleted', handleCommentDeleted);
-    socket.on('comment_like_toggled', handleLikeToggled);
+    if (socket && typeof socket.on === 'function') {
+      socket.on('comment_added', handleCommentAdded);
+      socket.on('comment_reply_added', handleCommentAdded);
+      socket.on('comment_updated', handleCommentUpdated);
+      socket.on('comment_deleted', handleCommentDeleted);
+      socket.on('comment_like_toggled', handleLikeToggled);
+    }
 
     return () => {
-      socket.emit('leave_tournament', tournamentId);
-      socket.off('comment_added', handleCommentAdded);
-      socket.off('comment_reply_added', handleCommentAdded);
-      socket.off('comment_updated', handleCommentUpdated);
-      socket.off('comment_deleted', handleCommentDeleted);
-      socket.off('comment_like_toggled', handleLikeToggled);
+      if (leaveTournament) {
+        leaveTournament(tournamentId);
+      }
+      if (socket && typeof socket.off === 'function') {
+        socket.off('comment_added', handleCommentAdded);
+        socket.off('comment_reply_added', handleCommentAdded);
+        socket.off('comment_updated', handleCommentUpdated);
+        socket.off('comment_deleted', handleCommentDeleted);
+        socket.off('comment_like_toggled', handleLikeToggled);
+      }
     };
-  }, [socket, tournamentId, fetchComments]);
+  }, [socket, tournamentId, fetchComments, joinTournament, leaveTournament]);
 
   // Handle Post Main Comment
   const handlePostComment = async (e) => {
