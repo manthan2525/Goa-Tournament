@@ -1,7 +1,46 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-  <circle cx="12" cy="12" r="10"/>
-  <path d="M5.5 5.5l13 13"/>
-  <path d="M18.5 5.5l-13 13"/>
-  <path d="M12 2v20"/>
-  <path d="M2 12h20"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <radialGradient id="bballGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f97316" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#c2410c" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="bballLeather" cx="35%" cy="32%" r="68%">
+      <stop offset="0%" stop-color="#fb923c"/>
+      <stop offset="45%" stop-color="#f97316"/>
+      <stop offset="80%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#9a3412"/>
+    </radialGradient>
+
+    <filter id="shadowBB" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="5" stdDeviation="3.5" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <circle cx="50" cy="50" r="46" fill="url(#bballGlow)"/>
+
+  <!-- Net Hoop Backing -->
+  <path d="M20 70 Q50 90 80 70" stroke="#f97316" stroke-width="3" fill="none" opacity="0.6"/>
+  <path d="M30 75 L35 90 M40 78 L43 93 M50 80 L50 95 M60 78 L57 93 M70 75 L65 90" stroke="#fed7aa" stroke-width="1.2" opacity="0.5"/>
+
+  <g filter="url(#shadowBB)">
+    <!-- Basketball Base -->
+    <circle cx="50" cy="46" r="32" fill="url(#bballLeather)"/>
+
+    <!-- Black Ribbed Seam Lines -->
+    <!-- Center Vertical Line -->
+    <line x1="50" y1="14" x2="50" y2="78" stroke="#1c1917" stroke-width="2.2"/>
+    <!-- Center Horizontal Line -->
+    <line x1="18" y1="46" x2="82" y2="46" stroke="#1c1917" stroke-width="2.2"/>
+    <!-- Left Curve Seam -->
+    <path d="M26 24 C40 34 40 58 26 68" stroke="#1c1917" stroke-width="2.2" fill="none"/>
+    <!-- Right Curve Seam -->
+    <path d="M74 24 C60 34 60 58 74 68" stroke="#1c1917" stroke-width="2.2" fill="none"/>
+
+    <!-- Outer Rim Shading -->
+    <circle cx="50" cy="46" r="32" stroke="#7c2d12" stroke-width="1.5" fill="none" opacity="0.6"/>
+
+    <!-- Gloss Specular Highlight -->
+    <ellipse cx="40" cy="28" rx="8" ry="4.5" transform="rotate(-25 40 28)" fill="#ffffff" opacity="0.4"/>
+  </g>
 </svg>

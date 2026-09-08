@@ -1,11 +1,90 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M14.5 4.5a5.5 5.5 0 1 0-7.8 7.8 5.5 5.5 0 0 0 7.8-7.8z"/>
-  <path d="M6.7 12.3L2 17"/>
-  <path d="M12.3 6.7L17 2"/>
-  <line x1="8.5" y1="6.5" x2="12.5" y2="10.5"/>
-  <line x1="6.5" y1="8.5" x2="10.5" y2="12.5"/>
-  <circle cx="18" cy="18" r="2"/>
-  <path d="M16 16l-3 3"/>
-  <path d="M18 15l1.5-2.5"/>
-  <path d="M19 17l2.5-1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <!-- Background Glow -->
+    <radialGradient id="badmintonGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Metallic Racket Frame -->
+    <linearGradient id="racketFrame" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="40%" stop-color="#0284c7"/>
+      <stop offset="70%" stop-color="#1d4ed8"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+
+    <!-- Shuttle Cork -->
+    <radialGradient id="corkGrad" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="50%" stop-color="#eab308"/>
+      <stop offset="100%" stop-color="#a16207"/>
+    </radialGradient>
+
+    <!-- Feather Gradient -->
+    <linearGradient id="featherGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="80%" stop-color="#f1f5f9"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </linearGradient>
+
+    <filter id="shadowBadminton" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Aura -->
+  <circle cx="50" cy="50" r="45" fill="url(#badmintonGlow)"/>
+
+  <g filter="url(#shadowBadminton)">
+    <!-- Pro Badminton Racket (Angled) -->
+    <g transform="rotate(-28 50 50)">
+      <!-- Oval Head Frame -->
+      <ellipse cx="50" cy="32" rx="18" ry="22" stroke="url(#racketFrame)" stroke-width="3.5" fill="none"/>
+      <!-- Inner Strings Mesh Pattern -->
+      <g stroke="#bae6fd" stroke-width="0.7" opacity="0.65">
+        <!-- Vertical Strings -->
+        <line x1="38" y1="16" x2="38" y2="48"/>
+        <line x1="42" y1="12" x2="42" y2="52"/>
+        <line x1="46" y1="10" x2="46" y2="54"/>
+        <line x1="50" y1="10" x2="50" y2="54"/>
+        <line x1="54" y1="10" x2="54" y2="54"/>
+        <line x1="58" y1="12" x2="58" y2="52"/>
+        <line x1="62" y1="16" x2="62" y2="48"/>
+
+        <!-- Horizontal Strings -->
+        <line x1="34" y1="20" x2="66" y2="20"/>
+        <line x1="32" y1="26" x2="68" y2="26"/>
+        <line x1="32" y1="32" x2="68" y2="32"/>
+        <line x1="32" y1="38" x2="68" y2="38"/>
+        <line x1="34" y1="44" x2="66" y2="44"/>
+      </g>
+
+      <!-- Throat / T-Joint -->
+      <path d="M44 52 L50 60 L56 52" stroke="url(#racketFrame)" stroke-width="3" fill="none"/>
+
+      <!-- Shaft -->
+      <line x1="50" y1="60" x2="50" y2="84" stroke="url(#racketFrame)" stroke-width="2.8"/>
+
+      <!-- Handle Grip -->
+      <rect x="47.5" y="84" width="5" height="15" rx="1.5" fill="#1e293b"/>
+      <line x1="47.5" y1="88" x2="52.5" y2="88" stroke="#3b82f6" stroke-width="1.2"/>
+      <line x1="47.5" y1="92" x2="52.5" y2="92" stroke="#3b82f6" stroke-width="1.2"/>
+    </g>
+
+    <!-- Shuttlecock Flying in Top Right -->
+    <g transform="translate(42, 22) rotate(35)">
+      <!-- Cork Base -->
+      <path d="M12 36 A6 6 0 0 1 24 36 Z" fill="url(#corkGrad)"/>
+
+      <!-- Feathers Fan -->
+      <path d="M12 36 L4 12 L9 10 L15 32" fill="url(#featherGrad)" stroke="#cbd5e1" stroke-width="0.5"/>
+      <path d="M15 34 L12 8 L18 8 L18 34" fill="url(#featherGrad)" stroke="#cbd5e1" stroke-width="0.5"/>
+      <path d="M18 34 L21 10 L27 12 L24 36" fill="url(#featherGrad)" stroke="#cbd5e1" stroke-width="0.5"/>
+
+      <!-- Feather Binding Thread Rings -->
+      <path d="M8 20 C12 22 20 22 24 20" stroke="#0284c7" stroke-width="1.2" fill="none"/>
+      <path d="M10 27 C14 29 18 29 22 27" stroke="#0284c7" stroke-width="1.2" fill="none"/>
+    </g>
+  </g>
 </svg>

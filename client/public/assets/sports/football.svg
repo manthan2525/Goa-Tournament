@@ -1,9 +1,87 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-  <circle cx="12" cy="12" r="10"/>
-  <path d="M12 6.5l3.2 2.3-1.2 3.7h-4l-1.2-3.7z"/>
-  <path d="M12 6.5V2"/>
-  <path d="M15.2 8.8L19.5 7.5"/>
-  <path d="M14 12.5l2.7 3.5"/>
-  <path d="M10 12.5L7.3 16"/>
-  <path d="M8.8 8.8L4.5 7.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <!-- Background Aura -->
+    <radialGradient id="footballGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#059669" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Ball Shading Base -->
+    <radialGradient id="ballBase" cx="38%" cy="32%" r="68%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="55%" stop-color="#f1f5f9"/>
+      <stop offset="85%" stop-color="#cbd5e1"/>
+      <stop offset="100%" stop-color="#94a3b8"/>
+    </radialGradient>
+
+    <!-- Black Hexagon Gradient -->
+    <linearGradient id="blackPanel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="50%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <!-- Pitch Arc Gradient -->
+    <linearGradient id="grassArc" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="50%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+
+    <filter id="shadowFB" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="5" stdDeviation="3.5" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Aura -->
+  <circle cx="50" cy="50" r="46" fill="url(#footballGlow)"/>
+
+  <!-- Grass Swoosh / Arc -->
+  <path d="M12 72 Q50 92 88 72 Q50 82 12 72" fill="url(#grassArc)" opacity="0.85"/>
+
+  <g filter="url(#shadowFB)">
+    <!-- Ball Main Spherical Base -->
+    <circle cx="50" cy="48" r="32" fill="url(#ballBase)"/>
+
+    <!-- Center Pentagon -->
+    <polygon points="50,36 59,42 56,53 44,53 41,42" fill="url(#blackPanel)"/>
+
+    <!-- Top Left Pentagon -->
+    <polygon points="32,24 41,20 46,28 40,35 30,32" fill="url(#blackPanel)"/>
+
+    <!-- Top Right Pentagon -->
+    <polygon points="68,24 70,32 60,35 54,28 59,20" fill="url(#blackPanel)"/>
+
+    <!-- Bottom Center Pentagon -->
+    <polygon points="50,68 57,63 54,77 46,77 43,63" fill="url(#blackPanel)"/>
+
+    <!-- Left Pentagon -->
+    <polygon points="21,46 29,42 34,50 29,58 20,53" fill="url(#blackPanel)"/>
+
+    <!-- Right Pentagon -->
+    <polygon points="79,46 80,53 71,58 66,50 71,42" fill="url(#blackPanel)"/>
+
+    <!-- Connecting Seam Lines -->
+    <!-- Center to top left -->
+    <line x1="41" y1="42" x2="40" y2="35" stroke="#475569" stroke-width="1.2"/>
+    <!-- Center to top right -->
+    <line x1="59" y1="42" x2="60" y2="35" stroke="#475569" stroke-width="1.2"/>
+    <!-- Center to bottom -->
+    <line x1="56" y1="53" x2="57" y2="63" stroke="#475569" stroke-width="1.2"/>
+    <line x1="44" y1="53" x2="43" y2="63" stroke="#475569" stroke-width="1.2"/>
+    <!-- Center top to top border -->
+    <line x1="50" y1="36" x2="50" y2="25" stroke="#475569" stroke-width="1.2"/>
+    <!-- Left connecting lines -->
+    <line x1="41" y1="42" x2="34" y2="50" stroke="#475569" stroke-width="1.2"/>
+    <line x1="44" y1="53" x2="34" y2="50" stroke="#475569" stroke-width="1.2"/>
+    <!-- Right connecting lines -->
+    <line x1="59" y1="42" x2="66" y2="50" stroke="#475569" stroke-width="1.2"/>
+    <line x1="56" y1="53" x2="66" y2="50" stroke="#475569" stroke-width="1.2"/>
+
+    <!-- Ball Outer Rim Shadow for 3D depth -->
+    <circle cx="50" cy="48" r="32" stroke="#64748b" stroke-width="1.5" fill="none" opacity="0.4"/>
+
+    <!-- Gloss Specular Highlight -->
+    <ellipse cx="40" cy="30" rx="9" ry="5" transform="rotate(-25 40 30)" fill="#ffffff" opacity="0.5"/>
+  </g>
 </svg>

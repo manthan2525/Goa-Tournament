@@ -1,4 +1,58 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M12.5 3a6.5 6.5 0 0 0-6.5 6.5c0 2.2 1.1 4.2 2.8 5.4l-2.8 5.6a1 1 0 0 0 1.4 1.4l5.6-2.8a6.48 6.48 0 0 0 6-9.6A6.5 6.5 0 0 0 12.5 3z"/>
-  <circle cx="18" cy="18" r="2"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <radialGradient id="ttGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#0891b2" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Red Paddle Face -->
+    <radialGradient id="redRubber" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#f87171"/>
+      <stop offset="50%" stop-color="#dc2626"/>
+      <stop offset="100%" stop-color="#991b1b"/>
+    </radialGradient>
+
+    <!-- Wood Handle -->
+    <linearGradient id="handleWood" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#fde047"/>
+      <stop offset="50%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+
+    <!-- Ping Pong Ball -->
+    <radialGradient id="pingBallGrad" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="70%" stop-color="#f1f5f9"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </radialGradient>
+
+    <filter id="shadowTT" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="5" stdDeviation="3.5" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <circle cx="50" cy="50" r="46" fill="url(#ttGlow)"/>
+
+  <!-- Motion Swoosh Arc -->
+  <path d="M22 68 Q50 30 78 32" stroke="#06b6d4" stroke-width="2.5" stroke-dasharray="3 3" fill="none" opacity="0.7"/>
+
+  <g filter="url(#shadowTT)">
+    <!-- Paddle Group (Tilted) -->
+    <g transform="rotate(-25 45 55)">
+      <!-- Blade Outer Sponge Layer -->
+      <circle cx="45" cy="42" r="25" fill="#1e293b"/>
+      <rect x="42" y="65" width="6" height="25" rx="2" fill="#1e293b"/>
+
+      <!-- Red Rubber Face -->
+      <circle cx="45" cy="42" r="23.5" fill="url(#redRubber)"/>
+
+      <!-- Handle Wood Grip -->
+      <rect x="42.5" y="65" width="5" height="25" rx="1.5" fill="url(#handleWood)"/>
+      <line x1="45" y1="65" x2="45" y2="90" stroke="#78350f" stroke-width="0.8"/>
+    </g>
+
+    <!-- 40mm White Ping Pong Ball -->
+    <circle cx="70" cy="32" r="9.5" fill="url(#pingBallGrad)"/>
+    <circle cx="67" cy="29" r="2" fill="#ffffff" opacity="0.7"/>
+  </g>
 </svg>
