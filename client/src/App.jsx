@@ -29,6 +29,7 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminOrganizers from './pages/admin/AdminOrganizers';
 import AdminTournaments from './pages/admin/AdminTournaments';
 import AdminEditTournament from './pages/admin/AdminEditTournament';
+import AdminLiveScores from './pages/admin/AdminLiveScores';
 import AdminRegistrations from './pages/admin/AdminRegistrations';
 import AdminReports from './pages/admin/AdminReports';
 import AdminActivity from './pages/admin/AdminActivity';
@@ -118,6 +119,7 @@ function App() {
                   <Route path="organizers" element={<AdminOrganizers />} />
                   <Route path="tournaments" element={<AdminTournaments />} />
                   <Route path="tournaments/:id/edit" element={<AdminEditTournament />} />
+                  <Route path="live-scores" element={<AdminLiveScores />} />
                   <Route path="registrations" element={<AdminRegistrations />} />
                   <Route path="reports" element={<AdminReports />} />
                   <Route path="activity" element={<AdminActivity />} />
