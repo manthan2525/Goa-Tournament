@@ -94,7 +94,7 @@ const AdminDashboard = () => {
         <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">
           People
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             icon={Users}
             label="Total Players"
@@ -160,7 +160,7 @@ const AdminDashboard = () => {
         <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">
           Registration Status
         </p>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 flex items-center gap-4 shadow-xs">
             <Clock className="w-8 h-8 text-amber-600 dark:text-amber-400 flex-shrink-0" />
             <div>
