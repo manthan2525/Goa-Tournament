@@ -15,8 +15,6 @@ import {
   getAdminRegistrations,
   getReports,
   getActivityLogs,
-  getAdminMatches,
-  deleteAdminMatch,
 } from '../controllers/adminController.js';
 import { protect, authorize } from '../middleware/authMiddleware.js';
 import { upload } from '../middleware/uploadMiddleware.js';
@@ -47,10 +45,6 @@ router.get('/tournaments/:id', getAdminTournamentById);
 router.put('/tournaments/:id', upload.single('bannerImage'), updateAdminTournament);
 router.delete('/tournaments/:id', deleteAdminTournament);
 
-// Live Score & Match Management
-router.get('/matches', getAdminMatches);
-router.delete('/matches/:id', deleteAdminMatch);
-
 // Registration Management
 router.get('/registrations', getAdminRegistrations);
 
@@ -59,4 +53,3 @@ router.get('/reports', getReports);
 router.get('/activity-logs', getActivityLogs);
 
 export default router;
-

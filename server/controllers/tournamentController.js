@@ -132,13 +132,6 @@ export const getTournamentById = async (req, res, next) => {
 // @route   POST /api/tournaments
 export const createTournament = async (req, res, next) => {
   try {
-    if (req.user.role === 'ADMIN') {
-      return res.status(403).json({
-        success: false,
-        message: 'Admins cannot create tournaments. Only registered Organizers can host tournaments.',
-      });
-    }
-
     const {
       name,
       sport,

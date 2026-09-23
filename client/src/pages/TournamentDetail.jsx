@@ -510,26 +510,19 @@ const TournamentDetail = () => {
 
           <div className="flex flex-wrap items-center gap-3">
             {(tournament.status === 'REGISTRATION_OPEN' || tournament.status === 'UPCOMING') && (
-              user?.role === 'ADMIN' ? (
-                <div className="px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                  Admin Account (Viewing Mode)
-                </div>
-              ) : (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (!isAuthenticated) {
-                      navigate('/login', { state: { message: 'Please login or create an account to register for this tournament.' } });
-                    } else {
-                      setShowRegisterModal(true);
-                    }
-                  }}
-                  className="px-6 py-3 rounded-xl font-display font-bold text-xs uppercase tracking-wider bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
-                >
-                  Register Team ({tournament.registrationFee === 0 ? 'FREE' : `₹${tournament.registrationFee}`})
-                </button>
-              )
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!isAuthenticated) {
+                    navigate('/login', { state: { message: 'Please login or create an account to register for this tournament.' } });
+                  } else {
+                    setShowRegisterModal(true);
+                  }
+                }}
+                className="px-6 py-3 rounded-xl font-display font-bold text-xs uppercase tracking-wider bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+              >
+                Register Team ({tournament.registrationFee === 0 ? 'FREE' : `₹${tournament.registrationFee}`})
+              </button>
             )}
 
             <button

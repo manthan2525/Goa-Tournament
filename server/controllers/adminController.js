@@ -1,7 +1,6 @@
 import User from '../models/User.js';
 import Tournament from '../models/Tournament.js';
 import Registration from '../models/Registration.js';
-import Match from '../models/Match.js';
 import ActivityLog, { logActivity } from '../models/ActivityLog.js';
 
 // @desc    Get Admin Dashboard Stats
@@ -646,82 +645,3 @@ export const getActivityLogs = async (req, res, next) => {
     next(error);
   }
 };
-
-// @desc    Get all matches for Admin (with search, status filter, tournament filter)
-// @route   GET /api/admin/matches
-export const getAdminMatches = async (req, res, next) => {
-  try {
-    const { status, search, tournamentId, page = 1, limit = 20 } = req.query;
-    const filter = {};
-
-    if (status && status !== 'ALL') {
-      filter.status = status;
-    }
-
-    if (tournamentId) {
-      filter.tournament = tournamentId;
-    }
-
-    if (search && search.trim()) {
-      const searchRegex = new RegExp(search.trim(), 'i');
-      filter.$or = [
-        { 'teamA.name': searchRegex },
-        { 'teamB.name': searchRegex },
-        { round: searchRegex },
-        { venueCourt: searchRegex },
-        { venue: searchRegex },
-      ];
-    }
-
-    const pageNum = parseInt(page, 10) || 1;
-    const limitNum = parseInt(limit, 10) || 20;
-    const skip = (pageNum - 1) * limitNum;
-
-    const matches = await Match.find(filter)
-      .populate('tournament', 'name sport venue location startDate status format')
-      .sort({ updatedAt: -1, createdAt: -1 })
-      .skip(skip)
-      .limit(limitNum);
-
-    const total = await Match.countDocuments(filter);
-
-    res.status(200).json({
-      success: true,
-      data: {
-        matches,
-        total,
-        page: pageNum,
-        pages: Math.ceil(total / limitNum) || 1,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Delete a match by Admin
-// @route   DELETE /api/admin/matches/:id
-export const deleteAdminMatch = async (req, res, next) => {
-  try {
-    const match = await Match.findById(req.params.id);
-    if (!match) {
-      return res.status(404).json({ success: false, message: 'Match not found.' });
-    }
-
-    await Match.findByIdAndDelete(req.params.id);
-    await logActivity({
-      user: req.user._id,
-      action: 'DELETE_MATCH',
-      details: `Deleted match ${match.round} (#${match.matchNumber}) from tournament ID ${match.tournament}`,
-      req,
-    });
-
-    res.status(200).json({
-      success: true,
-      message: 'Match successfully deleted by Admin.',
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-

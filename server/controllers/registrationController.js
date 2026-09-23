@@ -8,13 +8,6 @@ import { createNotification } from '../utils/notify.js';
 // @route   POST /api/registrations
 export const registerTeam = async (req, res, next) => {
   try {
-    if (req.user.role === 'ADMIN') {
-      return res.status(403).json({
-        success: false,
-        message: 'Admins cannot register to play in tournaments.',
-      });
-    }
-
     const {
       tournamentId,
       teamName,

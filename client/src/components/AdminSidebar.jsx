@@ -2,11 +2,16 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
+  Users,
+  Building2,
   Trophy,
-  Radio,
+  ClipboardList,
+  BarChart3,
+  Settings,
   LogOut,
   ShieldCheck,
   ChevronRight,
+  Activity,
   Sun,
   Moon,
 } from 'lucide-react';
@@ -15,8 +20,13 @@ import { useTheme } from '../context/ThemeContext';
 
 const navItems = [
   { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/admin/users', icon: Users, label: 'Users' },
+  { to: '/admin/organizers', icon: Building2, label: 'Organizers' },
   { to: '/admin/tournaments', icon: Trophy, label: 'Tournaments' },
-  { to: '/admin/live-scores', icon: Radio, label: 'Live Scores & Matches' },
+  { to: '/admin/registrations', icon: ClipboardList, label: 'Registrations' },
+  { to: '/admin/reports', icon: BarChart3, label: 'Reports' },
+  { to: '/admin/activity', icon: Activity, label: 'Activity Log' },
+  { to: '/admin/settings', icon: Settings, label: 'Settings' },
 ];
 
 const AdminSidebar = ({ mobileOpen, onClose }) => {
