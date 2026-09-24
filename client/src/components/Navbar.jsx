@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useSocket } from '../context/SocketContext';
 import {
   Trophy,
   Activity,
@@ -23,7 +22,6 @@ import { useTheme } from '../context/ThemeContext';
 
 const Navbar = () => {
   const { user, isAuthenticated, isOrganizer, logout } = useAuth();
-  const { isConnected } = useSocket();
   const { theme, toggleTheme, isDark } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -150,22 +148,7 @@ const Navbar = () => {
                 )}
               </button>
 
-              {/* Live Socket Status Badge */}
-              <div
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-medium border ${
-                  isConnected
-                    ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50'
-                    : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/50'
-                }`}
-                title={isConnected ? 'Real-time WebSocket Live' : 'Connecting WebSocket...'}
-              >
-                <span
-                  className={`w-1.5 h-1.5 rounded-full ${
-                    isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
-                  }`}
-                ></span>
-                {isConnected ? 'LIVE SYNC' : 'OFFLINE'}
-              </div>
+
 
               {/* In-App Notifications Dropdown */}
               {isAuthenticated && <NotificationDropdown />}
@@ -247,13 +230,6 @@ const Navbar = () => {
               </button>
 
               {isAuthenticated && <NotificationDropdown />}
-
-              <div
-                className={`w-2.5 h-2.5 rounded-full ${
-                  isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
-                }`}
-                title={isConnected ? 'Connected' : 'Offline'}
-              ></div>
 
               {isOrganizer && (
                 <Link
